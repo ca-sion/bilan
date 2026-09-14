@@ -16,10 +16,8 @@ class Auth {
     }
 
     public static function calculate_pin_from_birth_date(?string $birth_date): string {
-        if ($birth_date && preg_match('/^\d{4}-(\d{2})-(\d{2})$/', $birth_date, $m)) {
-            return $m[2] . $m[1]; // JJMM
-        }
-        return '0000';
+        $parsed = Helper::parse_birth_date($birth_date);
+        return $parsed['pin'];
     }
 
     public static function is_logged_in(): bool {

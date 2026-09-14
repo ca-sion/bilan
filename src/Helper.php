@@ -91,6 +91,47 @@ class Helper {
     }
 
     /**
+     * Analyse et extrait les composants d'une date de naissance
+     * Supporte: YYYY-MM-DD, YYYY-MM-DD HH:MM:SS, DD.MM.YYYY, DD/MM/YYYY, DD-MM-YYYY, YYYY
+     * @return array{birth_date: ?string, birth_year: int, pin: string}
+     */
+    public static function parse_birth_date(?string $raw): array {
+        if ($raw === null || trim($raw) === '') {
+            return ['birth_date' => null, 'birth_year' => 0, 'pin' => '0000'];
+        }
+
+        $raw = trim($raw);
+
+        // Format ISO : 2011-11-07 ou 2011-11-07 00:00:00 ou 2011-11-07T00:00:00
+        if (preg_match('/^(\d{4})-(\d{1,2})-(\d{1,2})/', $raw, $m)) {
+            $year = (int)$m[1];
+            $month = (int)$m[2];
+            $day = (int)$m[3];
+            $birth_date = sprintf('%04d-%02d-%02d', $year, $month, $day);
+            $pin = sprintf('%02d%02d', $day, $month); // JJMM
+            return ['birth_date' => $birth_date, 'birth_year' => $year, 'pin' => $pin];
+        }
+
+        // Format européen / suisse : 07.11.2011 ou 07/11/2011 ou 07-11-2011 (avec heure optionnelle)
+        if (preg_match('/^(\d{1,2})[\.\/\-](\d{1,2})[\.\/\-](\d{4})/', $raw, $m)) {
+            $day = (int)$m[1];
+            $month = (int)$m[2];
+            $year = (int)$m[3];
+            $birth_date = sprintf('%04d-%02d-%02d', $year, $month, $day);
+            $pin = sprintf('%02d%02d', $day, $month); // JJMM
+            return ['birth_date' => $birth_date, 'birth_year' => $year, 'pin' => $pin];
+        }
+
+        // Année seule : 2011
+        if (preg_match('/^(\d{4})$/', $raw, $m)) {
+            $year = (int)$m[1];
+            return ['birth_date' => null, 'birth_year' => $year, 'pin' => '0000'];
+        }
+
+        return ['birth_date' => null, 'birth_year' => 0, 'pin' => '0000'];
+    }
+
+    /**
      * Échappement HTML sécurisé
      */
     public static function e(?string $str): string {

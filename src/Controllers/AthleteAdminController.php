@@ -33,10 +33,8 @@ class AthleteAdminController {
         $athlete = $this->athleteRepo->findById($athlete_id);
 
         if ($athlete) {
-            $new_pin = '0000';
-            if (!empty($athlete['birth_date']) && preg_match('/^\d{4}-(\d{2})-(\d{2})$/', $athlete['birth_date'], $m)) {
-                $new_pin = $m[2] . $m[1]; // JJMM
-            }
+            $parsed = Helper::parse_birth_date($athlete['birth_date'] ?? null);
+            $new_pin = $parsed['pin'];
 
             $this->athleteRepo->resetPin($athlete_id, $new_pin);
             flash('success', "Le code PIN de {$athlete['first_name']} {$athlete['last_name']} a été réinitialisé à '{$new_pin}'.");
@@ -53,7 +51,7 @@ class AthleteAdminController {
 
         $first_name = trim((string)($_POST['first_name'] ?? ''));
         $last_name = trim((string)($_POST['last_name'] ?? ''));
-        $birth_date = trim((string)($_POST['birth_date'] ?? ''));
+        $birth_date_raw = trim((string)($_POST['birth_date'] ?? ''));
         $phone = trim((string)($_POST['phone'] ?? ''));
         $email = trim((string)($_POST['email'] ?? ''));
         $category = trim((string)($_POST['category'] ?? 'U18'));
@@ -64,13 +62,13 @@ class AthleteAdminController {
             return;
         }
 
-        $birth_year = 0;
-        $pin = '0000';
-        if ($birth_date !== '' && preg_match('/^\d{4}-(\d{2})-(\d{2})$/', $birth_date, $m)) {
-            $birth_year = (int)substr($birth_date, 0, 4);
-            $pin = $m[2] . $m[1];
-        } else {
-            $birth_date = null;
+        $parsed_birth = Helper::parse_birth_date($birth_date_raw);
+        $birth_date = $parsed_birth['birth_date'];
+        $birth_year = $parsed_birth['birth_year'];
+        $pin = $parsed_birth['pin'];
+
+        if ($birth_year > 0) {
+            $category = CategoryHelper::calculate_category($birth_year);
         }
 
         $athlete_id = $this->athleteRepo->create([
@@ -105,7 +103,7 @@ class AthleteAdminController {
         $athlete_id = (int)($_POST['athlete_id'] ?? 0);
         $first_name = trim((string)($_POST['first_name'] ?? ''));
         $last_name = trim((string)($_POST['last_name'] ?? ''));
-        $birth_date = trim((string)($_POST['birth_date'] ?? ''));
+        $birth_date_raw = trim((string)($_POST['birth_date'] ?? ''));
         $category = trim((string)($_POST['category'] ?? 'U16'));
         $phone = trim((string)($_POST['phone'] ?? ''));
         $email = trim((string)($_POST['email'] ?? ''));
@@ -124,18 +122,13 @@ class AthleteAdminController {
             return;
         }
 
-        $birth_year = (int)$athlete['birth_year'];
         $pin = (string)$athlete['access_pin'];
+        $parsed_birth = Helper::parse_birth_date($birth_date_raw);
+        $birth_date = $parsed_birth['birth_date'];
+        $birth_year = $parsed_birth['birth_year'] > 0 ? $parsed_birth['birth_year'] : (int)$athlete['birth_year'];
 
-        if ($birth_date !== '') {
-            if (preg_match('/^\d{4}-(\d{2})-(\d{2})$/', $birth_date, $m)) {
-                $birth_year = (int)substr($birth_date, 0, 4);
-                if ($pin === '0000' || empty($athlete['birth_date']) || $athlete['birth_date'] !== $birth_date) {
-                    $pin = $m[2] . $m[1];
-                }
-            }
-        } else {
-            $birth_date = null;
+        if ($parsed_birth['pin'] !== '0000' && ($pin === '0000' || empty($athlete['birth_date']) || $athlete['birth_date'] !== $birth_date)) {
+            $pin = $parsed_birth['pin'];
         }
 
         if ($birth_year > 0) {

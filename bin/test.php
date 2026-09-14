@@ -167,9 +167,22 @@ echo "\n\033[1m4. Sécurité & Codes PIN (Auth)\033[0m\n";
 
 $t->test('Calcul du code PIN à partir de la date de naissance (format JJMM)', function () use ($t) {
     $birthDate = '2008-04-19'; // 19 avril
-    $parts = explode('-', $birthDate);
-    $pin = $parts[2] . $parts[1];
+    $pin = Auth::calculate_pin_from_birth_date($birthDate);
     $t->assertEquals('1904', $pin);
+});
+
+$t->test('Parsing date avec horodatage "2011-11-07 00:00:00" (format CSV utilisateur)', function () use ($t) {
+    $parsed = Helper::parse_birth_date('2011-11-07 00:00:00');
+    $t->assertEquals('2011-11-07', $parsed['birth_date']);
+    $t->assertEquals(2011, $parsed['birth_year']);
+    $t->assertEquals('0711', $parsed['pin']);
+});
+
+$t->test('Parsing date format suisse "07.11.2011"', function () use ($t) {
+    $parsed = Helper::parse_birth_date('07.11.2011');
+    $t->assertEquals('2011-11-07', $parsed['birth_date']);
+    $t->assertEquals(2011, $parsed['birth_year']);
+    $t->assertEquals('0711', $parsed['pin']);
 });
 
 $t->test('Validation de la structure de token d\'accès aléatoire', function () use ($t) {

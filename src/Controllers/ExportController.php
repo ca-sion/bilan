@@ -65,42 +65,73 @@ class ExportController {
         $first_line = $lines[0];
         $separator = (substr_count($first_line, ';') > substr_count($first_line, ',')) ? ';' : ',';
 
-        $header = str_getcsv($first_line, $separator);
+        $header_raw = str_getcsv($first_line, $separator);
         $header_map = [];
-        foreach ($header as $idx => $col_name) {
-            $header_map[strtolower(trim($col_name))] = $idx;
+        foreach ($header_raw as $idx => $col_name) {
+            $cleaned = strtolower(trim((string)$col_name));
+            $cleaned = str_replace([' ', '_', '-', "\t"], '', $cleaned);
+            $header_map[$cleaned] = $idx;
         }
+
+        $col_aliases = [
+            'last_name'  => ['lastname', 'last_name', 'nom', 'nomdefamille', 'nomfamille'],
+            'first_name' => ['firstname', 'first_name', 'prenom', 'prénom'],
+            'birth_date' => ['birthdate', 'birth_date', 'birthyear', 'datenaissance', 'datedenaissance', 'naissance', 'anniversaire', 'dob', 'annee', 'année'],
+            'phone'      => ['phone', 'telephone', 'téléphone', 'tel', 'mobile', 'portable', 'natel'],
+            'email'      => ['email', 'e-mail', 'mail', 'courriel'],
+            'notes'      => ['notes', 'note', 'remarque', 'remarques', 'commentaire', 'commentaires']
+        ];
+
+        $has_detected_headers = false;
+        $resolved_cols = [];
+        foreach ($col_aliases as $field => $aliases) {
+            foreach ($aliases as $alias) {
+                $cleaned_alias = str_replace([' ', '_', '-'], '', strtolower($alias));
+                if (isset($header_map[$cleaned_alias])) {
+                    $resolved_cols[$field] = $header_map[$cleaned_alias];
+                    $has_detected_headers = true;
+                    break;
+                }
+            }
+        }
+
+        $start_line = $has_detected_headers ? 1 : 0;
 
         $season = $this->seasonRepo->getActive();
         $inserted = 0;
         $updated = 0;
 
-        for ($i = 1; $i < count($lines); $i++) {
+        for ($i = $start_line; $i < count($lines); $i++) {
             $line = trim($lines[$i]);
             if ($line === '') continue;
 
             $row = str_getcsv($line, $separator);
 
-            $last_name = trim($row[$header_map['last_name'] ?? 0] ?? '');
-            $first_name = trim($row[$header_map['first_name'] ?? 1] ?? '');
-            $birth_date_raw = trim($row[$header_map['birth_date'] ?? 2] ?? '');
-            $phone = trim($row[$header_map['phone'] ?? 3] ?? '');
-            $email = trim($row[$header_map['email'] ?? 4] ?? '');
-            $notes = trim($row[$header_map['notes'] ?? 5] ?? '');
+            $get_val = function(string $field, int $fallback_idx) use ($row, $resolved_cols, $has_detected_headers): string {
+                if ($has_detected_headers) {
+                    if (isset($resolved_cols[$field])) {
+                        return trim((string)($row[$resolved_cols[$field]] ?? ''));
+                    }
+                    return '';
+                }
+                return trim((string)($row[$fallback_idx] ?? ''));
+            };
+
+            $last_name = $get_val('last_name', 0);
+            $first_name = $get_val('first_name', 1);
+            $birth_date_raw = $get_val('birth_date', 2);
+            $phone = $get_val('phone', 3);
+            $email = $get_val('email', 4);
+            $notes = $get_val('notes', 5);
 
             if ($last_name === '' || $first_name === '') {
                 continue;
             }
 
-            $birth_date = null;
-            $birth_year = 0;
-            $pin = '0000';
-
-            if ($birth_date_raw !== '' && preg_match('/^\d{4}-(\d{2})-(\d{2})$/', $birth_date_raw, $m)) {
-                $birth_date = $birth_date_raw;
-                $birth_year = (int)substr($birth_date, 0, 4);
-                $pin = $m[2] . $m[1]; // JJMM
-            }
+            $parsed_birth = Helper::parse_birth_date($birth_date_raw);
+            $birth_date = $parsed_birth['birth_date'];
+            $birth_year = $parsed_birth['birth_year'];
+            $pin = $parsed_birth['pin'];
 
             $cat = 'U18';
             if ($birth_year > 0) {
