@@ -1,0 +1,33 @@
+# Protection des fichiers sensibles et configuration Apache / Infomaniak
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+
+    # Bloquer l'accès direct aux fichiers cachés ou d'environnement
+    RewriteRule ^\.env.*$ - [F,L]
+    RewriteRule ^(data|config|src|views)/.*$ - [F,L]
+    RewriteRule \.(sqlite|db|sql|log)$ - [F,L]
+
+    # Servir les fichiers existants s'ils existent réellement (css, js, images, csv)
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
+
+    # Rediriger toutes les autres requêtes vers index.php
+    RewriteRule ^(.*)$ index.php [QSA,L]
+</IfModule>
+
+# Bloquer explicitement .env pour les serveurs sans mod_rewrite
+<FilesMatch "^\.env">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+<FilesMatch "\.(sqlite|db|sql|log)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Options de sécurité
+Options -Indexes
+ServerSignature Off
