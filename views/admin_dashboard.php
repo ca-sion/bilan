@@ -160,7 +160,7 @@ ob_start();
             id="btn-launch-u16-group" 
             class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold rounded-xl transition-colors shadow"
         >
-            Lancer l'entretien groupé (2 à 4 athlètes) →
+            Lancer l'entretien groupé →
         </button>
     </div>
 
@@ -300,87 +300,129 @@ ob_start();
                                         <span>Copier lien</span>
                                     </button>
                                 </td>
-                                <td class="p-4 text-right space-x-1 whitespace-nowrap">
-                                    <?php if ($is_u16): ?>
-                                        <a 
-                                            href="<?= url('/admin/u16-group?ids=' . (int)$a['id']) ?>" 
-                                            class="inline-flex items-center px-3 py-1 bg-zinc-900 hover:bg-zinc-800 text-white font-semibold rounded-lg text-xs transition-colors align-middle"
-                                        >
-                                            Ouvrir fiche →
-                                        </a>
-                                    <?php else: ?>
-                                        <a 
-                                            href="<?= url('/admin/u18-split?' . (!empty($a['interview_id']) ? 'interview_id=' . (int)$a['interview_id'] : 'athlete_id=' . (int)$a['id'])) ?>" 
-                                            class="inline-flex items-center px-3 py-1 bg-zinc-900 hover:bg-zinc-800 text-white font-semibold rounded-lg text-xs transition-colors align-middle"
-                                        >
-                                            Entretien →
-                                        </a>
-                                    <?php endif; ?>
+                                <td class="p-4 text-right whitespace-nowrap">
+                                    <div class="inline-flex items-center justify-end gap-1.5">
+                                        <!-- 1. Bouton Principal d'entretien (uniforme pour toutes les catégories) -->
+                                        <?php if ($is_u16): ?>
+                                            <a 
+                                                href="<?= url('/admin/u16-group?ids=' . (int)$a['id']) ?>" 
+                                                class="inline-flex items-center justify-center px-2.5 py-1 bg-zinc-900 hover:bg-zinc-800 text-white font-semibold rounded-lg text-xs transition-colors h-7 shadow-xs"
+                                                title="Ouvrir l'entretien de cadrage U16"
+                                            >
+                                                <span>Entretien</span>
+                                                <span class="ml-1 text-[10px] text-zinc-400">→</span>
+                                            </a>
+                                        <?php else: ?>
+                                            <a 
+                                                href="<?= url('/admin/u18-split?' . (!empty($a['interview_id']) ? 'interview_id=' . (int)$a['interview_id'] : 'athlete_id=' . (int)$a['id'])) ?>" 
+                                                class="inline-flex items-center justify-center px-2.5 py-1 bg-zinc-900 hover:bg-zinc-800 text-white font-semibold rounded-lg text-xs transition-colors h-7 shadow-xs"
+                                                title="Ouvrir l'entretien individuel"
+                                            >
+                                                <span>Entretien</span>
+                                                <span class="ml-1 text-[10px] text-zinc-400">→</span>
+                                            </a>
+                                        <?php endif; ?>
 
-                                    <?php if (!empty($a['interview_id'])): ?>
+                                        <!-- Séparateur 1 -->
+                                        <div class="h-4 w-px bg-zinc-200 mx-0.5"></div>
+
+                                        <!-- 2. Actions liées à l'entretien (WhatsApp, PDF, Déverrouiller) -->
+                                        <?php if (!empty($a['interview_id'])): ?>
+                                            <button 
+                                                type="button" 
+                                                onclick="copyWhatsAppSynthesis(<?= (int)$a['interview_id'] ?>, this)" 
+                                                class="inline-flex items-center justify-center w-7 h-7 bg-zinc-100 hover:bg-emerald-50 text-zinc-500 hover:text-emerald-700 rounded-lg border border-zinc-200/80 hover:border-emerald-200 transition-colors"
+                                                title="Copier la synthèse WhatsApp"
+                                            >
+                                                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                                                </svg>
+                                            </button>
+                                            <a 
+                                                href="<?= url('/admin/print-summary?interview_id=' . (int)$a['interview_id']) ?>" 
+                                                target="_blank"
+                                                class="inline-flex items-center justify-center w-7 h-7 bg-zinc-100 hover:bg-zinc-200 text-zinc-500 hover:text-zinc-900 rounded-lg border border-zinc-200/80 transition-colors"
+                                                title="Imprimer / Enregistrer la fiche bilan en PDF"
+                                            >
+                                                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                                                    <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                                                    <rect x="6" y="14" width="12" height="8"></rect>
+                                                </svg>
+                                            </a>
+                                        <?php else: ?>
+                                            <span class="inline-flex items-center justify-center w-7 h-7 bg-zinc-50 text-zinc-300 rounded-lg border border-zinc-100 opacity-40 cursor-not-allowed" title="Aucun entretien actif">
+                                                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                                                </svg>
+                                            </span>
+                                            <span class="inline-flex items-center justify-center w-7 h-7 bg-zinc-50 text-zinc-300 rounded-lg border border-zinc-100 opacity-40 cursor-not-allowed" title="Aucun entretien actif">
+                                                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                                                    <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                                                    <rect x="6" y="14" width="12" height="8"></rect>
+                                                </svg>
+                                            </span>
+                                        <?php endif; ?>
+
+                                        <?php if (in_array($status, ['submitted', 'completed'], true) && !empty($a['interview_id'])): ?>
+                                            <form action="<?= url('/admin/reopen') ?>" method="POST" class="inline" onsubmit="return confirm('Déverrouiller la fiche pour permettre les modifications ?');">
+                                                <input type="hidden" name="interview_id" value="<?= (int)$a['interview_id'] ?>">
+                                                <button type="submit" class="inline-flex items-center justify-center w-7 h-7 bg-zinc-100 hover:bg-amber-50 text-zinc-500 hover:text-amber-700 rounded-lg border border-zinc-200/80 hover:border-amber-200 transition-colors" title="Déverrouiller l'entretien pour modifications">
+                                                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                                        <path d="M7 11V7a5 5 0 0 1 9.9-1"></path>
+                                                    </svg>
+                                                </button>
+                                            </form>
+                                        <?php else: ?>
+                                            <span class="inline-flex items-center justify-center w-7 h-7 bg-zinc-50 text-zinc-200 rounded-lg border border-zinc-100 opacity-20 cursor-not-allowed">
+                                                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                                                </svg>
+                                            </span>
+                                        <?php endif; ?>
+
+                                        <!-- Séparateur 2 -->
+                                        <div class="h-4 w-px bg-zinc-200 mx-0.5"></div>
+
+                                        <!-- 3. Gestion athlète (Modifier, Supprimer) -->
                                         <button 
                                             type="button" 
-                                            onclick="copyWhatsAppSynthesis(<?= (int)$a['interview_id'] ?>, this)" 
-                                            class="inline-flex items-center justify-center w-7 h-7 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-lg border border-emerald-200/80 transition-colors text-xs align-middle"
-                                            title="Copier la synthèse WhatsApp"
-                                        >
-                                            💬
-                                        </button>
-                                        <a 
-                                            href="<?= url('/admin/print-summary?interview_id=' . (int)$a['interview_id']) ?>" 
-                                            target="_blank"
-                                            class="inline-flex items-center justify-center w-7 h-7 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 rounded-lg border border-zinc-200 transition-colors text-xs align-middle"
-                                            title="Imprimer / Enregistrer la fiche bilan en PDF"
-                                        >
-                                            🖨️
-                                        </a>
-                                    <?php endif; ?>
-
-                                    <?php if (in_array($status, ['submitted', 'completed'], true) && !empty($a['interview_id'])): ?>
-                                        <form action="<?= url('/admin/reopen') ?>" method="POST" class="inline" onsubmit="return confirm('Déverrouiller la fiche pour permettre les modifications ?');">
-                                            <input type="hidden" name="interview_id" value="<?= (int)$a['interview_id'] ?>">
-                                            <button type="submit" class="inline-flex items-center justify-center w-7 h-7 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 rounded-lg border border-zinc-200 text-xs align-middle" title="Déverrouiller l'entretien pour modifications">
-                                                🔓
-                                            </button>
-                                        </form>
-                                    <?php endif; ?>
-
-                                    <!-- Bouton Modifier l'athlète -->
-                                    <button 
-                                        type="button" 
-                                        data-id="<?= (int)$a['id'] ?>"
-                                        data-firstname="<?= htmlspecialchars($a['first_name'], ENT_QUOTES) ?>"
-                                        data-lastname="<?= htmlspecialchars($a['last_name'], ENT_QUOTES) ?>"
-                                        data-birthdate="<?= htmlspecialchars($a['birth_date'] ?? '', ENT_QUOTES) ?>"
-                                        data-category="<?= htmlspecialchars($a['category'] ?? 'U16', ENT_QUOTES) ?>"
-                                        data-phone="<?= htmlspecialchars($a['phone'] ?? '', ENT_QUOTES) ?>"
-                                        data-email="<?= htmlspecialchars($a['email'] ?? '', ENT_QUOTES) ?>"
-                                        data-notes="<?= htmlspecialchars($notes_str, ENT_QUOTES) ?>"
-                                        onclick="handleEditAthleteBtn(this)"
-                                        class="inline-flex items-center justify-center w-7 h-7 bg-zinc-100 hover:bg-zinc-200 text-zinc-600 hover:text-zinc-900 rounded-lg transition-colors align-middle"
-                                        title="Modifier l'athlète"
-                                    >
-                                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                            <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
-                                        </svg>
-                                    </button>
-
-                                    <!-- Bouton Supprimer l'athlète -->
-                                    <form action="<?= url('/admin/delete-athlete') ?>" method="POST" class="inline" onsubmit="return confirm('Supprimer <?= htmlspecialchars($a['first_name'] . ' ' . $a['last_name'], ENT_QUOTES) ?> et l\'ensemble de ses bilans ?');">
-                                        <input type="hidden" name="athlete_id" value="<?= (int)$a['id'] ?>">
-                                        <button 
-                                            type="submit" 
-                                            class="inline-flex items-center justify-center w-7 h-7 bg-zinc-100 hover:bg-rose-50 text-zinc-400 hover:text-rose-600 rounded-lg transition-colors align-middle"
-                                            title="Supprimer l'athlète"
+                                            data-id="<?= (int)$a['id'] ?>"
+                                            data-firstname="<?= htmlspecialchars($a['first_name'], ENT_QUOTES) ?>"
+                                            data-lastname="<?= htmlspecialchars($a['last_name'], ENT_QUOTES) ?>"
+                                            data-birthdate="<?= htmlspecialchars($a['birth_date'] ?? '', ENT_QUOTES) ?>"
+                                            data-category="<?= htmlspecialchars($a['category'] ?? 'U16', ENT_QUOTES) ?>"
+                                            data-phone="<?= htmlspecialchars($a['phone'] ?? '', ENT_QUOTES) ?>"
+                                            data-email="<?= htmlspecialchars($a['email'] ?? '', ENT_QUOTES) ?>"
+                                            data-notes="<?= htmlspecialchars($notes_str, ENT_QUOTES) ?>"
+                                            onclick="handleEditAthleteBtn(this)"
+                                            class="inline-flex items-center justify-center w-7 h-7 bg-zinc-100 hover:bg-zinc-200 text-zinc-500 hover:text-zinc-900 rounded-lg border border-zinc-200/80 transition-colors"
+                                            title="Modifier l'athlète"
                                         >
                                             <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                <polyline points="3 6 5 6 21 6"></polyline>
-                                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                                                <line x1="10" y1="11" x2="10" y2="17"></line>
-                                                <line x1="14" y1="11" x2="14" y2="17"></line>
+                                                <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
                                             </svg>
                                         </button>
-                                    </form>
+
+                                        <form action="<?= url('/admin/delete-athlete') ?>" method="POST" class="inline" onsubmit="return confirm('Supprimer <?= htmlspecialchars($a['first_name'] . ' ' . $a['last_name'], ENT_QUOTES) ?> et l\'ensemble de ses bilans ?');">
+                                            <input type="hidden" name="athlete_id" value="<?= (int)$a['id'] ?>">
+                                            <button 
+                                                type="submit" 
+                                                class="inline-flex items-center justify-center w-7 h-7 bg-zinc-100 hover:bg-rose-50 text-zinc-400 hover:text-rose-600 rounded-lg border border-zinc-200/80 hover:border-rose-200 transition-colors"
+                                                title="Supprimer l'athlète"
+                                            >
+                                                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <polyline points="3 6 5 6 21 6"></polyline>
+                                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                                    <line x1="10" y1="11" x2="10" y2="17"></line>
+                                                    <line x1="14" y1="11" x2="14" y2="17"></line>
+                                                </svg>
+                                            </button>
+                                        </form>
+                                    </div>
                                 </td>
                             </tr>
                         <?php endforeach; ?>

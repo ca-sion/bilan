@@ -77,10 +77,13 @@ ob_start();
                 <button 
                     type="button" 
                     onclick="openModal('modal-history')" 
-                    class="px-2.5 py-1.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 text-xs font-semibold rounded-xl border border-zinc-200 transition-colors flex items-center gap-1"
+                    class="px-2.5 py-1.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 text-xs font-semibold rounded-xl border border-zinc-200 transition-colors flex items-center gap-1.5"
                     title="Consulter l'historique de la saison précédente (<?= htmlspecialchars($history['season_name'] ?? 'N-1') ?>)"
                 >
-                    <span>📜</span>
+                    <svg class="w-3.5 h-3.5 text-zinc-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 14 14"></polyline>
+                    </svg>
                     <span class="text-[11px] font-bold">N-1</span>
                 </button>
             <?php endif; ?>
@@ -88,19 +91,25 @@ ob_start();
             <a 
                 href="<?= url('/admin/print-summary?interview_id=' . (int)$interview['id']) ?>" 
                 target="_blank"
-                class="w-8 h-8 flex items-center justify-center bg-zinc-100 hover:bg-zinc-200 text-zinc-700 rounded-xl border border-zinc-200 transition-colors text-xs"
+                class="w-8 h-8 flex items-center justify-center bg-zinc-100 hover:bg-zinc-200 text-zinc-600 hover:text-zinc-900 rounded-xl border border-zinc-200 transition-colors"
                 title="Imprimer ou enregistrer la fiche bilan en PDF"
             >
-                <span>🖨️</span>
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                    <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                    <rect x="6" y="14" width="12" height="8"></rect>
+                </svg>
             </a>
 
             <button 
                 type="button" 
                 onclick="copyWhatsAppSynthesis(<?= (int)$interview['id'] ?>, this)" 
-                class="w-8 h-8 flex items-center justify-center bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-xl border border-emerald-200 shadow-sm transition-all text-xs"
+                class="w-8 h-8 flex items-center justify-center bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-xl border border-emerald-200 shadow-2xs transition-all"
                 title="Copier la synthèse WhatsApp"
             >
-                <span>💬</span>
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                </svg>
             </button>
 
             <?php if ($is_val): ?>
@@ -109,8 +118,11 @@ ob_start();
                 </span>
                 <form action="<?= url('/admin/reopen') ?>" method="POST" class="inline" onsubmit="return confirm('Déverrouiller cet entretien pour permettre des modifications ?');">
                     <input type="hidden" name="interview_id" value="<?= (int)$interview['id'] ?>">
-                    <button type="submit" class="w-8 h-8 flex items-center justify-center bg-zinc-100 hover:bg-zinc-200 text-zinc-700 rounded-xl border border-zinc-200 transition-colors text-xs" title="Déverrouiller l'entretien pour modifications">
-                        <span>🔓</span>
+                    <button type="submit" class="w-8 h-8 flex items-center justify-center bg-zinc-100 hover:bg-amber-50 text-zinc-600 hover:text-amber-700 rounded-xl border border-zinc-200 hover:border-amber-200 transition-colors" title="Déverrouiller l'entretien pour modifications">
+                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                            <path d="M7 11V7a5 5 0 0 1 9.9-1"></path>
+                        </svg>
                     </button>
                 </form>
             <?php else: ?>

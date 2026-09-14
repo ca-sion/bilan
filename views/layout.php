@@ -78,19 +78,14 @@ $is_athlete = !empty($_SESSION['athlete_id']);
             <div class="flex items-center justify-between h-16">
                 
                 <!-- Logo et Identité Club -->
-                <a href="<?= url($is_admin ? '/admin' : '/bilan') ?>" class="flex items-center gap-3 group">
-                    <div class="w-8 h-8 rounded-lg bg-zinc-900 text-white flex items-center justify-center font-black text-xs shadow-sm border border-zinc-800 group-hover:bg-rose-600 transition-colors">
-                        SION
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <span class="font-heading font-bold text-base text-zinc-900 tracking-tight">
-                            <?= htmlspecialchars(env('CLUB_NAME', 'CA Sion')) ?>
-                        </span>
-                        <span class="text-zinc-300">/</span>
-                        <span class="text-xs font-semibold text-zinc-500">
-                            Bilan de saison
-                        </span>
-                    </div>
+                <a href="<?= url($is_admin ? '/admin' : '/bilan') ?>" class="flex items-center gap-2.5 group">
+                    <span class="font-heading font-bold text-base text-zinc-900 tracking-tight group-hover:text-rose-600 transition-colors">
+                        <?= htmlspecialchars(env('CLUB_NAME', 'CA Sion')) ?>
+                    </span>
+                    <span class="text-zinc-300">/</span>
+                    <span class="text-xs font-semibold text-zinc-500">
+                        Débriefing de saison
+                    </span>
                 </a>
 
                 <!-- Navigation droite -->
@@ -152,10 +147,10 @@ $is_athlete = !empty($_SESSION['athlete_id']);
         <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
             <div class="flex items-center gap-2 font-medium text-zinc-600">
                 <span class="w-2 h-2 rounded-full bg-rose-600"></span>
-                <span><?= htmlspecialchars(env('CLUB_NAME', 'CA Sion')) ?> &bull; Athlétisme</span>
+                <span><?= htmlspecialchars(env('CLUB_NAME', 'CA Sion')) ?></span>
             </div>
             <div class="text-zinc-400 text-[11px]">
-                Plateforme de débriefing et cadrage de saison
+                Plateforme de débriefing
             </div>
         </div>
     </footer>
