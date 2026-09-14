@@ -76,7 +76,7 @@ class ExportController {
         $col_aliases = [
             'last_name'  => ['lastname', 'last_name', 'nom', 'nomdefamille', 'nomfamille'],
             'first_name' => ['firstname', 'first_name', 'prenom', 'prénom'],
-            'birth_date' => ['birthdate', 'birth_date', 'birthyear', 'datenaissance', 'datedenaissance', 'naissance', 'anniversaire', 'dob', 'annee', 'année'],
+            'birth_date' => ['birthdate', 'birthday', 'birth_date', 'birthyear', 'datenaissance', 'datedenaissance', 'naissance', 'anniversaire', 'dob', 'annee', 'année'],
             'phone'      => ['phone', 'telephone', 'téléphone', 'tel', 'mobile', 'portable', 'natel'],
             'email'      => ['email', 'e-mail', 'mail', 'courriel'],
             'notes'      => ['notes', 'note', 'remarque', 'remarques', 'commentaire', 'commentaires']
