@@ -116,9 +116,92 @@ ob_start();
 
             <!-- Tableau Objectifs vs Réalisations -->
             <div class="space-y-3">
-                <label class="block text-sm font-semibold text-slate-800">
-                    Objectifs
-                </label>
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                    <label class="block text-sm font-semibold text-slate-800">
+                        Objectifs
+                    </label>
+                    <?php if (!empty($previous_summary) && $previous_summary['has_goals']): ?>
+                        <span class="text-[11px] font-bold text-indigo-700 flex items-center gap-1">
+                            <span>💡</span> Historique disponible (saison <?= htmlspecialchars($previous_summary['season_name']) ?>)
+                        </span>
+                    <?php endif; ?>
+                </div>
+
+                <?php if (!empty($previous_summary) && $previous_summary['has_goals']): ?>
+                    <div class="p-3.5 bg-indigo-50/80 border border-indigo-200/90 rounded-xl space-y-2.5">
+                        <div class="flex items-center justify-between gap-2">
+                            <span class="text-xs font-bold text-indigo-950 flex items-center gap-1.5">
+                                <svg class="w-4 h-4 text-indigo-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                Tes objectifs fixés en <?= htmlspecialchars($previous_summary['season_name']) ?>
+                            </span>
+                            <span class="text-[10px] text-indigo-600 font-medium hidden sm:inline">Clique pour insérer dans le champ</span>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+                            <?php if (!empty($previous_summary['perf_goal'])): ?>
+                                <div class="p-2.5 bg-white rounded-lg border border-indigo-100 shadow-2xs flex flex-col justify-between gap-2">
+                                    <div>
+                                        <span class="text-[10px] font-bold uppercase tracking-wider text-indigo-700 block">Performance</span>
+                                        <p class="text-xs text-slate-800 font-medium line-clamp-2" title="<?= htmlspecialchars($previous_summary['perf_goal']) ?>">
+                                            « <?= htmlspecialchars($previous_summary['perf_goal']) ?> »
+                                        </p>
+                                    </div>
+                                    <?php if (!$is_locked): ?>
+                                        <button 
+                                            type="button" 
+                                            onclick="insertPreviousGoal('goals_results[goal_1_perf]', <?= htmlspecialchars(json_encode($previous_summary['perf_goal']), ENT_QUOTES, 'UTF-8') ?>)"
+                                            class="self-start text-[11px] font-bold text-indigo-700 hover:text-indigo-900 bg-indigo-50 hover:bg-indigo-100 px-2 py-0.5 rounded transition-colors"
+                                        >
+                                            📋 Reprendre en objectif 1
+                                        </button>
+                                    <?php endif; ?>
+                                </div>
+                            <?php endif; ?>
+
+                            <?php if (!empty($previous_summary['comp_goal'])): ?>
+                                <div class="p-2.5 bg-white rounded-lg border border-indigo-100 shadow-2xs flex flex-col justify-between gap-2">
+                                    <div>
+                                        <span class="text-[10px] font-bold uppercase tracking-wider text-indigo-700 block">Compétition</span>
+                                        <p class="text-xs text-slate-800 font-medium line-clamp-2" title="<?= htmlspecialchars($previous_summary['comp_goal']) ?>">
+                                            « <?= htmlspecialchars($previous_summary['comp_goal']) ?> »
+                                        </p>
+                                    </div>
+                                    <?php if (!$is_locked): ?>
+                                        <button 
+                                            type="button" 
+                                            onclick="insertPreviousGoal('goals_results[goal_2_selection]', <?= htmlspecialchars(json_encode($previous_summary['comp_goal']), ENT_QUOTES, 'UTF-8') ?>)"
+                                            class="self-start text-[11px] font-bold text-indigo-700 hover:text-indigo-900 bg-indigo-50 hover:bg-indigo-100 px-2 py-0.5 rounded transition-colors"
+                                        >
+                                            📋 Reprendre en objectif 2
+                                        </button>
+                                    <?php endif; ?>
+                                </div>
+                            <?php endif; ?>
+
+                            <?php if (!empty($previous_summary['attitude_goal'])): ?>
+                                <div class="p-2.5 bg-white rounded-lg border border-indigo-100 shadow-2xs flex flex-col justify-between gap-2">
+                                    <div>
+                                        <span class="text-[10px] font-bold uppercase tracking-wider text-indigo-700 block">Attitude / Engagement</span>
+                                        <p class="text-xs text-slate-800 font-medium line-clamp-2" title="<?= htmlspecialchars($previous_summary['attitude_goal']) ?>">
+                                            « <?= htmlspecialchars($previous_summary['attitude_goal']) ?> »
+                                        </p>
+                                    </div>
+                                    <?php if (!$is_locked): ?>
+                                        <button 
+                                            type="button" 
+                                            onclick="insertPreviousGoal('goals_results[goal_3_attitude]', <?= htmlspecialchars(json_encode($previous_summary['attitude_goal']), ENT_QUOTES, 'UTF-8') ?>)"
+                                            class="self-start text-[11px] font-bold text-indigo-700 hover:text-indigo-900 bg-indigo-50 hover:bg-indigo-100 px-2 py-0.5 rounded transition-colors"
+                                        >
+                                            📋 Reprendre en objectif 3
+                                        </button>
+                                    <?php endif; ?>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                <?php endif; ?>
+
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200/80">
                     
                     <!-- Objectif 1 : Performance -->
@@ -147,7 +230,7 @@ ob_start();
 
                     <!-- Objectif 2 : Sélection / Compétitions -->
                     <div class="pt-2 sm:pt-0">
-                        <span class="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1">Objectif de compétitions / sélections</span>
+                        <span class="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1">Objectif de compétition / sélection</span>
                         <input 
                             type="text" 
                             name="goals_results[goal_2_selection]" 
@@ -406,9 +489,21 @@ ob_start();
             <!-- Disciplines souhaitées (Saisie libre) -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                    <label for="chosen_discipline_1" class="block text-sm font-semibold text-slate-800 mb-1">
-                        Discipline 1
-                    </label>
+                    <div class="flex items-center justify-between gap-2 mb-1">
+                        <label for="chosen_discipline_1" class="block text-sm font-semibold text-slate-800">
+                            Discipline 1
+                        </label>
+                        <?php if (!empty($previous_summary['discipline_1_label']) && $previous_summary['discipline_1_label'] !== 'Aucune' && empty($answers['chosen_discipline_1']) && !$is_locked): ?>
+                            <button 
+                                type="button" 
+                                onclick="insertPreviousGoal('chosen_discipline_1', <?= htmlspecialchars(json_encode($previous_summary['discipline_1_label']), ENT_QUOTES, 'UTF-8') ?>)"
+                                class="text-[11px] font-semibold text-indigo-700 hover:text-indigo-900 bg-indigo-50 hover:bg-indigo-100 px-2 py-0.5 rounded transition-colors"
+                                title="Reprendre la discipline principale de la saison passée"
+                            >
+                                📋 Reprendre (<?= htmlspecialchars($previous_summary['discipline_1_label']) ?>)
+                            </button>
+                        <?php endif; ?>
+                    </div>
                     <input 
                         type="text" 
                         name="chosen_discipline_1" 
@@ -421,9 +516,21 @@ ob_start();
                     >
                 </div>
                 <div>
-                    <label for="chosen_discipline_2" class="block text-sm font-semibold text-slate-800 mb-1">
-                        Discipline 2 (optionnelle)
-                    </label>
+                    <div class="flex items-center justify-between gap-2 mb-1">
+                        <label for="chosen_discipline_2" class="block text-sm font-semibold text-slate-800">
+                            Discipline 2 (optionnelle)
+                        </label>
+                        <?php if (!empty($previous_summary['discipline_2_label']) && $previous_summary['discipline_2_label'] !== 'Aucune' && empty($answers['chosen_discipline_2']) && !$is_locked): ?>
+                            <button 
+                                type="button" 
+                                onclick="insertPreviousGoal('chosen_discipline_2', <?= htmlspecialchars(json_encode($previous_summary['discipline_2_label']), ENT_QUOTES, 'UTF-8') ?>)"
+                                class="text-[11px] font-semibold text-indigo-700 hover:text-indigo-900 bg-indigo-50 hover:bg-indigo-100 px-2 py-0.5 rounded transition-colors"
+                                title="Reprendre la discipline 2 de la saison passée"
+                            >
+                                📋 Reprendre (<?= htmlspecialchars($previous_summary['discipline_2_label']) ?>)
+                            </button>
+                        <?php endif; ?>
+                    </div>
                     <input 
                         type="text" 
                         name="chosen_discipline_2" 
@@ -535,9 +642,21 @@ ob_start();
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                    <label for="study_work_situation" class="block text-sm font-semibold text-slate-800 mb-1">
-                        Situation scolaire ou professionnelle à la rentrée
-                    </label>
+                    <div class="flex items-center justify-between gap-2 mb-1">
+                        <label for="study_work_situation" class="block text-sm font-semibold text-slate-800">
+                            Situation scolaire ou professionnelle à la rentrée
+                        </label>
+                        <?php if (!empty($previous_summary['study_work']) && empty($answers['study_work_situation']) && !$is_locked): ?>
+                            <button 
+                                type="button" 
+                                onclick="insertPreviousGoal('study_work_situation', <?= htmlspecialchars(json_encode($previous_summary['study_work']), ENT_QUOTES, 'UTF-8') ?>)"
+                                class="text-[11px] font-semibold text-indigo-700 hover:text-indigo-900 bg-indigo-50 hover:bg-indigo-100 px-2 py-0.5 rounded transition-colors"
+                                title="Reprendre la situation de la saison passée"
+                            >
+                                📋 Reprendre N-1
+                            </button>
+                        <?php endif; ?>
+                    </div>
                     <input 
                         type="text" 
                         name="study_work_situation" 
@@ -638,6 +757,24 @@ ob_start();
 </div>
 
 <script>
+function insertPreviousGoal(fieldName, textValue) {
+    if (!textValue) return;
+    const input = document.querySelector(`[name="${fieldName}"]`);
+    if (input) {
+        input.value = textValue;
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+        input.focus();
+        input.classList.add('ring-2', 'ring-indigo-500', 'bg-indigo-50/40');
+        setTimeout(() => {
+            input.classList.remove('ring-2', 'ring-indigo-500', 'bg-indigo-50/40');
+        }, 1200);
+        if (typeof showToast === 'function') {
+            showToast('Objectif inséré avec succès', 'info');
+        }
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     const formId = 'athlete-u18-form';
     const interviewId = <?= (int)$interview['id'] ?>;

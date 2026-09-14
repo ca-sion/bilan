@@ -55,6 +55,8 @@ class AthleteController {
         $is_locked = in_array($interview['status'], ['submitted', 'completed'], true);
         $category_label = CategoryHelper::get_category_label((int)$athlete['birth_year'], $athlete['category']);
 
+        $previous_summary = InterviewHistoryHelper::getPreviousSummary((int)$athlete['id'], (int)$season['id'], $this->db);
+
         if ($form_type === 'u16_1') {
             require dirname(__DIR__) . '/views/athlete_form_u16_1.php';
         } elseif ($form_type === 'u16_2') {

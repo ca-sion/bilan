@@ -532,11 +532,57 @@ $t->test('Admin : Renommer une saison (POST /admin/rename-season)', function () 
         'season_name' => $orig_name
     ];
     $ctrl->rename_season();
-    $_POST = [];
-    unset($_SESSION['is_coach_admin']);
-
     $stmt->execute([$active_season['id']]);
     $t->assertEquals($orig_name, $stmt->fetchColumn());
+    $_POST = [];
+    unset($_SESSION['is_coach_admin']);
+});
+
+// =========================================================================
+// 8. Tests InterviewHistoryHelper (Continuité N-1)
+// =========================================================================
+echo "\n\033[1m8. Reprise d'Historique N-1 (InterviewHistoryHelper)\033[0m\n";
+
+$t->test('Historique N-1 : Athlète sans historique retourne null', function () use ($t, $db, $test_athlete, $active_season) {
+    // Athlète fictif avec ID inexistant
+    $summary = InterviewHistoryHelper::getPreviousSummary(999999, (int)$active_season['id'], $db);
+    $t->assertEquals(null, $summary);
+});
+
+$t->test('Historique N-1 : Extraction et normalisation des objectifs passés', function () use ($t, $db, $test_athlete, $active_season) {
+    // Créer une saison N-1 passée
+    $db->prepare("INSERT INTO seasons (name, is_active) VALUES ('2025-2026 (Test)', 0)")->execute();
+    $past_season_id = (int)$db->lastInsertId();
+
+    $past_answers = json_encode([
+        'target_performance' => 'Courir sous les 11.00s au 100m',
+        'target_competitions' => 'Podium Championnats suisses U18',
+        'commitment_1' => '95% d\'assiduité aux séances techniques',
+        'study_work_situation' => 'Gymnase de la Planta - 2ème année'
+    ], JSON_UNESCAPED_UNICODE);
+
+    $past_decisions = json_encode([
+        'primary_discipline' => 'sprint_court',
+        'approved_weekly_sessions' => '4'
+    ], JSON_UNESCAPED_UNICODE);
+
+    $db->prepare("
+        INSERT INTO interviews (athlete_id, season_id, interview_type, status, athlete_answers, decisions, is_validated) 
+        VALUES (?, ?, 'individual_elite', 'completed', ?, ?, 1)
+    ")->execute([$test_athlete['id'], $past_season_id, $past_answers, $past_decisions]);
+
+    $summary = InterviewHistoryHelper::getPreviousSummary((int)$test_athlete['id'], (int)$active_season['id'], $db);
+
+    $t->assert($summary !== null, 'Le résumé N-1 doit être extrait');
+    $t->assertEquals('Courir sous les 11.00s au 100m', $summary['perf_goal'] ?? null);
+    $t->assertEquals('Podium Championnats suisses U18', $summary['comp_goal'] ?? null);
+    $t->assertEquals('95% d\'assiduité aux séances techniques', $summary['attitude_goal'] ?? null);
+    $t->assertEquals('Gymnase de la Planta - 2ème année', $summary['study_work'] ?? null);
+    $t->assertEquals(true, $summary['has_goals'] ?? false);
+
+    // Nettoyage de la saison de test
+    $db->prepare("DELETE FROM interviews WHERE season_id = ?")->execute([$past_season_id]);
+    $db->prepare("DELETE FROM seasons WHERE id = ?")->execute([$past_season_id]);
 });
 
 $t->summary();

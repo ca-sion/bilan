@@ -288,10 +288,22 @@ ob_start();
 
         <!-- 4. Contrat d'attitude pour la saison prochaine -->
         <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-4">
-            <h2 class="text-lg font-bold font-heading text-slate-900 flex items-center gap-2">
-                <span class="w-6 h-6 rounded-lg bg-zinc-900 text-white flex items-center justify-center text-xs font-bold">4</span>
-                Mon engagement
-            </h2>
+            <div class="flex items-center justify-between gap-2">
+                <h2 class="text-lg font-bold font-heading text-slate-900 flex items-center gap-2">
+                    <span class="w-6 h-6 rounded-lg bg-zinc-900 text-white flex items-center justify-center text-xs font-bold">4</span>
+                    Mon engagement
+                </h2>
+                <?php if (!empty($previous_summary['attitude_goal']) && empty($answers['attitude_contract']) && !$is_locked): ?>
+                    <button 
+                        type="button" 
+                        onclick="insertPreviousGoal('attitude_contract', <?= htmlspecialchars(json_encode($previous_summary['attitude_goal']), ENT_QUOTES, 'UTF-8') ?>)"
+                        class="text-[11px] font-bold text-indigo-700 hover:text-indigo-900 bg-indigo-50 hover:bg-indigo-100 px-2.5 py-1 rounded-lg border border-indigo-200/80 transition-colors"
+                        title="Reprendre l'engagement de la saison <?= htmlspecialchars($previous_summary['season_name']) ?>"
+                    >
+                        📋 Reprendre mon engagement <?= htmlspecialchars($previous_summary['season_name']) ?>
+                    </button>
+                <?php endif; ?>
+            </div>
 
             <div>
                 <label for="attitude_contract" class="block text-sm font-semibold text-slate-800 mb-1">
@@ -346,6 +358,24 @@ ob_start();
 </div>
 
 <script>
+function insertPreviousGoal(fieldName, textValue) {
+    if (!textValue) return;
+    const input = document.querySelector(`[name="${fieldName}"]`);
+    if (input) {
+        input.value = textValue;
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+        input.focus();
+        input.classList.add('ring-2', 'ring-indigo-500', 'bg-indigo-50/40');
+        setTimeout(() => {
+            input.classList.remove('ring-2', 'ring-indigo-500', 'bg-indigo-50/40');
+        }, 1200);
+        if (typeof showToast === 'function') {
+            showToast('Engagement inséré avec succès', 'info');
+        }
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     const formId = 'athlete-u16-form';
     const interviewId = <?= (int)$interview['id'] ?>;

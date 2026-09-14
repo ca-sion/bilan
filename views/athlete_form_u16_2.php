@@ -225,9 +225,21 @@ ob_start();
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <!-- Discipline 1 -->
                 <div>
-                    <label for="chosen_discipline_1" class="block text-sm font-semibold text-slate-900 mb-1">
-                        Discipline 1
-                    </label>
+                    <div class="flex items-center justify-between gap-2 mb-1">
+                        <label for="chosen_discipline_1" class="block text-sm font-semibold text-slate-900">
+                            Discipline 1
+                        </label>
+                        <?php if (!empty($previous_summary['discipline_1_label']) && $previous_summary['discipline_1_label'] !== 'Aucune' && empty($answers['chosen_discipline_1']) && !$is_locked): ?>
+                            <button 
+                                type="button" 
+                                onclick="insertPreviousGoal('chosen_discipline_1', <?= htmlspecialchars(json_encode($previous_summary['discipline_1_label']), ENT_QUOTES, 'UTF-8') ?>)"
+                                class="text-[11px] font-semibold text-indigo-700 hover:text-indigo-900 bg-indigo-50 hover:bg-indigo-100 px-2 py-0.5 rounded transition-colors"
+                                title="Reprendre la discipline principale de la saison passée"
+                            >
+                                📋 Reprendre (<?= htmlspecialchars($previous_summary['discipline_1_label']) ?>)
+                            </button>
+                        <?php endif; ?>
+                    </div>
                     <input 
                         type="text" 
                         name="chosen_discipline_1" 
@@ -242,9 +254,21 @@ ob_start();
 
                 <!-- Discipline 2 -->
                 <div>
-                    <label for="chosen_discipline_2" class="block text-sm font-semibold text-slate-900 mb-1">
-                        Discipline 2 (optionnelle)
-                    </label>
+                    <div class="flex items-center justify-between gap-2 mb-1">
+                        <label for="chosen_discipline_2" class="block text-sm font-semibold text-slate-900">
+                            Discipline 2 (optionnelle)
+                        </label>
+                        <?php if (!empty($previous_summary['discipline_2_label']) && $previous_summary['discipline_2_label'] !== 'Aucune' && empty($answers['chosen_discipline_2']) && !$is_locked): ?>
+                            <button 
+                                type="button" 
+                                onclick="insertPreviousGoal('chosen_discipline_2', <?= htmlspecialchars(json_encode($previous_summary['discipline_2_label']), ENT_QUOTES, 'UTF-8') ?>)"
+                                class="text-[11px] font-semibold text-indigo-700 hover:text-indigo-900 bg-indigo-50 hover:bg-indigo-100 px-2 py-0.5 rounded transition-colors"
+                                title="Reprendre la discipline 2 de la saison passée"
+                            >
+                                📋 Reprendre (<?= htmlspecialchars($previous_summary['discipline_2_label']) ?>)
+                            </button>
+                        <?php endif; ?>
+                    </div>
                     <input 
                         type="text" 
                         name="chosen_discipline_2" 
@@ -324,9 +348,21 @@ ob_start();
 
         <!-- 4. Contrat d'engagement -->
         <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-4">
-            <div class="flex items-center gap-3 pb-4 border-b border-slate-100">
-                <span class="w-6 h-6 rounded-lg bg-zinc-900 text-white flex items-center justify-center text-xs font-black">4</span>
-                <h2 class="text-base font-bold text-slate-900">Mon engagement</h2>
+            <div class="flex items-center justify-between gap-2 pb-4 border-b border-slate-100">
+                <div class="flex items-center gap-3">
+                    <span class="w-6 h-6 rounded-lg bg-zinc-900 text-white flex items-center justify-center text-xs font-black">4</span>
+                    <h2 class="text-base font-bold text-slate-900">Mon engagement</h2>
+                </div>
+                <?php if (!empty($previous_summary['attitude_goal']) && empty($answers['attitude_contract']) && !$is_locked): ?>
+                    <button 
+                        type="button" 
+                        onclick="insertPreviousGoal('attitude_contract', <?= htmlspecialchars(json_encode($previous_summary['attitude_goal']), ENT_QUOTES, 'UTF-8') ?>)"
+                        class="text-[11px] font-bold text-indigo-700 hover:text-indigo-900 bg-indigo-50 hover:bg-indigo-100 px-2.5 py-1 rounded-lg border border-indigo-200/80 transition-colors"
+                        title="Reprendre l'engagement de la saison <?= htmlspecialchars($previous_summary['season_name']) ?>"
+                    >
+                        📋 Reprendre mon engagement <?= htmlspecialchars($previous_summary['season_name']) ?>
+                    </button>
+                <?php endif; ?>
             </div>
 
             <div>
@@ -383,6 +419,24 @@ ob_start();
 </div>
 
 <script>
+    function insertPreviousGoal(fieldName, textValue) {
+        if (!textValue) return;
+        const input = document.querySelector(`[name="${fieldName}"]`);
+        if (input) {
+            input.value = textValue;
+            input.dispatchEvent(new Event('input', { bubbles: true }));
+            input.dispatchEvent(new Event('change', { bubbles: true }));
+            input.focus();
+            input.classList.add('ring-2', 'ring-indigo-500', 'bg-indigo-50/40');
+            setTimeout(() => {
+                input.classList.remove('ring-2', 'ring-indigo-500', 'bg-indigo-50/40');
+            }, 1200);
+            if (typeof showToast === 'function') {
+                showToast('Engagement inséré avec succès', 'info');
+            }
+        }
+    }
+
     // Gestion affichage obstacle_notes
     const obstacleRadios = document.querySelectorAll('input[name="main_obstacle"]');
     const obstacleNotesContainer = document.getElementById('obstacle-notes-container');

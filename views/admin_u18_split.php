@@ -263,7 +263,7 @@ ob_start();
 
                         <!-- Goal 2 -->
                         <div class="p-2 bg-white rounded-lg border border-zinc-200 space-y-1">
-                            <label class="block text-[10px] font-semibold text-zinc-500">Objectif de compétitions / sélections</label>
+                            <label class="block text-[10px] font-semibold text-zinc-500">Objectif de compétition / sélection</label>
                             <input type="text" name="athlete_answers[goals_results][goal_2_selection]" value="<?= htmlspecialchars($get_goal('goal_2_selection')) ?>" placeholder="" class="w-full px-2 py-1 border border-zinc-200 rounded text-xs bg-zinc-50 focus:bg-white">
                             <label class="block text-[10px] font-semibold text-emerald-800 pt-0.5">Réalisé :</label>
                             <input type="text" name="athlete_answers[goals_results][achieved_2]" value="<?= htmlspecialchars($get_goal('achieved_2')) ?>" placeholder="" class="w-full px-2 py-1 border border-zinc-200 rounded text-xs bg-zinc-50 focus:bg-white font-medium text-zinc-900">
