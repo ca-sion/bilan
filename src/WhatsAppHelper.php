@@ -95,17 +95,17 @@ class WhatsAppHelper {
         $target = $decisions['target_milestones'] 
             ?? ($athlete_answers['target_performance'] 
             ?? ($athlete_answers['target_competitions'] 
-            ?? 'Progression technique et assiduité'));
+            ?? 'Non communiqué'));
 
         // Contrat moral
         $rule1 = $decisions['mandatory_rule_1'] 
             ?? ($athlete_answers['attitude_contract'] 
             ?? ($athlete_answers['commitment_1'] 
-            ?? 'Présence régulière et ponctualité exemplaire'));
+            ?? 'Non communiqué'));
             
         $rule2 = $decisions['mandatory_rule_2'] 
             ?? ($athlete_answers['commitment_2'] 
-            ?? 'Écoute active des consignes et respect du groupe');
+            ?? 'Non communiqué');
 
         // Cadres sportifs
         $cadres_raw = $decisions['cadres'] ?? ($athlete_answers['cadres'] ?? []);
@@ -115,22 +115,24 @@ class WhatsAppHelper {
         $cadres_labels = array_map(fn($k) => CategoryHelper::get_cadre_label((string)$k), array_filter($cadres_raw));
         $cadres_str = !empty($cadres_labels) ? implode(', ', $cadres_labels) : '';
 
-        $text = "🔴 " . strtoupper($club) . " — BILAN ET PROJECTION DE SAISON ⚪\n";
+        $text = "*Bilan de saison*\n";
         $text .= "Athlète : {$full_name} ({$category_label})\n";
         $text .= "Date d'entretien : {$date_fr}\n\n";
-        $text .= "🎯 Projet sportif validé :\n";
-        $text .= "- Discipline prioritaire : {$d1}\n";
-        $text .= "- Discipline secondaire : {$d2}\n";
+        $text .= "🎯 *Projet sportif*\n";
+        $text .= "- Discipline 1 : {$d1}\n";
+        if ($d2 !== '') {
+            $text .= "- Discipline 2 : {$d2}\n";
+        }
         if ($cadres_str !== '') {
-            $text .= "- Structure de cadres : {$cadres_str}\n";
+            $text .= "- Cadres : {$cadres_str}\n";
         }
         $text .= "- Volume d'entraînement : {$sessions} séances / semaine\n";
-        $text .= "- Jours retenus : {$days_string}\n";
-        $text .= "- Objectif cible : {$target}\n\n";
-        $text .= "🤝 Contrat moral (2 comportements non négociables) :\n";
+        $text .= "- Disponibilités : {$days_string}\n";
+        $text .= "- Objectif : {$target}\n\n";
+        $text .= "🤝 Contrat d'engagement :\n";
         $text .= "1. {$rule1}\n";
         $text .= "2. {$rule2}\n\n";
-        $text .= "✅ Statut : Entretien officiel validé d'un commun accord avec l'entraîneur.";
+        $text .= "✅ Statut : Entretien validé d'un commun accord avec l'entraîneur.";
 
         return $text;
     }

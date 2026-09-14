@@ -21,13 +21,13 @@ class ApiController {
     private function getPayload(bool $allowGet = false): array {
         $raw = (PHP_SAPI === 'cli' && empty($_SERVER['HTTP_HOST'])) ? '' : (file_get_contents('php://input') ?: '');
         $json = !empty($raw) ? json_decode($raw, true) : null;
-        if (is_array($json) && !empty($json)) {
-            return $json;
+        if (!is_array($json)) {
+            $json = [];
         }
         if ($allowGet) {
-            return array_merge($_GET, $_POST);
+            return array_merge($_GET, $_POST, $json);
         }
-        return $_POST;
+        return !empty($json) ? $json : $_POST;
     }
 
     /**

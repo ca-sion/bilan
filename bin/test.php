@@ -377,6 +377,21 @@ $t->test('API : Génération de la synthèse WhatsApp (POST /api/export-whatsapp
     $t->assert(!empty($res['text']), 'Le texte de synthèse WhatsApp ne doit pas être vide');
 });
 
+$t->test('API : Génération de la synthèse WhatsApp (GET /api/export-whatsapp)', function () use ($t, $db, $test_interview_id) {
+    $api = new ApiController($db);
+    $_GET = ['interview_id' => $test_interview_id];
+    $_POST = [];
+    
+    ob_start();
+    $api->exportWhatsapp();
+    $json = ob_get_clean();
+    $_GET = [];
+    
+    $res = json_decode($json, true);
+    $t->assert(is_array($res) && ($res['success'] ?? false) === true, 'L\'export WhatsApp via GET doit retourner success: true');
+    $t->assert(!empty($res['text']), 'Le texte de synthèse WhatsApp ne doit pas être vide');
+});
+
 // =========================================================================
 // 7. Structures de Cadres & Actions Entraîneur (AdminController & Helpers)
 // =========================================================================

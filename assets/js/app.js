@@ -39,27 +39,40 @@ function showToast(message, type = 'success', duration = 3500) {
     }, duration);
 }
 
-// Copie dans le presse-papier sécurisée
+// Copie dans le presse-papier sécurisée avec fallback robuste
 async function copyToClipboard(text, successMessage = 'Copié dans le presse-papier !') {
-    try {
-        if (navigator.clipboard && window.isSecureContext) {
+    let copied = false;
+    if (navigator.clipboard && window.isSecureContext) {
+        try {
             await navigator.clipboard.writeText(text);
-        } else {
+            copied = true;
+        } catch (err) {
+            console.warn('navigator.clipboard.writeText a échoué, tentative fallback textarea :', err);
+        }
+    }
+
+    if (!copied) {
+        try {
             const textArea = document.createElement('textarea');
             textArea.value = text;
             textArea.style.position = 'fixed';
             textArea.style.left = '-999999px';
             textArea.style.top = '-999999px';
+            textArea.setAttribute('readonly', '');
             document.body.appendChild(textArea);
             textArea.focus();
             textArea.select();
-            document.execCommand('copy');
+            copied = document.execCommand('copy');
             textArea.remove();
+        } catch (err) {
+            console.error('Erreur de copie execCommand :', err);
         }
+    }
+
+    if (copied) {
         showToast(successMessage, 'success');
         return true;
-    } catch (err) {
-        console.error('Erreur de copie :', err);
+    } else {
         showToast('Impossible de copier automatiquement.', 'error');
         return false;
     }

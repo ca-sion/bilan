@@ -54,5 +54,6 @@ return function (Router $router): void {
     $router->post('/api/submit', [ApiController::class, 'submit_interview']);
     $router->get('/api/validate-disciplines', [ApiController::class, 'validate_disciplines']);
     $router->post('/api/validate-disciplines', [ApiController::class, 'validate_disciplines']);
+    $router->get('/api/export-whatsapp', [ApiController::class, 'export_whatsapp']);
     $router->post('/api/export-whatsapp', [ApiController::class, 'export_whatsapp']);
 };
