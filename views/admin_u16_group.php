@@ -110,23 +110,23 @@ ob_start();
 
                         <!-- Fierté -->
                         <div>
-                            <label class="font-semibold text-zinc-700 block mb-0.5 text-[11px]">Satisfaction majeure de la saison :</label>
+                            <label class="font-semibold text-zinc-700 block mb-0.5 text-[11px]">Ma plus grande fierté cette année :</label>
                             <textarea 
                                 name="athlete_answers[pride_highlight]" 
                                 rows="2" 
-                                placeholder="Moment marquant..." 
+                                placeholder="" 
                                 class="w-full px-2.5 py-1 bg-white border border-zinc-200 rounded-lg text-xs focus:ring-1 focus:ring-zinc-900"
                             ><?= htmlspecialchars($ath_answers['pride_highlight'] ?? '') ?></textarea>
                         </div>
 
                         <!-- Frein -->
                         <div>
-                            <label class="font-semibold text-zinc-700 block mb-0.5 text-[11px]">Principal frein constaté :</label>
+                            <label class="font-semibold text-zinc-700 block mb-0.5 text-[11px]">Principal frein :</label>
                             <input 
                                 type="text" 
                                 name="athlete_answers[obstacle_notes]" 
                                 value="<?= htmlspecialchars($ath_answers['obstacle_notes'] ?? ($ath_answers['main_obstacle'] ?? '')) ?>" 
-                                placeholder="Frein constaté..." 
+                                placeholder="" 
                                 class="w-full px-2.5 py-1 bg-white border border-zinc-200 rounded-lg text-xs focus:ring-1 focus:ring-zinc-900"
                             >
                         </div>
@@ -134,12 +134,12 @@ ob_start();
                         <!-- Souhaits U16 1ère année ou 2ème année -->
                         <?php if ($is_u16_1): ?>
                             <div>
-                                <label class="font-semibold text-zinc-700 block mb-0.5 text-[11px]">Option vendredi souhaitée :</label>
+                                <label class="font-semibold text-zinc-700 block mb-0.5 text-[11px]">Option vendredi :</label>
                                 <input 
                                     type="text" 
                                     name="athlete_answers[friday_discipline]" 
                                     value="<?= htmlspecialchars($ath_answers['friday_discipline'] ?? '') ?>" 
-                                    placeholder="Ex : Hauteur, Demi-fond, Sprint..." 
+                                    placeholder="" 
                                     class="w-full px-2.5 py-1 bg-white border border-zinc-200 rounded-lg text-xs"
                                 >
                             </div>
@@ -152,7 +152,7 @@ ob_start();
                                         name="athlete_answers[chosen_discipline_1]" 
                                         list="disciplines-suggestions"
                                         value="<?= htmlspecialchars($ath_answers['chosen_discipline_1'] ?? '') ?>" 
-                                        placeholder="1. Prioritaire" 
+                                        placeholder="" 
                                         class="w-full px-2 py-1 bg-white border border-zinc-200 rounded-lg text-xs font-medium"
                                     >
                                     <input 
@@ -160,7 +160,7 @@ ob_start();
                                         name="athlete_answers[chosen_discipline_2]" 
                                         list="disciplines-suggestions"
                                         value="<?= htmlspecialchars($ath_answers['chosen_discipline_2'] ?? '') ?>" 
-                                        placeholder="2. Secondaire" 
+                                        placeholder="" 
                                         class="w-full px-2 py-1 bg-white border border-zinc-200 rounded-lg text-xs font-medium"
                                     >
                                 </div>
@@ -169,12 +169,12 @@ ob_start();
 
                         <!-- Contrat d'attitude -->
                         <div>
-                            <label class="font-semibold text-zinc-700 block mb-0.5 text-[11px]">Engagement d'attitude :</label>
+                            <label class="font-semibold text-zinc-700 block mb-0.5 text-[11px]">Mon engagement :</label>
                             <input 
                                 type="text" 
                                 name="athlete_answers[attitude_contract]" 
                                 value="<?= htmlspecialchars($ath_answers['attitude_contract'] ?? '') ?>" 
-                                placeholder="Engagement clé..." 
+                                placeholder="" 
                                 class="w-full px-2.5 py-1 bg-white border border-zinc-200 rounded-lg text-xs font-medium text-zinc-900"
                             >
                         </div>
@@ -220,7 +220,7 @@ ob_start();
                                         type="text" 
                                         name="decisions[friday_discipline_approved]" 
                                         value="<?= htmlspecialchars($decisions['friday_discipline_approved'] ?? ($ath_answers['friday_discipline'] ?? '')) ?>" 
-                                        placeholder="Ex : Hauteur, Demi-fond, Sprint" 
+                                        placeholder="" 
                                         class="w-full px-2 py-1 border border-zinc-300 rounded-lg text-xs bg-white"
                                     >
                                 </div>
@@ -234,7 +234,7 @@ ob_start();
                                         list="disciplines-suggestions"
                                         name="decisions[primary_discipline]" 
                                         value="<?= htmlspecialchars($decisions['primary_discipline'] ?? ($ath_answers['chosen_discipline_1'] ?? 'Sprint')) ?>" 
-                                        placeholder="1. Prioritaire" 
+                                        placeholder="" 
                                         class="w-full px-2 py-1 border border-zinc-300 rounded-lg text-xs bg-white font-bold text-zinc-900"
                                     >
                                     <input 
@@ -242,7 +242,7 @@ ob_start();
                                         list="disciplines-suggestions"
                                         name="decisions[secondary_discipline]" 
                                         value="<?= htmlspecialchars($decisions['secondary_discipline'] ?? ($ath_answers['chosen_discipline_2'] ?? '')) ?>" 
-                                        placeholder="2. Secondaire" 
+                                        placeholder="" 
                                         class="w-full px-2 py-1 border border-zinc-300 rounded-lg text-xs bg-white font-medium"
                                     >
                                 </div>
@@ -282,12 +282,12 @@ ob_start();
 
                         <!-- Remarque coach -->
                         <div>
-                            <label class="block font-semibold text-zinc-700 mb-0.5 text-[11px]">Remarque entraîneur :</label>
+                            <label class="block font-semibold text-zinc-700 mb-0.5 text-[11px]">Remarques et note :</label>
                             <input 
                                 type="text" 
                                 name="trainer_notes" 
                                 value="<?= htmlspecialchars($a['trainer_notes'] ?? '') ?>" 
-                                placeholder="Consignes particulières..." 
+                                placeholder="" 
                                 class="w-full px-2 py-1 border border-zinc-300 rounded-lg text-xs bg-white"
                             >
                         </div>

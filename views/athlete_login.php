@@ -9,7 +9,7 @@ ob_start();
         
         <!-- En-tête avec progression d'étape -->
         <div class="text-center pb-3 border-b border-zinc-100 space-y-1.5">
-            <div class="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200/60">
+            <div class="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200">
                 <span>Saison <?= htmlspecialchars($active_season['name'] ?? '2026-2027') ?></span>
             </div>
             <h1 class="text-xl sm:text-2xl font-bold font-heading text-zinc-900 tracking-tight">
@@ -127,31 +127,31 @@ ob_start();
                     <button 
                         type="button" 
                         id="btn-back-to-step-1" 
-                        class="text-xs font-semibold text-rose-600 hover:text-rose-800 hover:underline px-2 py-1 rounded"
+                        class="text-xs font-semibold text-indigo-600 hover:text-indigo-800 hover:underline px-2 py-1 rounded"
                     >
                         Changer
                     </button>
                 </div>
 
                 <!-- Guide explicatif très clair sur le code PIN -->
-                <div id="pin-guide-standard" class="p-3.5 bg-rose-50/60 rounded-xl border border-rose-200/80 space-y-2 text-xs">
-                    <div class="flex items-center gap-2 font-bold text-rose-950">
-                        <span class="w-4 h-4 rounded-full bg-rose-600 text-white flex items-center justify-center text-[10px] font-bold">?</span>
+                <div id="pin-guide-standard" class="p-3.5 bg-indigo-50/60 rounded-xl border border-indigo-200/80 space-y-2 text-xs">
+                    <div class="flex items-center gap-2 font-bold text-indigo-950">
+                        <span class="w-4 h-4 rounded-full bg-indigo-600 text-white flex items-center justify-center text-[10px] font-bold">?</span>
                         <span>Comment composer ton code PIN ?</span>
                     </div>
                     <p class="text-zinc-700 leading-relaxed text-[11px]">
                         Ton code PIN personnel correspond à ton <strong>jour et mois de naissance</strong> (4 chiffres) :
                     </p>
                     <div class="grid grid-cols-2 gap-2 text-[11px] pt-0.5">
-                        <div class="bg-white p-2 rounded-lg border border-rose-200/60">
+                        <div class="bg-white p-2 rounded-lg border border-indigo-200/60">
                             <span class="text-zinc-500 block text-[10px]">Exemple 1 :</span>
                             <span class="text-zinc-800 font-medium">Né le <strong>14 avril</strong></span>
-                            <span class="block text-rose-700 font-bold font-mono text-xs">→ Code 1404</span>
+                            <span class="block text-indigo-700 font-bold font-mono text-xs">→ Code 1404</span>
                         </div>
-                        <div class="bg-white p-2 rounded-lg border border-rose-200/60">
+                        <div class="bg-white p-2 rounded-lg border border-indigo-200/60">
                             <span class="text-zinc-500 block text-[10px]">Exemple 2 :</span>
                             <span class="text-zinc-800 font-medium">Né le <strong>8 septembre</strong></span>
-                            <span class="block text-rose-700 font-bold font-mono text-xs">→ Code 0809</span>
+                            <span class="block text-indigo-700 font-bold font-mono text-xs">→ Code 0809</span>
                         </div>
                     </div>
                 </div>

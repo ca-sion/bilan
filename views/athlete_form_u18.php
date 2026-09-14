@@ -45,15 +45,12 @@ ob_start();
     <!-- En-tête de la fiche athlète -->
     <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-            <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200 mb-2">
+            <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200 mb-2">
                 <span>Athlète individuel &bull; <?= htmlspecialchars($category_label) ?></span>
             </div>
             <h1 class="text-2xl sm:text-3xl font-bold font-heading text-slate-900">
                 <?= htmlspecialchars($athlete['first_name'] . ' ' . $athlete['last_name']) ?>
             </h1>
-            <p class="text-xs text-slate-500 mt-0.5">
-                Bilan de performance, écosystème, relation d'entraînement et projection N+1
-            </p>
         </div>
 
         <div class="flex items-center gap-3">
@@ -92,109 +89,106 @@ ob_start();
     <!-- Onglets de navigation rapide -->
     <div class="no-print bg-slate-200/70 p-1.5 rounded-2xl flex flex-wrap gap-1 text-xs font-bold">
         <a href="#volet-1" class="flex-1 py-2.5 px-3 text-center rounded-xl bg-white text-slate-900 shadow-sm hover:text-brand-600 transition-colors">
-            1. Bilan sportif et causal
+            1. Bilan de saison
         </a>
         <a href="#volet-2" class="flex-1 py-2.5 px-3 text-center rounded-xl text-slate-600 hover:bg-white/80 hover:text-slate-900 transition-colors">
-            2. Écosystème (1 à 5)
+            2. Auto-évaluation des 5 piliers
         </a>
         <a href="#volet-3" class="flex-1 py-2.5 px-3 text-center rounded-xl text-slate-600 hover:bg-white/80 hover:text-slate-900 transition-colors">
             3. Relation d'entraînement
         </a>
         <a href="#volet-4" class="flex-1 py-2.5 px-3 text-center rounded-xl text-slate-600 hover:bg-white/80 hover:text-slate-900 transition-colors">
-            4. Projection N+1
+            4. Saison à venir
         </a>
     </div>
 
     <!-- Formulaire U18+ -->
     <form id="athlete-u18-form" class="space-y-8">
 
-        <!-- VOLET 1 : Bilan sportif et analyse causale -->
+        <!-- VOLET 1 : Bilan de saison -->
         <section id="volet-1" class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sm:p-8 space-y-6">
             <div class="border-b border-slate-100 pb-4">
                 <h2 class="text-xl font-bold font-heading text-slate-900 flex items-center gap-2.5">
-                    <span class="w-8 h-8 rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center text-sm font-black">1</span>
-                    Volet 1 : Bilan sportif et analyse causale
+                    <span class="w-8 h-8 rounded-xl bg-zinc-900 text-white flex items-center justify-center text-sm font-black">1</span>
+                    Bilan de saison
                 </h2>
-                <p class="text-xs text-slate-500 mt-1">
-                    Confrontation des objectifs fixés, réussites marquantes et facteurs de réussite ou d'échec.
-                </p>
             </div>
 
             <!-- Tableau Objectifs vs Réalisations -->
             <div class="space-y-3">
                 <label class="block text-sm font-semibold text-slate-800">
-                    Objectifs de la saison écoulée vs Réalisations effectives
+                    Objectifs
                 </label>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200/80">
                     
                     <!-- Objectif 1 : Performance -->
                     <div>
-                        <span class="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1">Objectif 1 : Performance (chrono / mesure)</span>
+                        <span class="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1">Objectif de performance</span>
                         <input 
                             type="text" 
                             name="goals_results[goal_1_perf]" 
                             value="<?= htmlspecialchars($get_goal('goal_1_perf')) ?>" 
                             <?= $is_locked ? 'disabled' : '' ?>
-                            placeholder="Ex : Descendre sous les 11.20s au 100m" 
+                            placeholder="" 
                             class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm bg-white"
                         >
                     </div>
                     <div>
-                        <span class="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1">Résultat effectif atteint</span>
+                        <span class="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1">Réalisé</span>
                         <input 
                             type="text" 
                             name="goals_results[achieved_1]" 
                             value="<?= htmlspecialchars($get_goal('achieved_1')) ?>" 
                             <?= $is_locked ? 'disabled' : '' ?>
-                            placeholder="Ex : 11.14s aux Championnats romands" 
+                            placeholder="" 
                             class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm bg-white font-medium text-slate-800"
                         >
                     </div>
 
-                    <!-- Objectif 2 : Sélection / Championnat -->
+                    <!-- Objectif 2 : Sélection / Compétitions -->
                     <div class="pt-2 sm:pt-0">
-                        <span class="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1">Objectif 2 : Sélections / Podiums</span>
+                        <span class="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1">Objectif de compétitions / sélections</span>
                         <input 
                             type="text" 
                             name="goals_results[goal_2_selection]" 
                             value="<?= htmlspecialchars($get_goal('goal_2_selection')) ?>" 
                             <?= $is_locked ? 'disabled' : '' ?>
-                            placeholder="Ex : Finale aux Championnats suisses U20" 
+                            placeholder="" 
                             class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm bg-white"
                         >
                     </div>
                     <div class="pt-2 sm:pt-0">
-                        <span class="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1">Résultat effectif atteint</span>
+                        <span class="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1">Réalisé</span>
                         <input 
                             type="text" 
                             name="goals_results[achieved_2]" 
                             value="<?= htmlspecialchars($get_goal('achieved_2')) ?>" 
                             <?= $is_locked ? 'disabled' : '' ?>
-                            placeholder="Ex : 5ème place en finale" 
+                            placeholder="" 
                             class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm bg-white font-medium text-slate-800"
                         >
                     </div>
 
-                    <!-- Objectif 3 : Attitude / Progression -->
+                    <!-- Objectif 3 : Attitude -->
                     <div class="pt-2 sm:pt-0">
-                        <span class="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1">Objectif 3 : Attitude / Rigueur</span>
+                        <span class="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1">Objectif d'attitude, d'engagement</span>
                         <input 
                             type="text" 
                             name="goals_results[goal_3_attitude]" 
                             value="<?= htmlspecialchars($get_goal('goal_3_attitude')) ?>" 
                             <?= $is_locked ? 'disabled' : '' ?>
-                            placeholder="Ex : Assiduité 90% et routine d'échauffement" 
+                            placeholder="" 
                             class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm bg-white"
                         >
                     </div>
                     <div class="pt-2 sm:pt-0">
-                        <span class="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1">Résultat effectif atteint</span>
+                        <span class="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1">Réalisé</span>
                         <input 
                             type="text" 
                             name="goals_results[achieved_3]" 
                             value="<?= htmlspecialchars($get_goal('achieved_3')) ?>" 
                             <?= $is_locked ? 'disabled' : '' ?>
-                            placeholder="Ex : Rigueur tenue toute la saison" 
+                            placeholder="" 
                             class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm bg-white font-medium text-slate-800"
                         >
                     </div>
@@ -206,100 +200,86 @@ ob_start();
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                     <label for="top_success_description" class="block text-sm font-semibold text-slate-800 mb-1">
-                        Meilleure performance ou grand moment de satisfaction
+                        Ta plus grande réussite ou fierté cette saison
                     </label>
+                    <p class="text-xs text-slate-500 mb-1.5">Compétition, résultat, sélection, maîtrise, apprentissage, etc.</p>
                     <textarea 
                         name="top_success_description" 
                         id="top_success_description" 
                         rows="3" 
                         <?= $is_locked ? 'disabled' : '' ?>
-                        placeholder="Décris ton plus beau moment sportif de la saison..." 
-                        class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-rose-500 text-sm bg-slate-50 focus:bg-white"
+                        placeholder="" 
+                        class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm bg-slate-50 focus:bg-white"
                     ><?= htmlspecialchars($answers['top_success_description'] ?? '') ?></textarea>
                 </div>
                 <div>
                     <label for="top_success_action" class="block text-sm font-semibold text-slate-800 mb-1">
-                        Action ou décision concrète de ta part ayant rendu cela possible
+                        Qu'est-ce qui a changé positivement cette saison ?
                     </label>
+                    <p class="text-xs text-slate-500 mb-1.5">Changements, adaptations, nouveaux entraînements, rigueur, etc.</p>
                     <textarea 
                         name="top_success_action" 
                         id="top_success_action" 
                         rows="3" 
                         <?= $is_locked ? 'disabled' : '' ?>
-                        placeholder="Qu'as-tu fait concrètement pour y parvenir ?" 
-                        class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-rose-500 text-sm bg-slate-50 focus:bg-white"
+                        placeholder="" 
+                        class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm bg-slate-50 focus:bg-white"
                     ><?= htmlspecialchars($answers['top_success_action'] ?? '') ?></textarea>
                 </div>
             </div>
 
-            <!-- Analyse causale -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                    <label for="causes_controllable" class="block text-sm font-semibold text-slate-800 mb-1">
-                        Facteurs sous ton contrôle face aux contre-performances
-                    </label>
-                    <p class="text-xs text-slate-500 mb-1.5">Choix de vie, rigueur, investissement, gestion du stress.</p>
-                    <textarea 
-                        name="causes_controllable" 
-                        id="causes_controllable" 
-                        rows="3" 
-                        <?= $is_locked ? 'disabled' : '' ?>
-                        placeholder="Ce qui dépendait directement de toi..." 
-                        class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-rose-500 text-sm bg-slate-50 focus:bg-white"
-                    ><?= htmlspecialchars($answers['causes_controllable'] ?? '') ?></textarea>
-                </div>
-                <div>
-                    <label for="causes_uncontrollable" class="block text-sm font-semibold text-slate-800 mb-1">
-                        Facteurs hors de ton contrôle
-                    </label>
-                    <p class="text-xs text-slate-500 mb-1.5">Météo, blessure accidentelle, décision d'officiel, calendrier.</p>
-                    <textarea 
-                        name="causes_uncontrollable" 
-                        id="causes_uncontrollable" 
-                        rows="3" 
-                        <?= $is_locked ? 'disabled' : '' ?>
-                        placeholder="Ce qui ne dépendait pas de toi..." 
-                        class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-rose-500 text-sm bg-slate-50 focus:bg-white"
-                    ><?= htmlspecialchars($answers['causes_uncontrollable'] ?? '') ?></textarea>
-                </div>
-            </div>
-
-            <!-- Le seul frein limitant -->
+            <!-- Principal frein -->
             <div>
                 <label for="main_limiting_barrier" class="block text-sm font-semibold text-slate-800 mb-1">
-                    Le seul frein majeur qui a limité ta progression cette année
+                    Ton principal frein cette saison
                 </label>
+                <p class="text-xs text-slate-500 mb-1.5">Ce qui t'a le plus empêché d'atteindre ton plein potentiel ou tes objectifs</p>
                 <input 
                     type="text" 
                     name="main_limiting_barrier" 
                     id="main_limiting_barrier" 
                     value="<?= htmlspecialchars($answers['main_limiting_barrier'] ?? '') ?>" 
                     <?= $is_locked ? 'disabled' : '' ?>
-                    placeholder="Nomme avec franchise ton obstacle numéro 1..." 
-                    class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-rose-500 text-sm bg-slate-50 focus:bg-white font-medium"
+                    placeholder="" 
+                    class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm bg-slate-50 focus:bg-white font-medium"
                 >
             </div>
         </section>
 
-        <!-- VOLET 2 : Écosystème de performance -->
+        <!-- VOLET 2 : Auto-évaluation des 5 Piliers (Notes de 1 à 5) -->
         <section id="volet-2" class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sm:p-8 space-y-6">
             <div class="border-b border-slate-100 pb-4">
                 <h2 class="text-xl font-bold font-heading text-slate-900 flex items-center gap-2.5">
-                    <span class="w-8 h-8 rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center text-sm font-black">2</span>
-                    Volet 2 : Écosystème de performance (Auto-évaluation 1 à 5)
+                    <span class="w-8 h-8 rounded-xl bg-zinc-900 text-white flex items-center justify-center text-sm font-black">2</span>
+                    Auto-évaluation
                 </h2>
                 <p class="text-xs text-slate-500 mt-1">
-                    Évalue ton niveau d'exigence sur chaque pilier de la performance sportive (1 = Très insuffisant, 5 = Exemplaire).
+                    Évalue ton niveau d'exigence sur chaque pilier (1 = En surcharge permanente / Insuffisant, 5 = Parfaitement équilibré / Exemplaire).
                 </p>
             </div>
 
             <?php
                 $ratings_config = [
-                    'rating_rigor' => ['Rigueur à l\'entraînement', 'Présence, écoute des consignes, concentration technique et engagement maximal.'],
-                    'rating_care_injuries' => ['Gestion des blessures et soins', 'Prévention, communication immédiate avec le coach, rendez-vous kiné et respect des protocoles.'],
-                    'rating_lifestyle' => ['Hygiène de vie d\'athlète', 'Qualité et volume de sommeil, alimentation adaptée, gestion des sorties et de la récupération.'],
-                    'rating_mental_stability' => ['Stabilité mentale en compétition', 'Gestion des émotions, confiance, combativité sous pression et routine pré-compétition.'],
-                    'rating_dual_career' => ['Double projet (études / travail et sport)', 'Organisation du planning, anticipation des examens et équilibre de charge mentale.']
+                    'rating_rigor' => [
+                        'Rigueur à l\'entraînement', 
+                        'Présence, ponctualité, écoute, concentration et intensité.'
+                    ],
+                    'rating_care_injuries' => [
+                        'Soins et gestion des blessures', 
+                        'Prévention, plans annexes, communication proactive des douleurs et consultations médicales.'
+                    ],
+                    'rating_lifestyle' => [
+                        'Hygiène de vie et place du sport', 
+                        'Place du sport dans ma vie, sommeil (quantité et régularité), alimentation/hydratation, sorties, etc.'
+                    ],
+                    'rating_mental_stability' => [
+                        'Aspect mental', 
+                        'Gestion du stress en compétition, capacité à rebondir après un échec et routine pré-compétition.'
+                    ],
+                    'rating_dual_career' => [
+                        'Double projet (études / apprentissage / sport)', 
+                        'Organisation du planning, anticipation des périodes d\'examens, communication avec l\'entraîneur et les parents et équilibre personnel.'
+                    ]
                 ];
             ?>
 
@@ -323,7 +303,7 @@ ob_start();
                                             <?= $is_locked ? 'disabled' : '' ?>
                                             class="sr-only peer"
                                         >
-                                        <span class="w-9 h-9 rounded-xl flex items-center justify-center text-xs font-bold border transition-all peer-checked:bg-rose-600 peer-checked:text-white peer-checked:border-rose-600 peer-checked:shadow-md peer-checked:scale-110 bg-white border-slate-300 text-slate-700 hover:bg-slate-200">
+                                        <span class="w-9 h-9 rounded-xl flex items-center justify-center text-xs font-bold border transition-all peer-checked:bg-indigo-600 peer-checked:text-white peer-checked:border-indigo-600 peer-checked:shadow-md peer-checked:scale-110 bg-white border-slate-300 text-slate-700 hover:bg-slate-200">
                                             <?= $i ?>
                                         </span>
                                     </label>
@@ -336,15 +316,16 @@ ob_start();
 
             <div>
                 <label for="lifestyle_notes" class="block text-sm font-semibold text-slate-800 mb-1">
-                    Commentaire libre sur ton investissement global
+                    Précisions sur ton auto-évalaution ou écosystème
                 </label>
+                <p class="text-xs text-slate-500 mb-1.5">Développement des points ci-dessus</p>
                 <textarea 
                     name="lifestyle_notes" 
                     id="lifestyle_notes" 
                     rows="2" 
                     <?= $is_locked ? 'disabled' : '' ?>
-                    placeholder="Précisions sur ton hygiène de vie, tes contraintes scolaires ou personnelles..." 
-                    class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-rose-500 text-sm bg-slate-50 focus:bg-white"
+                    placeholder="" 
+                    class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm bg-slate-50 focus:bg-white"
                 ><?= htmlspecialchars($answers['lifestyle_notes'] ?? '') ?></textarea>
             </div>
         </section>
@@ -353,40 +334,39 @@ ob_start();
         <section id="volet-3" class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sm:p-8 space-y-6">
             <div class="border-b border-slate-100 pb-4">
                 <h2 class="text-xl font-bold font-heading text-slate-900 flex items-center gap-2.5">
-                    <span class="w-8 h-8 rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center text-sm font-black">3</span>
-                    Volet 3 : Relation d'entraînement
+                    <span class="w-8 h-8 rounded-xl bg-zinc-900 text-white flex items-center justify-center text-sm font-black">3</span>
+                    Relations
                 </h2>
-                <p class="text-xs text-slate-500 mt-1">
-                    Communication transparente avec le staff pour optimiser l'accompagnement et la confiance mutuelle.
-                </p>
             </div>
 
             <div class="space-y-4">
                 <div>
                     <label for="coach_positives_to_keep" class="block text-sm font-semibold text-slate-800 mb-1">
-                        Ce qui a très bien fonctionné dans l'encadrement et à préserver absolument
+                        Ce qui a bien fonctionné avec ton entraîneur cette saison
                     </label>
+                    <p class="text-xs text-slate-500 mb-1.5">Ce que tu as apprécié dans les séances, les retours, la relation humaine ou l'accompagnement.</p>
                     <textarea 
                         name="coach_positives_to_keep" 
                         id="coach_positives_to_keep" 
                         rows="2" 
                         <?= $is_locked ? 'disabled' : '' ?>
-                        placeholder="Points forts des séances, ambiance, dynamique de groupe..." 
-                        class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-rose-500 text-sm bg-slate-50 focus:bg-white"
+                        placeholder="" 
+                        class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm bg-slate-50 focus:bg-white"
                     ><?= htmlspecialchars($answers['coach_positives_to_keep'] ?? '') ?></textarea>
                 </div>
 
                 <div>
                     <label for="coach_friction_points" class="block text-sm font-semibold text-slate-800 mb-1">
-                        Situations où le coaching n'a pas convenu ou t'a freiné
+                        Points de friction ou incompréhensions vécus
                     </label>
+                    <p class="text-xs text-slate-500 mb-1.5">Ce qui a pu te frustrer, manquer de clarté ou freiner ta progression dans la dynamique d'entraînement.</p>
                     <textarea 
                         name="coach_friction_points" 
                         id="coach_friction_points" 
                         rows="2" 
                         <?= $is_locked ? 'disabled' : '' ?>
-                        placeholder="Incompréhensions, retours négatifs, manque de clarté..." 
-                        class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-rose-500 text-sm bg-slate-50 focus:bg-white"
+                        placeholder="" 
+                        class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm bg-slate-50 focus:bg-white"
                     ><?= htmlspecialchars($answers['coach_friction_points'] ?? '') ?></textarea>
                 </div>
 
@@ -394,29 +374,26 @@ ob_start();
                     <label for="coach_needs_next_season" class="block text-sm font-semibold text-slate-800 mb-1">
                         Besoins spécifiques de ta part pour la saison à venir
                     </label>
-                    <p class="text-xs text-slate-500 mb-1.5">Fermeté, calme, retours vidéo, explications biomécaniques, soutien moral.</p>
+                    <p class="text-xs text-slate-500 mb-1.5">Fermeté, calme, retours vidéo, explications technique, soutien moral, etc.</p>
                     <textarea 
                         name="coach_needs_next_season" 
                         id="coach_needs_next_season" 
                         rows="2" 
                         <?= $is_locked ? 'disabled' : '' ?>
-                        placeholder="De quoi as-tu prioritairement besoin pour progresser ?" 
-                        class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-rose-500 text-sm bg-slate-50 focus:bg-white"
+                        placeholder="" 
+                        class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm bg-slate-50 focus:bg-white"
                     ><?= htmlspecialchars($answers['coach_needs_next_season'] ?? '') ?></textarea>
                 </div>
             </div>
         </section>
 
-        <!-- VOLET 4 : Projection et engagement N+1 -->
+        <!-- VOLET 4 : Saison à venir -->
         <section id="volet-4" class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sm:p-8 space-y-6">
             <div class="border-b border-slate-100 pb-4">
                 <h2 class="text-xl font-bold font-heading text-slate-900 flex items-center gap-2.5">
-                    <span class="w-8 h-8 rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center text-sm font-black">4</span>
-                    Volet 4 : Projection et engagement N+1
+                    <span class="w-8 h-8 rounded-xl bg-zinc-900 text-white flex items-center justify-center text-sm font-black">4</span>
+                    Saison à venir
                 </h2>
-                <p class="text-xs text-slate-500 mt-1">
-                    Ambitions chiffrées, volume d'entraînement souhaité et contrats d'attitude.
-                </p>
             </div>
 
             <!-- Datalist suggestions de disciplines libres -->
@@ -430,7 +407,7 @@ ob_start();
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                     <label for="chosen_discipline_1" class="block text-sm font-semibold text-slate-800 mb-1">
-                        Discipline prioritaire souhaitée
+                        Discipline 1
                     </label>
                     <input 
                         type="text" 
@@ -439,13 +416,13 @@ ob_start();
                         list="disciplines-suggestions"
                         value="<?= htmlspecialchars($answers['chosen_discipline_1'] ?? '') ?>" 
                         <?= $is_locked ? 'disabled' : '' ?>
-                        placeholder="Ex : 100m / 200m, Haies, Perche, Longueur..." 
-                        class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-rose-500 text-sm bg-slate-50 focus:bg-white font-medium"
+                        placeholder="" 
+                        class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm bg-slate-50 focus:bg-white font-medium"
                     >
                 </div>
                 <div>
                     <label for="chosen_discipline_2" class="block text-sm font-semibold text-slate-800 mb-1">
-                        Discipline secondaire (optionnelle)
+                        Discipline 2 (optionnelle)
                     </label>
                     <input 
                         type="text" 
@@ -454,8 +431,8 @@ ob_start();
                         list="disciplines-suggestions"
                         value="<?= htmlspecialchars($answers['chosen_discipline_2'] ?? '') ?>" 
                         <?= $is_locked ? 'disabled' : '' ?>
-                        placeholder="Ex : Relais 4x100m, Poids, Longueur..." 
-                        class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-rose-500 text-sm bg-slate-50 focus:bg-white font-medium"
+                        placeholder="" 
+                        class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm bg-slate-50 focus:bg-white font-medium"
                     >
                 </div>
             </div>
@@ -469,20 +446,20 @@ ob_start();
             <!-- Cadres sportifs -->
             <div>
                 <label class="block text-sm font-semibold text-slate-800 mb-1">
-                    Cadres sportifs
+                    Cadres
                 </label>
-                <p class="text-xs text-slate-500 mb-2">Sélectionne les structures de cadres dont tu fais partie ou que tu souhaites intégrer :</p>
+                <p class="text-xs text-slate-500 mb-2">Cadres dont tu fais partie (inscrit) ou que tu souhaites intégrer la saison prochaine :</p>
                 <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
                     <?php foreach (CategoryHelper::get_cadres() as $cadre_key => $cadre_label): ?>
                         <?php $c_checked = in_array($cadre_key, $selected_cadres, true); ?>
-                        <label class="flex items-center gap-2.5 p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer text-sm font-medium text-slate-700 has-[:checked]:bg-rose-50/80 has-[:checked]:border-rose-400 has-[:checked]:font-bold has-[:checked]:text-rose-950 shadow-sm transition-all">
+                        <label class="flex items-center gap-2.5 p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer text-sm font-medium text-slate-700 has-[:checked]:bg-indigo-50/80 has-[:checked]:border-indigo-400 has-[:checked]:font-bold has-[:checked]:text-indigo-950 shadow-sm transition-all">
                             <input 
                                 type="checkbox" 
                                 name="cadres[]" 
                                 value="<?= $cadre_key ?>" 
                                 <?= $c_checked ? 'checked' : '' ?> 
                                 <?= $is_locked ? 'disabled' : '' ?>
-                                class="w-4 h-4 text-rose-600 rounded focus:ring-rose-500"
+                                class="w-4 h-4 text-indigo-600 rounded focus:ring-indigo-500"
                             >
                             <span><?= htmlspecialchars($cadre_label) ?></span>
                         </label>
@@ -493,30 +470,32 @@ ob_start();
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                     <label for="target_performance" class="block text-sm font-semibold text-slate-800 mb-1">
-                        Performance chiffrée visée
+                        Objectif de performance chiffré
                     </label>
+                    <p class="text-xs text-slate-500 mb-2">Ex: 10.80 aux 100m</p>
                     <input 
                         type="text" 
                         name="target_performance" 
                         id="target_performance" 
                         value="<?= htmlspecialchars($answers['target_performance'] ?? '') ?>" 
                         <?= $is_locked ? 'disabled' : '' ?>
-                        placeholder="Ex : 10.95s au 100m, 6.80m en longueur..." 
-                        class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-rose-500 text-sm bg-slate-50 focus:bg-white font-medium"
+                        placeholder="" 
+                        class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm bg-slate-50 focus:bg-white font-medium"
                     >
                 </div>
                 <div>
                     <label for="target_competitions" class="block text-sm font-semibold text-slate-800 mb-1">
-                        Championnats cibles ou sélections visées
+                        Objectif de compétition, de sélection
                     </label>
+                    <p class="text-xs text-slate-500 mb-2">Ex: Champion suisse, cadres valaisans</p>
                     <input 
                         type="text" 
                         name="target_competitions" 
                         id="target_competitions" 
                         value="<?= htmlspecialchars($answers['target_competitions'] ?? '') ?>" 
                         <?= $is_locked ? 'disabled' : '' ?>
-                        placeholder="Ex : Médaille CS, qualification CS Élite..." 
-                        class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-rose-500 text-sm bg-slate-50 focus:bg-white font-medium"
+                        placeholder="" 
+                        class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm bg-slate-50 focus:bg-white font-medium"
                     >
                 </div>
             </div>
@@ -524,30 +503,32 @@ ob_start();
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                     <label for="commitment_1" class="block text-sm font-semibold text-slate-800 mb-1">
-                        Engagement d'attitude 1 (Non négociable)
+                        Engagement 1
                     </label>
+                    <p class="text-xs text-slate-500 mb-2">Pour parvenir à tes objectifs</p>
                     <input 
                         type="text" 
                         name="commitment_1" 
                         id="commitment_1" 
                         value="<?= htmlspecialchars($answers['commitment_1'] ?? '') ?>" 
                         <?= $is_locked ? 'disabled' : '' ?>
-                        placeholder="Ex : Rigueur sans faille sur la récupération" 
-                        class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-rose-500 text-sm bg-slate-50 focus:bg-white"
+                        placeholder="" 
+                        class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm bg-slate-50 focus:bg-white"
                     >
                 </div>
                 <div>
                     <label for="commitment_2" class="block text-sm font-semibold text-slate-800 mb-1">
-                        Engagement d'attitude 2 (Non négociable)
+                        Engagement 2
                     </label>
+                    <p class="text-xs text-slate-500 mb-2">Pour parvenir à tes objectifs</p>
                     <input 
                         type="text" 
                         name="commitment_2" 
                         id="commitment_2" 
                         value="<?= htmlspecialchars($answers['commitment_2'] ?? '') ?>" 
                         <?= $is_locked ? 'disabled' : '' ?>
-                        placeholder="Ex : Communication proactive des signaux de fatigue" 
-                        class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-rose-500 text-sm bg-slate-50 focus:bg-white"
+                        placeholder="" 
+                        class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm bg-slate-50 focus:bg-white"
                     >
                 </div>
             </div>
@@ -563,13 +544,13 @@ ob_start();
                         id="study_work_situation" 
                         value="<?= htmlspecialchars($answers['study_work_situation'] ?? '') ?>" 
                         <?= $is_locked ? 'disabled' : '' ?>
-                        placeholder="Ex : Collège de la Planta 3e, Apprentissage..." 
-                        class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-rose-500 text-sm bg-slate-50 focus:bg-white"
+                        placeholder="" 
+                        class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm bg-slate-50 focus:bg-white"
                     >
                 </div>
                 <div>
                     <label for="target_sessions_count" class="block text-sm font-semibold text-slate-800 mb-1">
-                        Volume hebdomadaire souhaité (séances / semaine)
+                        Nombre d'entraînements par semaine
                     </label>
                     <input 
                         type="number" 
@@ -579,7 +560,7 @@ ob_start();
                         max="8" 
                         value="<?= htmlspecialchars((string)($answers['target_sessions_count'] ?? '4')) ?>" 
                         <?= $is_locked ? 'disabled' : '' ?>
-                        class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-rose-500 text-sm bg-slate-50 focus:bg-white font-medium"
+                        class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm bg-slate-50 focus:bg-white font-medium"
                     >
                 </div>
             </div>
@@ -587,7 +568,7 @@ ob_start();
             <!-- Jours disponibles -->
             <div>
                 <label class="block text-sm font-semibold text-slate-800 mb-2">
-                    Disponibilités d'entraînement hebdomadaires :
+                    Disponibilités
                 </label>
                 <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
                     <?php 
@@ -603,14 +584,14 @@ ob_start();
                         foreach ($days_u18 as $key => $label): 
                             $checked = in_array($key, $selected_days, true);
                     ?>
-                        <label class="flex items-center gap-2 p-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer text-sm font-medium text-slate-700 has-[:checked]:bg-rose-50/80 has-[:checked]:border-rose-400 has-[:checked]:font-bold has-[:checked]:text-rose-950 shadow-sm transition-all">
+                        <label class="flex items-center gap-2 p-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer text-sm font-medium text-slate-700 has-[:checked]:bg-indigo-50/80 has-[:checked]:border-indigo-400 has-[:checked]:font-bold has-[:checked]:text-indigo-950 shadow-sm transition-all">
                             <input 
                                 type="checkbox" 
                                 name="available_days[]" 
                                 value="<?= $key ?>" 
                                 <?= $checked ? 'checked' : '' ?> 
                                 <?= $is_locked ? 'disabled' : '' ?>
-                                class="w-4 h-4 text-rose-600 rounded focus:ring-rose-500"
+                                class="w-4 h-4 text-indigo-600 rounded focus:ring-indigo-500"
                             >
                             <span><?= htmlspecialchars($label) ?></span>
                         </label>
@@ -628,7 +609,7 @@ ob_start();
                 <button 
                     type="button" 
                     id="btn-final-submit"
-                    class="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-brand-600 to-rose-600 hover:from-brand-700 hover:to-rose-700 text-white font-bold rounded-xl shadow-lg shadow-rose-600/20 hover:shadow-xl transition-all text-sm flex items-center justify-center gap-2"
+                    class="w-full sm:w-auto px-8 py-4 bg-zinc-900 hover:bg-zinc-800 text-white font-bold rounded-xl shadow-md hover:shadow-lg transition-all text-sm flex items-center justify-center gap-2"
                 >
                     <span>✓</span>
                     <span>Transmettre mon bilan à l'entraîneur</span>

@@ -19,31 +19,31 @@ if (!is_array($selected_cadres)) $selected_cadres = [$selected_cadres];
 $pillars = [
     'rigor' => [
         'label' => 'Rigueur à l\'entraînement',
-        'desc' => 'Présence, écoute des consignes, concentration technique et engagement.',
+        'desc' => 'Présence, ponctualité, écoute, concentration et intensité.',
         'ath_key' => 'rating_rigor',
         'coach_key' => 'coach_rating_rigor'
     ],
     'care_injuries' => [
         'label' => 'Soins et gestion des blessures',
-        'desc' => 'Prévention, communication immédiate au staff, soins et respect des protocoles.',
+        'desc' => 'Prévention, plans annexes, communication proactive des douleurs et consultations médicales.',
         'ath_key' => 'rating_care_injuries',
         'coach_key' => 'coach_rating_care_injuries'
     ],
     'lifestyle' => [
-        'label' => 'Hygiène de vie',
-        'desc' => 'Sommeil, alimentation, sorties et récupération.',
+        'label' => 'Hygiène de vie et place du sport',
+        'desc' => 'Place du sport dans ma vie, sommeil (quantité et régularité), alimentation/hydratation, sorties, etc.',
         'ath_key' => 'rating_lifestyle',
         'coach_key' => 'coach_rating_lifestyle'
     ],
     'mental' => [
-        'label' => 'Stabilité mentale',
-        'desc' => 'Gestion du stress, combativité sous pression et routine de compétition.',
+        'label' => 'Aspect mental',
+        'desc' => 'Gestion du stress en compétition, capacité à rebondir après un échec et routine pré-compétition.',
         'ath_key' => 'rating_mental_stability',
         'coach_key' => 'coach_rating_mental_stability'
     ],
     'dual_career' => [
-        'label' => 'Double projet (études / sport)',
-        'desc' => 'Organisation du planning, anticipation des examens et équilibre global.',
+        'label' => 'Double projet (études / apprentissage / sport)',
+        'desc' => 'Organisation du planning, anticipation des périodes d\'examens, communication avec l\'entraîneur et les parents et équilibre personnel.',
         'ath_key' => 'rating_dual_career',
         'coach_key' => 'coach_rating_dual_career'
     ]
@@ -87,7 +87,7 @@ ob_start();
             <div class="space-y-4 text-xs">
                 <!-- Orientation sportive N-1 -->
                 <div class="p-3.5 bg-zinc-50 rounded-xl border border-zinc-200/80 space-y-2">
-                    <div class="font-bold text-zinc-800 text-[11px] uppercase tracking-wider text-rose-700">1. Orientation & Volume validés en N-1</div>
+                    <div class="font-bold text-zinc-800 text-[11px] uppercase tracking-wider text-indigo-700">1. Orientation & Volume validés en N-1</div>
                     <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
                         <div>
                             <span class="text-zinc-500 block">Discipline prioritaire :</span>
@@ -106,7 +106,7 @@ ob_start();
 
                 <!-- Réussite & Objectifs N-1 -->
                 <div class="p-3.5 bg-zinc-50 rounded-xl border border-zinc-200/80 space-y-2">
-                    <div class="font-bold text-zinc-800 text-[11px] uppercase tracking-wider text-rose-700">2. Fierté & Objectifs passés</div>
+                    <div class="font-bold text-zinc-800 text-[11px] uppercase tracking-wider text-indigo-700">2. Fierté & Objectifs passés</div>
                     <div>
                         <span class="text-zinc-500 block">Plus grande fierté / Réussite exprimée :</span>
                         <p class="italic text-zinc-800 mt-0.5 bg-white p-2 rounded border border-zinc-200">
@@ -123,7 +123,7 @@ ob_start();
 
                 <!-- Contrat moral N-1 -->
                 <div class="p-3.5 bg-zinc-50 rounded-xl border border-zinc-200/80 space-y-2">
-                    <div class="font-bold text-zinc-800 text-[11px] uppercase tracking-wider text-rose-700">3. Contrat moral N-1 (Engagements)</div>
+                    <div class="font-bold text-zinc-800 text-[11px] uppercase tracking-wider text-indigo-700">3. Contrat moral N-1 (Engagements)</div>
                     <ul class="space-y-1.5 list-disc list-inside text-zinc-700">
                         <li><strong>Règle 1 :</strong> <?= htmlspecialchars($h_rule1 ?: 'Non renseignée') ?></li>
                         <?php if ($h_rule2): ?>
@@ -165,7 +165,7 @@ ob_start();
                     &larr; Retour au tableau de bord
                 </a>
                 <span class="text-zinc-300">/</span>
-                <span class="text-xs font-semibold text-rose-700 bg-rose-50 px-2.5 py-0.5 rounded-full border border-rose-200">
+                <span class="text-xs font-semibold text-slate-700 bg-slate-100 px-2.5 py-0.5 rounded-full border border-slate-200">
                     <?= htmlspecialchars($category_label) ?> (<?= $birth_year > 0 ? $birth_year : 'Année non renseignée' ?>)
                 </span>
             </div>
@@ -227,16 +227,17 @@ ob_start();
     </div>
 
     <!-- Formulaire d'arbitrage Coach (Split-Screen) -->
+    <!-- Formulaire d'arbitrage Coach (Split-Screen) -->
     <form action="<?= url('/admin/save-trainer') ?>" method="POST" class="space-y-6">
         <input type="hidden" name="interview_id" value="<?= (int)$interview['id'] ?>">
         <input type="hidden" name="redirect_to" value="<?= htmlspecialchars($_SERVER['REQUEST_URI'] ?? '/admin') ?>">
 
-        <!-- Bloc 1 : Bilan de saison et Analyse causale -->
+        <!-- Bloc 1 : Bilan de saison -->
         <div class="bg-white rounded-2xl shadow-sm border border-zinc-200 overflow-hidden">
             <div class="bg-zinc-50 px-5 py-3.5 border-b border-zinc-200 flex items-center justify-between">
                 <h2 class="font-heading font-bold text-sm text-zinc-900 flex items-center gap-2">
-                    <span class="w-6 h-6 rounded-lg bg-rose-600 text-white flex items-center justify-center text-xs font-bold">1</span>
-                    Volet 1 : Bilan sportif & Analyse causale
+                    <span class="w-6 h-6 rounded-lg bg-zinc-900 text-white flex items-center justify-center text-xs font-bold">1</span>
+                    Bilan de saison
                 </h2>
                 <span class="text-xs text-zinc-500 font-medium">Comparatif Saisie Athlète / Avis Coach</span>
             </div>
@@ -245,67 +246,57 @@ ob_start();
                 <!-- Colonne Gauche : Réponses de l'Athlète -->
                 <div class="space-y-4">
                     <div class="flex items-center justify-between border-b border-zinc-100 pb-2">
-                        <span class="text-xs font-bold uppercase tracking-wider text-rose-700">Ce que dit l'athlète</span>
+                        <span class="text-xs font-bold uppercase tracking-wider text-indigo-700">Ce que dit l'athlète</span>
                         <span class="text-[11px] text-zinc-500">Auto-évaluation</span>
                     </div>
 
                     <!-- Tableau Objectifs vs Réalisations -->
                     <div class="space-y-2">
-                        <span class="text-xs font-semibold text-zinc-700 block">Objectifs vs Réalisations :</span>
                         
                         <!-- Goal 1 -->
                         <div class="p-2 bg-white rounded-lg border border-zinc-200 space-y-1">
-                            <label class="block text-[10px] font-semibold text-zinc-500">Objectif 1 (performance, chrono ou mesure) :</label>
-                            <input type="text" name="athlete_answers[goals_results][goal_1_perf]" value="<?= htmlspecialchars($get_goal('goal_1_perf')) ?>" placeholder="Non renseigné" class="w-full px-2 py-1 border border-zinc-200 rounded text-xs bg-zinc-50 focus:bg-white">
-                            <label class="block text-[10px] font-semibold text-emerald-800 pt-0.5">Résultat obtenu :</label>
-                            <input type="text" name="athlete_answers[goals_results][achieved_1]" value="<?= htmlspecialchars($get_goal('achieved_1')) ?>" placeholder="Non renseigné" class="w-full px-2 py-1 border border-zinc-200 rounded text-xs bg-zinc-50 focus:bg-white font-medium text-zinc-900">
+                            <label class="block text-[10px] font-semibold text-zinc-500">Objectif de performance</label>
+                            <input type="text" name="athlete_answers[goals_results][goal_1_perf]" value="<?= htmlspecialchars($get_goal('goal_1_perf')) ?>" placeholder="" class="w-full px-2 py-1 border border-zinc-200 rounded text-xs bg-zinc-50 focus:bg-white">
+                            <label class="block text-[10px] font-semibold text-emerald-800 pt-0.5">Réalisé :</label>
+                            <input type="text" name="athlete_answers[goals_results][achieved_1]" value="<?= htmlspecialchars($get_goal('achieved_1')) ?>" placeholder="" class="w-full px-2 py-1 border border-zinc-200 rounded text-xs bg-zinc-50 focus:bg-white font-medium text-zinc-900">
                         </div>
 
                         <!-- Goal 2 -->
                         <div class="p-2 bg-white rounded-lg border border-zinc-200 space-y-1">
-                            <label class="block text-[10px] font-semibold text-zinc-500">Objectif 2 (sélections ou championnats) :</label>
-                            <input type="text" name="athlete_answers[goals_results][goal_2_selection]" value="<?= htmlspecialchars($get_goal('goal_2_selection')) ?>" placeholder="Non renseigné" class="w-full px-2 py-1 border border-zinc-200 rounded text-xs bg-zinc-50 focus:bg-white">
-                            <label class="block text-[10px] font-semibold text-emerald-800 pt-0.5">Résultat obtenu :</label>
-                            <input type="text" name="athlete_answers[goals_results][achieved_2]" value="<?= htmlspecialchars($get_goal('achieved_2')) ?>" placeholder="Non renseigné" class="w-full px-2 py-1 border border-zinc-200 rounded text-xs bg-zinc-50 focus:bg-white font-medium text-zinc-900">
+                            <label class="block text-[10px] font-semibold text-zinc-500">Objectif de compétitions / sélections</label>
+                            <input type="text" name="athlete_answers[goals_results][goal_2_selection]" value="<?= htmlspecialchars($get_goal('goal_2_selection')) ?>" placeholder="" class="w-full px-2 py-1 border border-zinc-200 rounded text-xs bg-zinc-50 focus:bg-white">
+                            <label class="block text-[10px] font-semibold text-emerald-800 pt-0.5">Réalisé :</label>
+                            <input type="text" name="athlete_answers[goals_results][achieved_2]" value="<?= htmlspecialchars($get_goal('achieved_2')) ?>" placeholder="" class="w-full px-2 py-1 border border-zinc-200 rounded text-xs bg-zinc-50 focus:bg-white font-medium text-zinc-900">
                         </div>
 
                         <!-- Goal 3 -->
                         <div class="p-2 bg-white rounded-lg border border-zinc-200 space-y-1">
-                            <label class="block text-[10px] font-semibold text-zinc-500">Objectif 3 (attitude et rigueur) :</label>
-                            <input type="text" name="athlete_answers[goals_results][goal_3_attitude]" value="<?= htmlspecialchars($get_goal('goal_3_attitude')) ?>" placeholder="Non renseigné" class="w-full px-2 py-1 border border-zinc-200 rounded text-xs bg-zinc-50 focus:bg-white">
-                            <label class="block text-[10px] font-semibold text-emerald-800 pt-0.5">Résultat obtenu :</label>
-                            <input type="text" name="athlete_answers[goals_results][achieved_3]" value="<?= htmlspecialchars($get_goal('achieved_3')) ?>" placeholder="Non renseigné" class="w-full px-2 py-1 border border-zinc-200 rounded text-xs bg-zinc-50 focus:bg-white font-medium text-zinc-900">
+                            <label class="block text-[10px] font-semibold text-zinc-500">Objectif d'attitude, d'engagement</label>
+                            <input type="text" name="athlete_answers[goals_results][goal_3_attitude]" value="<?= htmlspecialchars($get_goal('goal_3_attitude')) ?>" placeholder="" class="w-full px-2 py-1 border border-zinc-200 rounded text-xs bg-zinc-50 focus:bg-white">
+                            <label class="block text-[10px] font-semibold text-emerald-800 pt-0.5">Réalisé :</label>
+                            <input type="text" name="athlete_answers[goals_results][achieved_3]" value="<?= htmlspecialchars($get_goal('achieved_3')) ?>" placeholder="" class="w-full px-2 py-1 border border-zinc-200 rounded text-xs bg-zinc-50 focus:bg-white font-medium text-zinc-900">
                         </div>
                     </div>
 
                     <!-- Fierté et action -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                         <div>
-                            <label class="font-semibold text-zinc-700 block mb-0.5 text-[11px]">Satisfaction majeure de la saison :</label>
-                            <textarea name="athlete_answers[top_success_description]" rows="2" placeholder="Moment marquant..." class="w-full px-2.5 py-1.5 bg-zinc-50 focus:bg-white rounded-lg border border-zinc-200 text-xs"><?= htmlspecialchars($athlete_answers['top_success_description'] ?? '') ?></textarea>
+                            <label class="font-semibold text-zinc-700 block mb-0.5 text-[11px]">Ta plus grande réussite ou fierté cette saison :</label>
+                            <p class="text-[10px] text-zinc-400 mb-1">Compétition, résultat, sélection, maîtrise, apprentissage, etc.</p>
+                            <textarea name="athlete_answers[top_success_description]" rows="2" placeholder="" class="w-full px-2.5 py-1.5 bg-zinc-50 focus:bg-white rounded-lg border border-zinc-200 text-xs"><?= htmlspecialchars($athlete_answers['top_success_description'] ?? '') ?></textarea>
                         </div>
                         <div>
-                            <label class="font-semibold text-zinc-700 block mb-0.5 text-[11px]">Action clé ayant permis cette réussite :</label>
-                            <textarea name="athlete_answers[top_success_action]" rows="2" placeholder="Action ou comportement clé..." class="w-full px-2.5 py-1.5 bg-zinc-50 focus:bg-white rounded-lg border border-zinc-200 text-xs"><?= htmlspecialchars($athlete_answers['top_success_action'] ?? '') ?></textarea>
-                        </div>
-                    </div>
-
-                    <!-- Facteurs causaux -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                        <div>
-                            <label class="font-semibold text-zinc-700 block mb-0.5 text-[11px]">Facteurs sous contrôle (choix, rigueur) :</label>
-                            <textarea name="athlete_answers[causes_controllable]" rows="2" placeholder="Ce qui dépendait de l'athlète..." class="w-full px-2.5 py-1.5 bg-zinc-50 focus:bg-white rounded-lg border border-zinc-200 text-xs"><?= htmlspecialchars($athlete_answers['causes_controllable'] ?? '') ?></textarea>
-                        </div>
-                        <div>
-                            <label class="font-semibold text-zinc-700 block mb-0.5 text-[11px]">Facteurs hors contrôle (météo, blessures) :</label>
-                            <textarea name="athlete_answers[causes_uncontrollable]" rows="2" placeholder="Ce qui ne dépendait pas de l'athlète..." class="w-full px-2.5 py-1.5 bg-zinc-50 focus:bg-white rounded-lg border border-zinc-200 text-xs"><?= htmlspecialchars($athlete_answers['causes_uncontrollable'] ?? '') ?></textarea>
+                            <label class="font-semibold text-zinc-700 block mb-0.5 text-[11px]">Qu'est-ce qui a changé positivement cette saison ?</label>
+                            <p class="text-[10px] text-zinc-400 mb-1">Changements, adaptations, nouveaux entraînements, rigueur, etc.</p>
+                            <textarea name="athlete_answers[top_success_action]" rows="2" placeholder="" class="w-full px-2.5 py-1.5 bg-zinc-50 focus:bg-white rounded-lg border border-zinc-200 text-xs"><?= htmlspecialchars($athlete_answers['top_success_action'] ?? '') ?></textarea>
                         </div>
                     </div>
 
                     <!-- Obstacle majeur -->
                     <div>
-                        <label class="font-semibold text-zinc-800 block mb-0.5 text-[11px]">Principal frein à la progression identifié :</label>
-                        <input type="text" name="athlete_answers[main_limiting_barrier]" value="<?= htmlspecialchars($athlete_answers['main_limiting_barrier'] ?? '') ?>" placeholder="Frein numéro un..." class="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs font-medium text-zinc-900">
+                        <label class="font-semibold text-zinc-800 block mb-0.5 text-[11px]">Ton principal frein cette saison</label>
+                        <p class="text-[10px] text-zinc-400 mb-1">Ce qui t'a le plus empêché d'atteindre ton plein potentiel ou tes objectifs</p>
+                        <input type="text" name="athlete_answers[main_limiting_barrier]" value="<?= htmlspecialchars($athlete_answers['main_limiting_barrier'] ?? '') ?>" placeholder="" class="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs font-medium text-zinc-900">
                     </div>
                 </div>
 
@@ -315,34 +306,51 @@ ob_start();
                         Analyse et arbitrage de l'entraîneur
                     </div>
 
+                    <!-- 4.1 Lucidité globale de l'auto-analyse -->
                     <div>
-                        <label class="block font-semibold text-zinc-700 mb-1 text-[11px]">
-                            Lucidité de l'athlète (auto-critique et responsabilité) :
+                        <label class="block font-semibold text-zinc-700 mb-1.5 text-[11px]">
+                            Lucidité globale de l'auto-analyse :
                         </label>
-                        <textarea 
-                            name="trainer_answers[lucidity_assessment]" 
-                            rows="4" 
-                            placeholder="L'athlète assume-t-il sa part de responsabilité ou reporte-t-il sur des causes externes ?" 
-                            class="w-full px-3 py-2 border border-zinc-300 rounded-xl bg-zinc-50 focus:bg-white text-xs"
-                        ><?= htmlspecialchars($trainer_answers['lucidity_assessment'] ?? '') ?></textarea>
+                        <?php 
+                            $curr_lucidity = $trainer_answers['lucidity_assessment'] ?? '';
+                            $lucidity_options = [
+                                'Haute lucidité' => 'Haute lucidité',
+                                'Réaliste' => 'Réaliste',
+                                'Fragile ou décalé' => 'Fragile ou décalé'
+                            ];
+                        ?>
+                        <div class="grid grid-cols-3 gap-2">
+                            <?php foreach ($lucidity_options as $val => $lbl): ?>
+                                <label class="flex items-center justify-center p-2 rounded-xl border border-zinc-200 bg-zinc-50 hover:bg-zinc-100 cursor-pointer text-center text-xs font-medium text-zinc-700 transition-all has-[:checked]:bg-zinc-900 has-[:checked]:border-zinc-900 has-[:checked]:text-white has-[:checked]:font-bold shadow-sm">
+                                    <input 
+                                        type="radio" 
+                                        name="trainer_answers[lucidity_assessment]" 
+                                        value="<?= $val ?>" 
+                                        <?= ($curr_lucidity === $val) ? 'checked' : '' ?> 
+                                        class="sr-only"
+                                    >
+                                    <span><?= $lbl ?></span>
+                                </label>
+                            <?php endforeach; ?>
+                        </div>
                     </div>
 
+                    <!-- 4.2 Constat du décalage ou autre points -->
                     <div>
                         <label class="block font-semibold text-zinc-700 mb-1 text-[11px]">
-                            Écart d'assiduité et ponctualité réelle constatée :
+                            Constat du décalage ou autre points :
                         </label>
-                        <input 
-                            type="text" 
+                        <textarea 
                             name="trainer_answers[gap_attendance]" 
-                            value="<?= htmlspecialchars($trainer_answers['gap_attendance'] ?? '') ?>" 
-                            placeholder="Régularité effective sur la saison, ponctualité..." 
+                            rows="2" 
+                            placeholder="" 
                             class="w-full px-3 py-2 border border-zinc-300 rounded-xl bg-zinc-50 focus:bg-white text-xs"
-                        >
+                        ><?= htmlspecialchars($trainer_answers['gap_attendance'] ?? '') ?></textarea>
                     </div>
                 </div>
 
             </div>
-        </section>
+        </div>
 
         <!-- =========================================================================
              SECTION 2 : MATRICE DE CONFRONTATION DES 5 PILIERS (1 À 5)
@@ -350,8 +358,8 @@ ob_start();
         <section class="bg-white rounded-2xl border border-zinc-200/80 shadow-sm overflow-hidden">
             <div class="px-4 py-2 bg-zinc-50/80 border-b border-zinc-200/80 flex items-center justify-between">
                 <h2 class="text-xs font-bold uppercase tracking-wider text-zinc-800 flex items-center gap-2">
-                    <span class="w-4 h-4 rounded bg-rose-600 text-white flex items-center justify-center text-[10px] font-black">2</span>
-                    Matrice de confrontation des 5 piliers d'engagement
+                    <span class="w-4 h-4 rounded bg-zinc-900 text-white flex items-center justify-center text-[10px] font-black">2</span>
+                    Auto-évaluation
                 </h2>
                 <span class="text-[11px] text-zinc-400">Évaluation conjointe de 1 à 5 et mesure des écarts</span>
             </div>
@@ -389,7 +397,7 @@ ob_start();
                                                     class="sr-only peer ath-rating-input"
                                                     data-pillar="<?= $pkey ?>"
                                                 >
-                                                <span class="w-6 h-6 rounded-md flex items-center justify-center text-[10px] font-bold border transition-all peer-checked:bg-rose-600 peer-checked:text-white peer-checked:border-rose-600 bg-zinc-100 border-zinc-200 text-zinc-700 hover:bg-zinc-200">
+                                                <span class="w-6 h-6 rounded-md flex items-center justify-center text-[10px] font-bold border transition-all peer-checked:bg-indigo-600 peer-checked:text-white peer-checked:border-indigo-600 bg-zinc-100 border-zinc-200 text-zinc-700 hover:bg-zinc-200">
                                                     <?= $i ?>
                                                 </span>
                                             </label>
@@ -427,16 +435,16 @@ ob_start();
                 <!-- Précisions écosystème compactes -->
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1">
                     <div>
-                        <label class="font-semibold text-zinc-700 block mb-0.5 text-[11px]">Commentaire investissement athlète :</label>
-                        <input type="text" name="athlete_answers[lifestyle_notes]" value="<?= htmlspecialchars($athlete_answers['lifestyle_notes'] ?? '') ?>" placeholder="Contraintes scolaires ou personnelles..." class="w-full px-2.5 py-1.5 bg-zinc-50 focus:bg-white rounded-lg border border-zinc-200 text-xs">
+                        <label class="font-semibold text-zinc-700 block mb-0.5 text-[11px]">Précisions sur ton auto-évalaution ou écosystème</label>
+                        <input type="text" name="athlete_answers[lifestyle_notes]" value="<?= htmlspecialchars($athlete_answers['lifestyle_notes'] ?? '') ?>" placeholder="" class="w-full px-2.5 py-1.5 bg-zinc-50 focus:bg-white rounded-lg border border-zinc-200 text-xs">
                     </div>
                     <div>
-                        <label class="font-semibold text-zinc-700 block mb-0.5 text-[11px]">Écart d'implication constaté :</label>
-                        <input type="text" name="trainer_answers[gap_rigor]" value="<?= htmlspecialchars($trainer_answers['gap_rigor'] ?? '') ?>" placeholder="Écart entre auto-évaluation et terrain..." class="w-full px-2.5 py-1.5 bg-zinc-50 focus:bg-white rounded-lg border border-zinc-200 text-xs">
+                        <label class="font-semibold text-zinc-700 block mb-0.5 text-[11px]">Écart d'implication constaté par l'entraîneur :</label>
+                        <input type="text" name="trainer_answers[gap_rigor]" value="<?= htmlspecialchars($trainer_answers['gap_rigor'] ?? '') ?>" placeholder="" class="w-full px-2.5 py-1.5 bg-zinc-50 focus:bg-white rounded-lg border border-zinc-200 text-xs">
                     </div>
                     <div>
-                        <label class="font-semibold text-zinc-700 block mb-0.5 text-[11px]">Écart hygiène de vie constaté :</label>
-                        <input type="text" name="trainer_answers[gap_lifestyle]" value="<?= htmlspecialchars($trainer_answers['gap_lifestyle'] ?? '') ?>" placeholder="Sommeil, récupération, soins..." class="w-full px-2.5 py-1.5 bg-zinc-50 focus:bg-white rounded-lg border border-zinc-200 text-xs">
+                        <label class="font-semibold text-zinc-700 block mb-0.5 text-[11px]">Écart hygiène de vie constaté par l'entraîneur :</label>
+                        <input type="text" name="trainer_answers[gap_lifestyle]" value="<?= htmlspecialchars($trainer_answers['gap_lifestyle'] ?? '') ?>" placeholder="" class="w-full px-2.5 py-1.5 bg-zinc-50 focus:bg-white rounded-lg border border-zinc-200 text-xs">
                     </div>
                 </div>
 
@@ -449,10 +457,9 @@ ob_start();
         <section class="bg-white rounded-2xl border border-zinc-200/80 shadow-sm overflow-hidden">
             <div class="px-4 py-2 bg-zinc-50/80 border-b border-zinc-200/80 flex items-center justify-between">
                 <h2 class="text-xs font-bold uppercase tracking-wider text-zinc-800 flex items-center gap-2">
-                    <span class="w-4 h-4 rounded bg-rose-600 text-white flex items-center justify-center text-[10px] font-black">3</span>
-                    Relation d'entraînement et ajustements
+                    <span class="w-4 h-4 rounded bg-zinc-900 text-white flex items-center justify-center text-[10px] font-black">3</span>
+                    Relations
                 </h2>
-                <span class="text-[11px] text-zinc-400">Communication, attentes réciproques et méthode</span>
             </div>
 
             <div class="p-3.5 sm:p-4 grid grid-cols-1 lg:grid-cols-2 gap-4 items-start text-xs">
@@ -463,39 +470,39 @@ ob_start();
                         Retours formulés par l'athlète
                     </div>
                     <div>
-                        <label class="font-semibold text-zinc-800 block mb-0.5 text-[11px]">Points forts de l'encadrement à préserver :</label>
-                        <textarea name="athlete_answers[coach_positives_to_keep]" rows="2" class="w-full px-2.5 py-1.5 bg-zinc-50 rounded-lg border border-zinc-200 text-zinc-800 text-xs"><?= htmlspecialchars($athlete_answers['coach_positives_to_keep'] ?? '') ?></textarea>
+                        <label class="font-semibold text-zinc-800 block mb-0.5 text-[11px]">Ce qui a bien fonctionné avec ton entraîneur cette saison :</label>
+                        <textarea name="athlete_answers[coach_positives_to_keep]" rows="2" placeholder="" class="w-full px-2.5 py-1.5 bg-zinc-50 rounded-lg border border-zinc-200 text-zinc-800 text-xs"><?= htmlspecialchars($athlete_answers['coach_positives_to_keep'] ?? '') ?></textarea>
                     </div>
                     <div>
-                        <label class="font-semibold text-zinc-800 block mb-0.5 text-[11px]">Points d'incompréhension ou de friction :</label>
-                        <textarea name="athlete_answers[coach_friction_points]" rows="2" class="w-full px-2.5 py-1.5 bg-zinc-50 rounded-lg border border-zinc-200 text-zinc-800 text-xs"><?= htmlspecialchars($athlete_answers['coach_friction_points'] ?? '') ?></textarea>
+                        <label class="font-semibold text-zinc-800 block mb-0.5 text-[11px]">Points de friction ou incompréhensions vécus :</label>
+                        <textarea name="athlete_answers[coach_friction_points]" rows="2" placeholder="" class="w-full px-2.5 py-1.5 bg-zinc-50 rounded-lg border border-zinc-200 text-zinc-800 text-xs"><?= htmlspecialchars($athlete_answers['coach_friction_points'] ?? '') ?></textarea>
                     </div>
                     <div>
-                        <label class="font-semibold text-zinc-800 block mb-0.5 text-[11px]">Besoins exprimés par l'athlète pour la suite :</label>
-                        <textarea name="athlete_answers[coach_needs_next_season]" rows="2" class="w-full px-2.5 py-1.5 bg-zinc-50 rounded-lg border border-zinc-200 text-zinc-800 text-xs font-medium"><?= htmlspecialchars($athlete_answers['coach_needs_next_season'] ?? '') ?></textarea>
+                        <label class="font-semibold text-zinc-800 block mb-0.5 text-[11px]">Besoins spécifiques de ta part pour la saison à venir :</label>
+                        <textarea name="athlete_answers[coach_needs_next_season]" rows="2" placeholder="" class="w-full px-2.5 py-1.5 bg-zinc-50 rounded-lg border border-zinc-200 text-zinc-800 text-xs font-medium"><?= htmlspecialchars($athlete_answers['coach_needs_next_season'] ?? '') ?></textarea>
                     </div>
                 </div>
 
                 <!-- DROITE : Engagements de l'entraîneur -->
                 <div class="space-y-2">
                     <div class="font-semibold text-zinc-500 text-[10px] uppercase tracking-wider pb-1 border-b border-zinc-100">
-                        Ajustements convenus par l'entraîneur
+                        Besoins & Ajustements de l'entraîneur
                     </div>
                     <div>
-                        <label class="block font-semibold text-zinc-700 mb-0.5 text-[11px]">Besoins spécifiques validés par le staff :</label>
+                        <label class="block font-semibold text-zinc-700 mb-0.5 text-[11px]">Besoins athlète validés par le staff :</label>
                         <textarea 
                             name="trainer_answers[approved_athlete_needs]" 
                             rows="3" 
-                            placeholder="Retours vidéo, suivi individualisé, fermeté..." 
+                            placeholder="Ce que le coach et le club s'engagent à adapter..." 
                             class="w-full px-2.5 py-1.5 border border-zinc-300 rounded-lg bg-zinc-50 focus:bg-white text-xs"
                         ><?= htmlspecialchars($trainer_answers['approved_athlete_needs'] ?? ($athlete_answers['coach_needs_next_season'] ?? '')) ?></textarea>
                     </div>
                     <div>
-                        <label class="block font-semibold text-zinc-700 mb-0.5 text-[11px]">Ajustements pédagogiques pris en compte :</label>
+                        <label class="block font-semibold text-zinc-700 mb-0.5 text-[11px]">Ajustements de l'entraîneur demandés par l'athlète :</label>
                         <textarea 
                             name="trainer_answers[coach_adjustments]" 
                             rows="3" 
-                            placeholder="Communication, gestion du stress en concours, explications..." 
+                            placeholder="" 
                             class="w-full px-2.5 py-1.5 border border-zinc-300 rounded-lg bg-zinc-50 focus:bg-white text-xs"
                         ><?= htmlspecialchars($trainer_answers['coach_adjustments'] ?? '') ?></textarea>
                     </div>
@@ -505,15 +512,15 @@ ob_start();
         </section>
 
         <!-- =========================================================================
-             SECTION 4 : PROJET SPORTIF ET CONTRAT D'ENGAGEMENT
+             SECTION 4 : SAISON À VENIR ET DÉCISIONS
              ========================================================================= -->
         <section class="bg-white rounded-2xl border border-zinc-200/80 shadow-sm overflow-hidden">
             <div class="px-4 py-2 bg-zinc-50/80 border-b border-zinc-200/80 flex items-center justify-between">
                 <h2 class="text-xs font-bold uppercase tracking-wider text-zinc-800 flex items-center gap-2">
-                    <span class="w-4 h-4 rounded bg-rose-600 text-white flex items-center justify-center text-[10px] font-black">4</span>
-                    Projet sportif et contrat d'engagement
+                    <span class="w-4 h-4 rounded bg-zinc-900 text-white flex items-center justify-center text-[10px] font-black">4</span>
+                    Saison à venir
                 </h2>
-                <span class="text-[11px] text-zinc-400">Disciplines, volume et 2 règles du contrat moral</span>
+                <span class="text-[11px] text-zinc-400">Disciplines, volume et contrat moral validé</span>
             </div>
 
             <div class="p-3.5 sm:p-4 grid grid-cols-1 lg:grid-cols-2 gap-4 items-start text-xs">
@@ -527,12 +534,12 @@ ob_start();
                     <!-- Disciplines souhaitées -->
                     <div class="grid grid-cols-2 gap-2">
                         <div>
-                            <label class="font-semibold text-zinc-700 block mb-0.5 text-[11px]">Discipline 1 souhaitée :</label>
-                            <input type="text" list="disciplines-suggestions" name="athlete_answers[chosen_discipline_1]" value="<?= htmlspecialchars($athlete_answers['chosen_discipline_1'] ?? '') ?>" placeholder="Ex : 100m, Haies..." class="w-full px-2.5 py-1.5 border border-zinc-200 rounded-lg text-xs bg-zinc-50 focus:bg-white font-medium">
+                            <label class="font-semibold text-zinc-700 block mb-0.5 text-[11px]">Discipline 1 :</label>
+                            <input type="text" list="disciplines-suggestions" name="athlete_answers[chosen_discipline_1]" value="<?= htmlspecialchars($athlete_answers['chosen_discipline_1'] ?? '') ?>" placeholder="" class="w-full px-2.5 py-1.5 border border-zinc-200 rounded-lg text-xs bg-zinc-50 focus:bg-white font-medium">
                         </div>
                         <div>
-                            <label class="font-semibold text-zinc-700 block mb-0.5 text-[11px]">Discipline 2 souhaitée :</label>
-                            <input type="text" list="disciplines-suggestions" name="athlete_answers[chosen_discipline_2]" value="<?= htmlspecialchars($athlete_answers['chosen_discipline_2'] ?? '') ?>" placeholder="Ex : Longueur..." class="w-full px-2.5 py-1.5 border border-zinc-200 rounded-lg text-xs bg-zinc-50 focus:bg-white font-medium">
+                            <label class="font-semibold text-zinc-700 block mb-0.5 text-[11px]">Discipline 2 (optionnelle) :</label>
+                            <input type="text" list="disciplines-suggestions" name="athlete_answers[chosen_discipline_2]" value="<?= htmlspecialchars($athlete_answers['chosen_discipline_2'] ?? '') ?>" placeholder="" class="w-full px-2.5 py-1.5 border border-zinc-200 rounded-lg text-xs bg-zinc-50 focus:bg-white font-medium">
                         </div>
                     </div>
 
@@ -544,65 +551,65 @@ ob_start();
 
                     <div class="grid grid-cols-2 gap-2">
                         <div>
-                            <label class="font-semibold text-zinc-700 block mb-0.5 text-[11px]">Performance visée :</label>
-                            <input type="text" name="athlete_answers[target_performance]" value="<?= htmlspecialchars($athlete_answers['target_performance'] ?? '') ?>" placeholder="Ex : 11.20s..." class="w-full px-2.5 py-1.5 border border-zinc-200 rounded-lg text-xs bg-zinc-50 focus:bg-white font-medium">
+                            <label class="font-semibold text-zinc-700 block mb-0.5 text-[11px]">Objectif de performance chiffré :</label>
+                            <input type="text" name="athlete_answers[target_performance]" value="<?= htmlspecialchars($athlete_answers['target_performance'] ?? '') ?>" placeholder="" class="w-full px-2.5 py-1.5 border border-zinc-200 rounded-lg text-xs bg-zinc-50 focus:bg-white font-medium">
                         </div>
                         <div>
-                            <label class="font-semibold text-zinc-700 block mb-0.5 text-[11px]">Championnats visés :</label>
-                            <input type="text" name="athlete_answers[target_competitions]" value="<?= htmlspecialchars($athlete_answers['target_competitions'] ?? '') ?>" placeholder="Ex : Finale CS..." class="w-full px-2.5 py-1.5 border border-zinc-200 rounded-lg text-xs bg-zinc-50 focus:bg-white font-medium">
+                            <label class="font-semibold text-zinc-700 block mb-0.5 text-[11px]">Objectif de compétition, de sélection :</label>
+                            <input type="text" name="athlete_answers[target_competitions]" value="<?= htmlspecialchars($athlete_answers['target_competitions'] ?? '') ?>" placeholder="" class="w-full px-2.5 py-1.5 border border-zinc-200 rounded-lg text-xs bg-zinc-50 focus:bg-white font-medium">
                         </div>
                     </div>
 
                     <!-- Engagements d'attitude -->
                     <div class="p-2 bg-zinc-50/60 rounded-xl border border-zinc-200 space-y-1">
                         <div class="flex items-center justify-between">
-                            <label class="font-semibold text-zinc-700 text-[11px]">Engagement d'attitude 1 :</label>
+                            <label class="font-semibold text-zinc-700 text-[11px]">Engagement 1 :</label>
                             <button 
                                 type="button" 
                                 onclick="copyToRule(1, document.getElementById('ath-commit-1').value)" 
-                                class="text-[10px] text-rose-600 hover:underline font-bold"
+                                class="text-[10px] text-indigo-600 hover:text-indigo-800 hover:underline font-bold"
                             >
-                                Copier dans Règle 1 →
+                                Copier dans Engagement 1 →
                             </button>
                         </div>
-                        <input type="text" id="ath-commit-1" name="athlete_answers[commitment_1]" value="<?= htmlspecialchars($athlete_answers['commitment_1'] ?? '') ?>" placeholder="Ex : Rigueur sans faille..." class="w-full px-2 py-1 border border-zinc-200 rounded-lg text-xs bg-white font-medium">
+                        <input type="text" id="ath-commit-1" name="athlete_answers[commitment_1]" value="<?= htmlspecialchars($athlete_answers['commitment_1'] ?? '') ?>" placeholder="" class="w-full px-2 py-1 border border-zinc-200 rounded-lg text-xs bg-white font-medium">
                     </div>
 
                     <div class="p-2 bg-zinc-50/60 rounded-xl border border-zinc-200 space-y-1">
                         <div class="flex items-center justify-between">
-                            <label class="font-semibold text-zinc-700 text-[11px]">Engagement d'attitude 2 :</label>
+                            <label class="font-semibold text-zinc-700 text-[11px]">Engagement 2 :</label>
                             <button 
                                 type="button" 
                                 onclick="copyToRule(2, document.getElementById('ath-commit-2').value)" 
-                                class="text-[10px] text-rose-600 hover:underline font-bold"
+                                class="text-[10px] text-indigo-600 hover:text-indigo-800 hover:underline font-bold"
                             >
-                                Copier dans Règle 2 →
+                                Copier dans Engagement 2 →
                             </button>
                         </div>
-                        <input type="text" id="ath-commit-2" name="athlete_answers[commitment_2]" value="<?= htmlspecialchars($athlete_answers['commitment_2'] ?? '') ?>" placeholder="Ex : Communication des douleurs sous 24h..." class="w-full px-2 py-1 border border-zinc-200 rounded-lg text-xs bg-white font-medium">
+                        <input type="text" id="ath-commit-2" name="athlete_answers[commitment_2]" value="<?= htmlspecialchars($athlete_answers['commitment_2'] ?? '') ?>" placeholder="" class="w-full px-2 py-1 border border-zinc-200 rounded-lg text-xs bg-white font-medium">
                     </div>
 
                     <div class="grid grid-cols-2 gap-2">
                         <div>
-                            <label class="font-semibold text-zinc-700 block mb-0.5 text-[11px]">Volume souhaité (séances par semaine) :</label>
+                            <label class="font-semibold text-zinc-700 block mb-0.5 text-[11px]">Nombre d'entraînements par semaine :</label>
                             <input type="number" name="athlete_answers[target_sessions_count]" min="2" max="8" value="<?= htmlspecialchars((string)($athlete_answers['target_sessions_count'] ?? '4')) ?>" class="w-full px-2.5 py-1.5 border border-zinc-200 rounded-lg text-xs bg-zinc-50 focus:bg-white font-medium">
                         </div>
                         <div>
-                            <label class="font-semibold text-zinc-700 block mb-0.5 text-[11px]">Situation scolaire ou professionnelle :</label>
-                            <input type="text" name="athlete_answers[study_work_situation]" value="<?= htmlspecialchars($athlete_answers['study_work_situation'] ?? '') ?>" placeholder="Ex : Collège 3e..." class="w-full px-2.5 py-1.5 border border-zinc-200 rounded-lg text-xs bg-zinc-50 focus:bg-white font-medium">
+                            <label class="font-semibold text-zinc-700 block mb-0.5 text-[11px]">Situation scolaire ou professionnelle à la rentrée :</label>
+                            <input type="text" name="athlete_answers[study_work_situation]" value="<?= htmlspecialchars($athlete_answers['study_work_situation'] ?? '') ?>" placeholder="" class="w-full px-2.5 py-1.5 border border-zinc-200 rounded-lg text-xs bg-zinc-50 focus:bg-white font-medium">
                         </div>
                     </div>
 
                     <!-- Jours disponibles déclarés -->
                     <div>
-                        <label class="font-semibold text-zinc-700 block mb-1 text-[11px]">Jours déclarés disponibles :</label>
+                        <label class="font-semibold text-zinc-700 block mb-1 text-[11px]">Disponibilités :</label>
                         <div class="grid grid-cols-4 sm:grid-cols-7 gap-1">
                             <?php
                                 $week_days = ['monday' => 'Lu', 'tuesday' => 'Ma', 'wednesday' => 'Me', 'thursday' => 'Je', 'friday' => 'Ve', 'saturday' => 'Sa', 'sunday' => 'Di'];
                                 foreach ($week_days as $dk => $dl):
                                     $checked = in_array($dk, $ath_days, true);
                             ?>
-                                <label class="flex items-center justify-center p-1 rounded-lg border text-center cursor-pointer text-xs <?= $checked ? 'bg-rose-50 border-rose-300 font-bold text-rose-950' : 'border-zinc-200 text-zinc-600 bg-white' ?>">
+                                <label class="flex items-center justify-center p-1 rounded-lg border text-center cursor-pointer text-xs <?= $checked ? 'bg-indigo-50 border-indigo-300 font-bold text-indigo-950' : 'border-zinc-200 text-zinc-600 bg-white' ?>">
                                     <input type="checkbox" name="athlete_answers[available_days][]" value="<?= $dk ?>" <?= $checked ? 'checked' : '' ?> class="sr-only">
                                     <span><?= $dl ?></span>
                                 </label>
@@ -612,11 +619,11 @@ ob_start();
 
                     <!-- Cadres sportifs déclarés -->
                     <div>
-                        <label class="font-semibold text-zinc-700 block mb-1 text-[11px]">Cadres déclarés :</label>
+                        <label class="font-semibold text-zinc-700 block mb-1 text-[11px]">Cadres :</label>
                         <div class="grid grid-cols-2 gap-1">
                             <?php foreach (CategoryHelper::get_cadres() as $ck => $cl): ?>
                                 <?php $c_checked = in_array($ck, $ath_cadres, true); ?>
-                                <label class="flex items-center gap-1.5 p-1.5 rounded-lg border cursor-pointer text-xs <?= $c_checked ? 'bg-rose-50 border-rose-300 font-bold text-rose-950' : 'border-zinc-200 text-zinc-600 bg-white' ?>">
+                                <label class="flex items-center gap-1.5 p-1.5 rounded-lg border cursor-pointer text-xs <?= $c_checked ? 'bg-indigo-50 border-indigo-300 font-bold text-indigo-950' : 'border-zinc-200 text-zinc-600 bg-white' ?>">
                                     <input type="checkbox" name="athlete_answers[cadres][]" value="<?= $ck ?>" <?= $c_checked ? 'checked' : '' ?> class="sr-only">
                                     <span><?= htmlspecialchars($cl) ?></span>
                                 </label>
@@ -628,31 +635,31 @@ ob_start();
                 <!-- DROITE : Arbitrage et contrat validé -->
                 <div class="space-y-2.5">
                     <div class="font-semibold text-zinc-500 text-[10px] uppercase tracking-wider pb-1 border-b border-zinc-100">
-                        Arbitrage et contrat validé par l'entraîneur
+                        Décisions & Contrat moral validé
                     </div>
 
                     <!-- Réalisme du projet -->
                     <div>
-                        <label class="block font-semibold text-zinc-700 mb-0.5 text-[11px]">Les ambitions déclarées sont-elles réalistes ?</label>
-                        <?php $is_real = $decisions['is_project_realistic'] ?? '1'; ?>
+                        <label class="block font-semibold text-zinc-700 mb-0.5 text-[11px]">Les objectifs déclarées sont-elles réalistes ?</label>
+                        <?php $is_real = (string)($decisions['is_project_realistic'] ?? '1'); ?>
                         <div class="flex gap-4">
                             <label class="flex items-center gap-1.5 cursor-pointer font-semibold text-emerald-800">
-                                <input type="radio" name="decisions[is_project_realistic]" value="1" <?= $is_real === '1' ? 'checked' : '' ?> class="text-zinc-900 focus:ring-zinc-900">
+                                <input type="radio" name="decisions[is_project_realistic]" value="1" <?= $is_real === '1' ? 'checked' : '' ?> class="text-zinc-900 focus:ring-zinc-900" onchange="toggleReframing(this.value)">
                                 <span>Oui, projet réaliste</span>
                             </label>
                             <label class="flex items-center gap-1.5 cursor-pointer font-semibold text-rose-800">
-                                <input type="radio" name="decisions[is_project_realistic]" value="0" <?= $is_real === '0' ? 'checked' : '' ?> class="text-zinc-900 focus:ring-zinc-900">
+                                <input type="radio" name="decisions[is_project_realistic]" value="0" <?= $is_real === '0' ? 'checked' : '' ?> class="text-zinc-900 focus:ring-zinc-900" onchange="toggleReframing(this.value)">
                                 <span>Non, recadrage nécessaire</span>
                             </label>
                         </div>
                     </div>
 
-                    <div>
+                    <div id="project-reframing-container" class="<?= $is_real === '0' ? '' : 'hidden' ?>">
                         <label class="block font-semibold text-zinc-700 mb-0.5 text-[11px]">Recadrage acté d'un commun accord :</label>
                         <textarea 
                             name="decisions[project_reframing]" 
                             rows="2" 
-                            placeholder="Ajustements négociés des objectifs..." 
+                            placeholder="" 
                             class="w-full px-2.5 py-1.5 border border-zinc-300 rounded-lg bg-zinc-50 focus:bg-white text-xs"
                         ><?= htmlspecialchars($decisions['project_reframing'] ?? '') ?></textarea>
                     </div>
@@ -660,24 +667,24 @@ ob_start();
                     <!-- Disciplines validées -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                         <div>
-                            <label class="block font-semibold text-zinc-700 mb-0.5 text-[11px]">Discipline prioritaire validée :</label>
+                            <label class="block font-semibold text-zinc-700 mb-0.5 text-[11px]">Discipline 1 validée :</label>
                             <input 
                                 type="text" 
                                 list="disciplines-suggestions"
                                 name="decisions[primary_discipline]" 
                                 value="<?= htmlspecialchars($decisions['primary_discipline'] ?? ($athlete_answers['chosen_discipline_1'] ?? 'Sprint')) ?>" 
-                                placeholder="Ex : 100m, Haies, Perche..." 
+                                placeholder="" 
                                 class="w-full px-2.5 py-1.5 border border-zinc-300 rounded-lg bg-zinc-50 focus:bg-white text-xs font-bold text-zinc-900"
                             >
                         </div>
                         <div>
-                            <label class="block font-semibold text-zinc-700 mb-0.5 text-[11px]">Discipline secondaire validée :</label>
+                            <label class="block font-semibold text-zinc-700 mb-0.5 text-[11px]">Discipline 2 validée :</label>
                             <input 
                                 type="text" 
                                 list="disciplines-suggestions"
                                 name="decisions[secondary_discipline]" 
                                 value="<?= htmlspecialchars($decisions['secondary_discipline'] ?? ($athlete_answers['chosen_discipline_2'] ?? '')) ?>" 
-                                placeholder="Ex : Longueur, Haies courtes..." 
+                                placeholder="" 
                                 class="w-full px-2.5 py-1.5 border border-zinc-300 rounded-lg bg-zinc-50 focus:bg-white text-xs font-medium"
                             >
                         </div>
@@ -691,7 +698,7 @@ ob_start();
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                         <div>
-                            <label class="block font-semibold text-zinc-700 mb-0.5 text-[11px]">Volume hebdomadaire acté (séances) :</label>
+                            <label class="block font-semibold text-zinc-700 mb-0.5 text-[11px]">Nombre d'entraînements par semaine validé :</label>
                             <input 
                                 type="number" 
                                 name="decisions[approved_weekly_sessions]" 
@@ -702,11 +709,12 @@ ob_start();
                             >
                         </div>
                         <div>
-                            <label class="block font-semibold text-zinc-700 mb-0.5 text-[11px]">Échéance majeure cible :</label>
+                            <label class="block font-semibold text-zinc-700 mb-0.5 text-[11px]">Échéance majeure définie :</label>
                             <input 
                                 type="text" 
                                 name="decisions[target_milestones]" 
                                 value="<?= htmlspecialchars($decisions['target_milestones'] ?? ($athlete_answers['target_competitions'] ?? ($athlete_answers['target_performance'] ?? 'Championnats suisses'))) ?>" 
+                                placeholder=""
                                 class="w-full px-2.5 py-1.5 border border-zinc-300 rounded-lg bg-zinc-50 focus:bg-white text-xs font-medium"
                             >
                         </div>
@@ -714,7 +722,7 @@ ob_start();
 
                     <!-- Jours retenus -->
                     <div>
-                        <label class="block font-semibold text-zinc-700 mb-1 text-[11px]">Jours d'entraînement retenus :</label>
+                        <label class="block font-semibold text-zinc-700 mb-1 text-[11px]">Disponibilités validées :</label>
                         <div class="grid grid-cols-4 sm:grid-cols-7 gap-1">
                             <?php
                                 $all_days = ['monday' => 'Lu', 'tuesday' => 'Ma', 'wednesday' => 'Me', 'thursday' => 'Je', 'friday' => 'Ve', 'saturday' => 'Sa', 'sunday' => 'Di'];
@@ -743,26 +751,28 @@ ob_start();
                         </div>
                     </div>
 
-                    <!-- 2 Règles non négociables -->
+                    <!-- Engagements validés -->
                     <div class="pt-1.5 space-y-1.5 border-t border-zinc-100">
-                        <span class="font-bold text-zinc-900 block text-xs">Contrat moral (2 comportements non négociables) :</span>
+                        <span class="font-bold text-zinc-900 block text-xs">Contrat moral (Engagements validés) :</span>
                         <div>
-                            <label class="block font-semibold text-zinc-600 text-[10px] mb-0.5">Règle 1 :</label>
+                            <label class="block font-semibold text-zinc-600 text-[10px] mb-0.5">Engagement 1 :</label>
                             <input 
                                 type="text" 
                                 id="rule-input-1"
                                 name="decisions[mandatory_rule_1]" 
                                 value="<?= htmlspecialchars($decisions['mandatory_rule_1'] ?? ($athlete_answers['commitment_1'] ?? 'Présence régulière et échauffement sans retard')) ?>" 
+                                placeholder=""
                                 class="w-full px-2.5 py-1.5 border border-zinc-300 rounded-lg bg-zinc-50 focus:bg-white text-xs font-semibold text-zinc-900"
                             >
                         </div>
                         <div>
-                            <label class="block font-semibold text-zinc-600 text-[10px] mb-0.5">Règle 2 :</label>
+                            <label class="block font-semibold text-zinc-600 text-[10px] mb-0.5">Engagement 2 :</label>
                             <input 
                                 type="text" 
                                 id="rule-input-2"
                                 name="decisions[mandatory_rule_2]" 
                                 value="<?= htmlspecialchars($decisions['mandatory_rule_2'] ?? ($athlete_answers['commitment_2'] ?? 'Communication immédiate de toute douleur sous 24 heures')) ?>" 
+                                placeholder=""
                                 class="w-full px-2.5 py-1.5 border border-zinc-300 rounded-lg bg-zinc-50 focus:bg-white text-xs font-semibold text-zinc-900"
                             >
                         </div>
@@ -773,19 +783,19 @@ ob_start();
         </section>
 
         <!-- =========================================================================
-             SECTION 5 : REMARQUES PÉDAGOGIQUES GLOBALES
+             SECTION 5 : REMARQUES ET NOTE
              ========================================================================= -->
         <section class="bg-white rounded-2xl border border-zinc-200/80 shadow-sm p-3.5 sm:p-4 space-y-2 text-xs">
             <h2 class="text-xs font-bold uppercase tracking-wider text-zinc-800 flex items-center gap-2 pb-1 border-b border-zinc-100">
-                <span class="w-4 h-4 rounded bg-rose-600 text-white flex items-center justify-center text-[10px] font-black">5</span>
-                Remarques pédagogiques globales de l'entraîneur
+                <span class="w-4 h-4 rounded bg-zinc-900 text-white flex items-center justify-center text-[10px] font-black">5</span>
+                Remarques et note
             </h2>
             <div>
-                <label class="block font-semibold text-zinc-700 mb-1 text-[11px]">Notes confidentielles et consignes particulières :</label>
+                <label class="block font-semibold text-zinc-700 mb-1 text-[11px]">Remarques et note :</label>
                 <textarea 
                     name="trainer_notes" 
                     rows="2" 
-                    placeholder="Synthèse de l'entretien ou consignes spécifiques..." 
+                    placeholder="" 
                     class="w-full px-3 py-1.5 border border-zinc-300 rounded-lg bg-zinc-50 focus:bg-white text-xs"
                 ><?= htmlspecialchars($interview['trainer_notes'] ?? '') ?></textarea>
             </div>
@@ -941,12 +951,23 @@ function closeModal(id) {
     document.getElementById(id)?.classList.add('hidden');
 }
 
+function toggleReframing(val) {
+    const container = document.getElementById('project-reframing-container');
+    if (container) {
+        if (val === '0') {
+            container.classList.remove('hidden');
+        } else {
+            container.classList.add('hidden');
+        }
+    }
+}
+
 function copyToRule(ruleNumber, text) {
     const input = document.getElementById(`rule-input-${ruleNumber}`);
     if (input && text) {
         input.value = text;
         input.focus();
-        showToast(`Engagement copié dans la règle ${ruleNumber}`, 'success');
+        showToast(`Engagement copié dans l'engagement ${ruleNumber}`, 'success');
     }
 }
 

@@ -43,7 +43,7 @@ ob_start();
     <!-- En-tête de la fiche athlète avec état de synchronisation -->
     <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-            <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200 mb-2">
+            <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200 mb-2">
                 <span>Groupe U16 — 2ème année (Orientation)</span>
             </div>
             <h1 class="text-2xl font-bold font-heading text-slate-900">
@@ -92,42 +92,42 @@ ob_start();
 
         <!-- 1. Bilan de la saison écoulée -->
         <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-5">
-            <h2 class="text-lg font-bold font-heading text-slate-900 flex items-center gap-2">
-                <span class="w-6 h-6 rounded-lg bg-rose-100 text-rose-700 flex items-center justify-center text-xs font-black">1</span>
-                Bilan de la saison écoulée
-            </h2>
+            <div class="flex items-center gap-3 pb-4 border-b border-slate-100">
+                <span class="w-6 h-6 rounded-lg bg-zinc-900 text-white flex items-center justify-center text-xs font-black">1</span>
+                <h2 class="text-base font-bold text-slate-900">Bilan de la saison écoulée</h2>
+            </div>
 
             <!-- Fierté -->
             <div>
-                <label for="pride_highlight" class="block text-sm font-semibold text-slate-800 mb-1">
+                <label for="pride_highlight" class="block text-sm font-semibold text-slate-900 mb-1">
                     Ma plus grande fierté cette année
                 </label>
-                <p class="text-xs text-slate-500 mb-2">Un concours réussi, un chrono, un geste technique maîtrisé ou une victoire personnelle.</p>
+                <p class="text-xs text-slate-500 mb-2">Compétition, résultat, sélection, maîtrise, apprentissage, etc.</p>
                 <textarea 
                     name="pride_highlight" 
                     id="pride_highlight" 
                     rows="3" 
                     <?= $is_locked ? 'disabled' : '' ?>
-                    placeholder="Raconte ton meilleur moment de la saison..." 
-                    class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-rose-500 focus:border-rose-500 text-sm bg-slate-50 focus:bg-white transition-all"
+                    placeholder="" 
+                    class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm bg-slate-50 focus:bg-white transition-all"
                 ><?= htmlspecialchars($answers['pride_highlight'] ?? '') ?></textarea>
             </div>
 
             <!-- Principal frein -->
             <div>
-                <label class="block text-sm font-semibold text-slate-800 mb-2">
+                <label class="block text-sm font-semibold text-slate-900 mb-2">
                     Mon principal frein cette année
                 </label>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                     <?php foreach (CategoryHelper::get_obstacles() as $key => $label): ?>
-                        <label class="flex items-center gap-3 p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer text-sm font-medium text-slate-700 transition-colors has-[:checked]:bg-rose-50/80 has-[:checked]:border-rose-400 has-[:checked]:text-rose-950 has-[:checked]:font-semibold shadow-sm">
+                        <label class="flex items-center gap-3 p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer text-sm font-medium text-slate-700 transition-colors has-[:checked]:bg-indigo-50/80 has-[:checked]:border-indigo-400 has-[:checked]:text-indigo-950 has-[:checked]:font-semibold shadow-sm">
                             <input 
                                 type="radio" 
                                 name="main_obstacle" 
                                 value="<?= $key ?>" 
                                 <?= ($answers['main_obstacle'] ?? '') === $key ? 'checked' : '' ?> 
                                 <?= $is_locked ? 'disabled' : '' ?>
-                                class="w-4 h-4 text-rose-600 focus:ring-rose-500"
+                                class="w-4 h-4 text-indigo-600 focus:ring-indigo-500"
                             >
                             <span><?= htmlspecialchars($label) ?></span>
                         </label>
@@ -135,9 +135,9 @@ ob_start();
                 </div>
             </div>
 
-            <!-- Précision obstacle -->
-            <div>
-                <label for="obstacle_notes" class="block text-sm font-semibold text-slate-800 mb-1">
+            <!-- Précision obstacle (affiché uniquement si Autre raison) -->
+            <div id="obstacle-notes-container" class="<?= ($answers['main_obstacle'] ?? '') === 'other' ? '' : 'hidden' ?>">
+                <label for="obstacle_notes" class="block text-sm font-semibold text-slate-900 mb-1">
                     Précision sur mon frein ou détail
                 </label>
                 <input 
@@ -146,24 +146,24 @@ ob_start();
                     id="obstacle_notes" 
                     value="<?= htmlspecialchars($answers['obstacle_notes'] ?? '') ?>" 
                     <?= $is_locked ? 'disabled' : '' ?>
-                    placeholder="Explique brièvement..." 
-                    class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-rose-500 focus:border-rose-500 text-sm bg-slate-50 focus:bg-white transition-all"
+                    placeholder="" 
+                    class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm bg-slate-50 focus:bg-white transition-all"
                 >
             </div>
         </div>
 
         <!-- 2. Auto-évaluation -->
         <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-5">
-            <h2 class="text-lg font-bold font-heading text-slate-900 flex items-center gap-2">
-                <span class="w-6 h-6 rounded-lg bg-rose-100 text-rose-700 flex items-center justify-center text-xs font-black">2</span>
-                Mon auto-évaluation
-            </h2>
+            <div class="flex items-center gap-3 pb-4 border-b border-slate-100">
+                <span class="w-6 h-6 rounded-lg bg-zinc-900 text-white flex items-center justify-center text-xs font-black">2</span>
+                <h2 class="text-base font-bold text-slate-900">Mon auto-évaluation</h2>
+            </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <!-- Sérieux et énergie -->
+                <!-- Attitude & Implication -->
                 <div>
-                    <label class="block text-sm font-semibold text-slate-800 mb-2">
-                        Sérieux et énergie
+                    <label class="block text-sm font-semibold text-slate-900 mb-2">
+                        Mon attitude et mon implication à l'entraînement
                     </label>
                     <div class="grid grid-cols-3 gap-2">
                         <?php 
@@ -175,29 +175,29 @@ ob_start();
                             foreach ($evals as $val => [$lbl, $emoji]):
                                 $checked = ($answers['self_eval_attitude'] ?? '') === $val;
                         ?>
-                            <label class="flex flex-col items-center justify-center p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer text-center transition-all has-[:checked]:ring-2 has-[:checked]:ring-rose-500 has-[:checked]:border-rose-500 has-[:checked]:bg-rose-50/70 has-[:checked]:text-rose-950 has-[:checked]:font-bold text-slate-700 shadow-sm">
+                            <label class="flex flex-col items-center justify-center p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer text-center transition-all has-[:checked]:ring-2 has-[:checked]:ring-indigo-500 has-[:checked]:border-indigo-500 has-[:checked]:bg-indigo-50/70 has-[:checked]:text-indigo-950 has-[:checked]:font-bold text-slate-700 shadow-sm">
                                 <span class="text-xl mb-0.5"><?= $emoji ?></span>
                                 <span class="text-xs mb-1"><?= $lbl ?></span>
-                                <input type="radio" name="self_eval_attitude" value="<?= $val ?>" <?= $checked ? 'checked' : '' ?> <?= $is_locked ? 'disabled' : '' ?> class="w-4 h-4 text-rose-600 focus:ring-rose-500">
+                                <input type="radio" name="self_eval_attitude" value="<?= $val ?>" <?= $checked ? 'checked' : '' ?> <?= $is_locked ? 'disabled' : '' ?> class="w-4 h-4 text-indigo-600 focus:ring-indigo-500">
                             </label>
                         <?php endforeach; ?>
                     </div>
                 </div>
 
-                <!-- Respect camarades et matériel -->
+                <!-- Respect des autres et du matériel -->
                 <div>
-                    <label class="block text-sm font-semibold text-slate-800 mb-2">
-                        Respect camarades et matériel
+                    <label class="block text-sm font-semibold text-slate-900 mb-2">
+                        Mon respect des autres et du matériel
                     </label>
                     <div class="grid grid-cols-3 gap-2">
                         <?php 
                             foreach ($evals as $val => [$lbl, $emoji]):
                                 $checked = ($answers['self_eval_respect'] ?? '') === $val;
                         ?>
-                            <label class="flex flex-col items-center justify-center p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer text-center transition-all has-[:checked]:ring-2 has-[:checked]:ring-rose-500 has-[:checked]:border-rose-500 has-[:checked]:bg-rose-50/70 has-[:checked]:text-rose-950 has-[:checked]:font-bold text-slate-700 shadow-sm">
+                            <label class="flex flex-col items-center justify-center p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer text-center transition-all has-[:checked]:ring-2 has-[:checked]:ring-indigo-500 has-[:checked]:border-indigo-500 has-[:checked]:bg-indigo-50/70 has-[:checked]:text-indigo-950 has-[:checked]:font-bold text-slate-700 shadow-sm">
                                 <span class="text-xl mb-0.5"><?= $emoji ?></span>
                                 <span class="text-xs mb-1"><?= $lbl ?></span>
-                                <input type="radio" name="self_eval_respect" value="<?= $val ?>" <?= $checked ? 'checked' : '' ?> <?= $is_locked ? 'disabled' : '' ?> class="w-4 h-4 text-rose-600 focus:ring-rose-500">
+                                <input type="radio" name="self_eval_respect" value="<?= $val ?>" <?= $checked ? 'checked' : '' ?> <?= $is_locked ? 'disabled' : '' ?> class="w-4 h-4 text-indigo-600 focus:ring-indigo-500">
                             </label>
                         <?php endforeach; ?>
                     </div>
@@ -207,10 +207,10 @@ ob_start();
 
         <!-- 3. Choix des disciplines pour la rentrée (Orientation U16 2e année) -->
         <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-5">
-            <h2 class="text-lg font-bold font-heading text-slate-900 flex items-center gap-2">
-                <span class="w-6 h-6 rounded-lg bg-rose-100 text-rose-700 flex items-center justify-center text-xs font-black">3</span>
-                Choix des disciplines souhaitées
-            </h2>
+            <div class="flex items-center gap-3 pb-4 border-b border-slate-100">
+                <span class="w-6 h-6 rounded-lg bg-zinc-900 text-white flex items-center justify-center text-xs font-black">3</span>
+                <h2 class="text-base font-bold text-slate-900">Choix des disciplines souhaitées</h2>
+            </div>
             <p class="text-xs text-slate-500">
                 Choisis une discipline principale, et éventuellement une deuxième discipline complémentaire.
             </p>
@@ -225,8 +225,8 @@ ob_start();
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <!-- Discipline 1 -->
                 <div>
-                    <label for="chosen_discipline_1" class="block text-sm font-semibold text-slate-800 mb-1">
-                        Discipline principale souhaitée *
+                    <label for="chosen_discipline_1" class="block text-sm font-semibold text-slate-900 mb-1">
+                        Discipline 1
                     </label>
                     <input 
                         type="text" 
@@ -235,15 +235,15 @@ ob_start();
                         list="disciplines-suggestions"
                         value="<?= htmlspecialchars($answers['chosen_discipline_1'] ?? '') ?>" 
                         <?= $is_locked ? 'disabled' : '' ?>
-                        placeholder="Ex : 100m, Hauteur, Longueur, Haies..." 
-                        class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-rose-500 focus:border-rose-500 text-sm bg-slate-50 focus:bg-white font-medium"
+                        placeholder="" 
+                        class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm bg-slate-50 focus:bg-white font-medium"
                     >
                 </div>
 
                 <!-- Discipline 2 -->
                 <div>
-                    <label for="chosen_discipline_2" class="block text-sm font-semibold text-slate-800 mb-1">
-                        Discipline secondaire (optionnelle)
+                    <label for="chosen_discipline_2" class="block text-sm font-semibold text-slate-900 mb-1">
+                        Discipline 2 (optionnelle)
                     </label>
                     <input 
                         type="text" 
@@ -252,8 +252,8 @@ ob_start();
                         list="disciplines-suggestions"
                         value="<?= htmlspecialchars($answers['chosen_discipline_2'] ?? '') ?>" 
                         <?= $is_locked ? 'disabled' : '' ?>
-                        placeholder="Ex : Perche, Poids, 800m... (optionnel)" 
-                        class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-rose-500 focus:border-rose-500 text-sm bg-slate-50 focus:bg-white font-medium"
+                        placeholder="" 
+                        class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm bg-slate-50 focus:bg-white font-medium"
                     >
                 </div>
             </div>
@@ -266,8 +266,8 @@ ob_start();
 
             <!-- Jours de disponibilité -->
             <div class="pt-2">
-                <label class="block text-sm font-semibold text-slate-800 mb-2">
-                    Mes jours d'entraînement disponibles :
+                <label class="block text-sm font-semibold text-slate-900 mb-2">
+                    Disponibilités :
                 </label>
                 <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
                     <?php 
@@ -282,14 +282,14 @@ ob_start();
                         foreach ($days_u16 as $key => $label): 
                             $checked = in_array($key, $selected_days, true);
                     ?>
-                        <label class="flex items-center gap-2.5 p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer text-sm font-medium text-slate-700 has-[:checked]:bg-rose-50/80 has-[:checked]:border-rose-400 has-[:checked]:font-bold has-[:checked]:text-rose-950 shadow-sm transition-all">
+                        <label class="flex items-center gap-2.5 p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer text-sm font-medium text-slate-700 has-[:checked]:bg-indigo-50/80 has-[:checked]:border-indigo-400 has-[:checked]:font-bold has-[:checked]:text-indigo-950 shadow-sm transition-all">
                             <input 
                                 type="checkbox" 
                                 name="available_days[]" 
                                 value="<?= $key ?>" 
                                 <?= $checked ? 'checked' : '' ?> 
                                 <?= $is_locked ? 'disabled' : '' ?>
-                                class="w-4 h-4 text-rose-600 rounded focus:ring-rose-500"
+                                class="w-4 h-4 text-indigo-600 rounded focus:ring-indigo-500"
                             >
                             <span><?= htmlspecialchars($label) ?></span>
                         </label>
@@ -299,21 +299,21 @@ ob_start();
 
             <!-- Cadres sportifs -->
             <div class="pt-2 border-t border-slate-100">
-                <label class="block text-sm font-semibold text-slate-800 mb-1">
-                    Cadres sportifs
+                <label class="block text-sm font-semibold text-slate-900 mb-1">
+                    Cadres
                 </label>
-                <p class="text-xs text-slate-500 mb-2">Sélectionne les structures de cadres dont tu fais partie ou que tu souhaites intégrer :</p>
+                <p class="text-xs text-slate-500 mb-2">Cadres dont tu fais partie (inscrit) ou que tu souhaites intégrer la saison prochaine :</p>
                 <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
                     <?php foreach (CategoryHelper::get_cadres() as $cadre_key => $cadre_label): ?>
                         <?php $c_checked = in_array($cadre_key, $selected_cadres, true); ?>
-                        <label class="flex items-center gap-2.5 p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer text-sm font-medium text-slate-700 has-[:checked]:bg-rose-50/80 has-[:checked]:border-rose-400 has-[:checked]:font-bold has-[:checked]:text-rose-950 shadow-sm transition-all">
+                        <label class="flex items-center gap-2.5 p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer text-sm font-medium text-slate-700 has-[:checked]:bg-indigo-50/80 has-[:checked]:border-indigo-400 has-[:checked]:font-bold has-[:checked]:text-indigo-950 shadow-sm transition-all">
                             <input 
                                 type="checkbox" 
                                 name="cadres[]" 
                                 value="<?= $cadre_key ?>" 
                                 <?= $c_checked ? 'checked' : '' ?> 
                                 <?= $is_locked ? 'disabled' : '' ?>
-                                class="w-4 h-4 text-rose-600 rounded focus:ring-rose-500"
+                                class="w-4 h-4 text-indigo-600 rounded focus:ring-indigo-500"
                             >
                             <span><?= htmlspecialchars($cadre_label) ?></span>
                         </label>
@@ -324,14 +324,14 @@ ob_start();
 
         <!-- 4. Contrat d'engagement -->
         <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-4">
-            <h2 class="text-lg font-bold font-heading text-slate-900 flex items-center gap-2">
-                <span class="w-6 h-6 rounded-lg bg-rose-100 text-rose-700 flex items-center justify-center text-xs font-black">4</span>
-                Mon engagement prioritaire
-            </h2>
+            <div class="flex items-center gap-3 pb-4 border-b border-slate-100">
+                <span class="w-6 h-6 rounded-lg bg-zinc-900 text-white flex items-center justify-center text-xs font-black">4</span>
+                <h2 class="text-base font-bold text-slate-900">Mon engagement</h2>
+            </div>
 
             <div>
-                <label for="attitude_contract" class="block text-sm font-semibold text-slate-800 mb-1">
-                    Pour la saison prochaine, je m'engage sur ce comportement prioritaire à chaque séance :
+                <label for="attitude_contract" class="block text-sm font-semibold text-slate-900 mb-1">
+                    Pour la saison prochaine, je m'engage sur ce comportement à chaque entraînement :
                 </label>
                 <input 
                     type="text" 
@@ -339,8 +339,8 @@ ob_start();
                     id="attitude_contract" 
                     value="<?= htmlspecialchars($answers['attitude_contract'] ?? '') ?>" 
                     <?= $is_locked ? 'disabled' : '' ?>
-                    placeholder="Ex : Ponctualité, concentration immédiate dès les consignes, écoute active..." 
-                    class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-rose-500 focus:border-rose-500 text-sm bg-slate-50 focus:bg-white transition-all font-medium"
+                    placeholder="" 
+                    class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm bg-slate-50 focus:bg-white transition-all font-medium"
                 >
             </div>
         </div>
@@ -354,7 +354,7 @@ ob_start();
                 <button 
                     type="button" 
                     id="btn-final-submit"
-                    class="w-full sm:w-auto px-6 py-3.5 bg-gradient-to-r from-brand-600 to-rose-600 hover:from-brand-700 hover:to-rose-700 text-white font-bold rounded-xl shadow-lg shadow-rose-600/20 hover:shadow-xl transition-all text-sm flex items-center justify-center gap-2"
+                    class="w-full sm:w-auto px-6 py-3.5 bg-zinc-900 hover:bg-zinc-800 text-white font-bold rounded-xl shadow-md hover:shadow-lg transition-all text-sm flex items-center justify-center gap-2"
                 >
                     <span>✓</span>
                     <span>Transmettre mon bilan à l'entraîneur</span>
@@ -383,13 +383,20 @@ ob_start();
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-    const formId = 'athlete-u16-2-form';
-    const interviewId = <?= (int)$interview['id'] ?>;
-    const athleteId = <?= (int)$athlete['id'] ?>;
-    const isLocked = <?= $is_locked ? 'true' : 'false' ?>;
-
-
+    // Gestion affichage obstacle_notes
+    const obstacleRadios = document.querySelectorAll('input[name="main_obstacle"]');
+    const obstacleNotesContainer = document.getElementById('obstacle-notes-container');
+    if (obstacleNotesContainer) {
+        obstacleRadios.forEach(radio => {
+            radio.addEventListener('change', () => {
+                if (radio.checked && radio.value === 'other') {
+                    obstacleNotesContainer.classList.remove('hidden');
+                } else if (radio.checked) {
+                    obstacleNotesContainer.classList.add('hidden');
+                }
+            });
+        });
+    }
 
     if (!isLocked) {
         const autosave = new FormAutosave(formId, interviewId, athleteId);

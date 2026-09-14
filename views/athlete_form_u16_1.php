@@ -41,7 +41,7 @@ ob_start();
     <!-- En-tête de la fiche athlète avec état de synchronisation -->
     <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-            <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200 mb-2">
+            <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200 mb-2">
                 <span>Groupe U16 — 1ère année</span>
             </div>
             <h1 class="text-2xl font-bold font-heading text-slate-900">
@@ -91,7 +91,7 @@ ob_start();
         <!-- 1. Bilan de la saison écoulée -->
         <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-5">
             <h2 class="text-lg font-bold font-heading text-slate-900 flex items-center gap-2">
-                <span class="w-6 h-6 rounded-lg bg-rose-100 text-rose-700 flex items-center justify-center text-xs font-black">1</span>
+                <span class="w-6 h-6 rounded-lg bg-zinc-900 text-white flex items-center justify-center text-xs font-bold">1</span>
                 Bilan de la saison écoulée
             </h2>
 
@@ -100,14 +100,13 @@ ob_start();
                 <label for="pride_highlight" class="block text-sm font-semibold text-slate-800 mb-1">
                     Ma plus grande fierté cette année
                 </label>
-                <p class="text-xs text-slate-500 mb-2">Un concours réussi, un chrono, un geste technique maîtrisé ou une victoire personnelle.</p>
+                <p class="text-xs text-slate-500 mb-2">Compétition, résultat, sélection, maîtrise, apprentissage, etc.</p>
                 <textarea 
                     name="pride_highlight" 
                     id="pride_highlight" 
                     rows="3" 
                     <?= $is_locked ? 'disabled' : '' ?>
-                    placeholder="Raconte ton meilleur moment de la saison..." 
-                    class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-rose-500 focus:border-rose-500 text-sm bg-slate-50 focus:bg-white transition-all"
+                    class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm bg-slate-50 focus:bg-white transition-all"
                 ><?= htmlspecialchars($answers['pride_highlight'] ?? '') ?></textarea>
             </div>
 
@@ -118,14 +117,14 @@ ob_start();
                 </label>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                     <?php foreach (CategoryHelper::get_obstacles() as $key => $label): ?>
-                        <label class="flex items-center gap-3 p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer text-sm font-medium text-slate-700 transition-colors has-[:checked]:bg-rose-50/80 has-[:checked]:border-rose-400 has-[:checked]:text-rose-950 has-[:checked]:font-semibold shadow-sm">
+                        <label class="flex items-center gap-3 p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer text-sm font-medium text-slate-700 transition-colors has-[:checked]:bg-indigo-50/80 has-[:checked]:border-indigo-400 has-[:checked]:text-indigo-950 has-[:checked]:font-semibold shadow-sm">
                             <input 
                                 type="radio" 
                                 name="main_obstacle" 
                                 value="<?= $key ?>" 
                                 <?= ($answers['main_obstacle'] ?? '') === $key ? 'checked' : '' ?> 
                                 <?= $is_locked ? 'disabled' : '' ?>
-                                class="w-4 h-4 text-rose-600 focus:ring-rose-500"
+                                class="w-4 h-4 text-indigo-600 focus:ring-indigo-500"
                             >
                             <span><?= htmlspecialchars($label) ?></span>
                         </label>
@@ -133,8 +132,8 @@ ob_start();
                 </div>
             </div>
 
-            <!-- Précision obstacle -->
-            <div>
+            <!-- Précision obstacle (visible uniquement si 'other') -->
+            <div id="obstacle-notes-container" class="<?= (($answers['main_obstacle'] ?? '') === 'other') ? '' : 'hidden' ?>">
                 <label for="obstacle_notes" class="block text-sm font-semibold text-slate-800 mb-1">
                     Précision sur mon frein ou détail
                 </label>
@@ -144,8 +143,7 @@ ob_start();
                     id="obstacle_notes" 
                     value="<?= htmlspecialchars($answers['obstacle_notes'] ?? '') ?>" 
                     <?= $is_locked ? 'disabled' : '' ?>
-                    placeholder="Explique brièvement..." 
-                    class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-rose-500 focus:border-rose-500 text-sm bg-slate-50 focus:bg-white transition-all"
+                    class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm bg-slate-50 focus:bg-white transition-all"
                 >
             </div>
         </div>
@@ -153,14 +151,14 @@ ob_start();
         <!-- 2. Auto-évaluation de l'attitude -->
         <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-5">
             <h2 class="text-lg font-bold font-heading text-slate-900 flex items-center gap-2">
-                <span class="w-6 h-6 rounded-lg bg-rose-100 text-rose-700 flex items-center justify-center text-xs font-black">2</span>
+                <span class="w-6 h-6 rounded-lg bg-zinc-900 text-white flex items-center justify-center text-xs font-bold">2</span>
                 Mon auto-évaluation
             </h2>
 
-            <!-- Sérieux et énergie -->
+            <!-- Attitude & Implication -->
             <div>
                 <label class="block text-sm font-semibold text-slate-800 mb-2">
-                    Mon sérieux et mon énergie à l'entraînement
+                    Mon attitude et mon implication à l'entraînement
                 </label>
                 <div class="grid grid-cols-3 gap-3">
                     <?php 
@@ -172,7 +170,7 @@ ob_start();
                         foreach ($evals as $val => [$lbl, $emoji]):
                             $checked = ($answers['self_eval_attitude'] ?? '') === $val;
                     ?>
-                        <label class="flex flex-col items-center justify-center p-3.5 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer text-center transition-all has-[:checked]:ring-2 has-[:checked]:ring-rose-500 has-[:checked]:border-rose-500 has-[:checked]:bg-rose-50/70 has-[:checked]:text-rose-950 has-[:checked]:font-bold text-slate-700 shadow-sm">
+                        <label class="flex flex-col items-center justify-center p-3.5 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer text-center transition-all has-[:checked]:ring-2 has-[:checked]:ring-indigo-500 has-[:checked]:border-indigo-500 has-[:checked]:bg-indigo-50/70 has-[:checked]:text-indigo-950 has-[:checked]:font-bold text-slate-700 shadow-sm">
                             <span class="text-2xl mb-1"><?= $emoji ?></span>
                             <span class="text-xs mb-1.5"><?= $lbl ?></span>
                             <input 
@@ -181,7 +179,7 @@ ob_start();
                                 value="<?= $val ?>" 
                                 <?= $checked ? 'checked' : '' ?> 
                                 <?= $is_locked ? 'disabled' : '' ?>
-                                class="w-4 h-4 text-rose-600 focus:ring-rose-500"
+                                class="w-4 h-4 text-indigo-600 focus:ring-indigo-500"
                             >
                         </label>
                     <?php endforeach; ?>
@@ -191,14 +189,14 @@ ob_start();
             <!-- Respect camarades et matériel -->
             <div>
                 <label class="block text-sm font-semibold text-slate-800 mb-2">
-                    Mon respect des camarades et du matériel
+                    Mon respect des autres et du matériel
                 </label>
                 <div class="grid grid-cols-3 gap-3">
                     <?php 
                         foreach ($evals as $val => [$lbl, $emoji]):
                             $checked = ($answers['self_eval_respect'] ?? '') === $val;
                     ?>
-                        <label class="flex flex-col items-center justify-center p-3.5 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer text-center transition-all has-[:checked]:ring-2 has-[:checked]:ring-rose-500 has-[:checked]:border-rose-500 has-[:checked]:bg-rose-50/70 has-[:checked]:text-rose-950 has-[:checked]:font-bold text-slate-700 shadow-sm">
+                        <label class="flex flex-col items-center justify-center p-3.5 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer text-center transition-all has-[:checked]:ring-2 has-[:checked]:ring-indigo-500 has-[:checked]:border-indigo-500 has-[:checked]:bg-indigo-50/70 has-[:checked]:text-indigo-950 has-[:checked]:font-bold text-slate-700 shadow-sm">
                             <span class="text-2xl mb-1"><?= $emoji ?></span>
                             <span class="text-xs mb-1.5"><?= $lbl ?></span>
                             <input 
@@ -207,7 +205,7 @@ ob_start();
                                 value="<?= $val ?>" 
                                 <?= $checked ? 'checked' : '' ?> 
                                 <?= $is_locked ? 'disabled' : '' ?>
-                                class="w-4 h-4 text-rose-600 focus:ring-rose-500"
+                                class="w-4 h-4 text-indigo-600 focus:ring-indigo-500"
                             >
                         </label>
                     <?php endforeach; ?>
@@ -215,18 +213,18 @@ ob_start();
             </div>
         </div>
 
-        <!-- 3. Option compétition du vendredi (Spécifique U16 1ère année) -->
+        <!-- 3. Option du vendredi (Spécifique U16 1ère année) -->
         <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-5">
             <h2 class="text-lg font-bold font-heading text-slate-900 flex items-center gap-2">
-                <span class="w-6 h-6 rounded-lg bg-rose-100 text-rose-700 flex items-center justify-center text-xs font-black">3</span>
-                Option compétition du vendredi
+                <span class="w-6 h-6 rounded-lg bg-zinc-900 text-white flex items-center justify-center text-xs font-bold">3</span>
+                Option du vendredi
             </h2>
             <p class="text-xs text-slate-500">
-                Réservée aux athlètes motivés participant régulièrement aux compétitions hors canton.
+                Selon conditions : s’entraîner au moins 2x/semaine très régulièrement ; avoir participé à plusieurs compétitions hors Valais cette saison ; accord de l'entraîneur principal du vendredi.
             </p>
 
             <div>
-                <label class="flex items-center gap-3 p-4 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 cursor-pointer transition-colors has-[:checked]:bg-rose-50 has-[:checked]:border-rose-400 has-[:checked]:text-rose-950 shadow-sm">
+                <label class="flex items-center gap-3 p-4 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 cursor-pointer transition-colors has-[:checked]:bg-indigo-50 has-[:checked]:border-indigo-400 has-[:checked]:text-indigo-950 shadow-sm">
                     <input 
                         type="checkbox" 
                         name="friday_option_requested" 
@@ -234,28 +232,28 @@ ob_start();
                         id="friday_option_requested"
                         <?= !empty($answers['friday_option_requested']) ? 'checked' : '' ?> 
                         <?= $is_locked ? 'disabled' : '' ?>
-                        class="w-5 h-5 text-rose-600 rounded focus:ring-rose-500"
+                        class="w-5 h-5 text-indigo-600 rounded focus:ring-indigo-500"
                     >
                     <span class="text-sm font-semibold text-slate-800">
-                        Je souhaite intégrer l'option compétition du vendredi
+                        Oui
                     </span>
                 </label>
             </div>
 
             <div id="friday-discipline-container" class="space-y-2 <?= empty($answers['friday_option_requested']) ? 'hidden' : '' ?>">
                 <label class="block text-sm font-semibold text-slate-800">
-                    Discipline demandée pour le vendredi :
+                    Discipline choisie
                 </label>
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <?php foreach (CategoryHelper::get_friday_options() as $key => $label): ?>
-                        <label class="flex items-center gap-2.5 p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer text-sm font-medium text-slate-700 has-[:checked]:bg-rose-50/80 has-[:checked]:border-rose-400 has-[:checked]:font-bold has-[:checked]:text-rose-950 shadow-sm">
+                        <label class="flex items-center gap-2.5 p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer text-sm font-medium text-slate-700 has-[:checked]:bg-indigo-50/80 has-[:checked]:border-indigo-400 has-[:checked]:font-bold has-[:checked]:text-indigo-950 shadow-sm">
                             <input 
                                 type="radio" 
                                 name="friday_discipline" 
                                 value="<?= $key ?>" 
                                 <?= ($answers['friday_discipline'] ?? '') === $key ? 'checked' : '' ?> 
                                 <?= $is_locked ? 'disabled' : '' ?>
-                                class="w-4 h-4 text-rose-600 focus:ring-rose-500"
+                                class="w-4 h-4 text-indigo-600 focus:ring-indigo-500"
                             >
                             <span><?= htmlspecialchars($label) ?></span>
                         </label>
@@ -266,20 +264,20 @@ ob_start();
             <!-- Cadres sportifs -->
             <div class="pt-3 border-t border-slate-100">
                 <label class="block text-sm font-semibold text-slate-800 mb-1">
-                    Cadres sportifs
+                    Cadres
                 </label>
-                <p class="text-xs text-slate-500 mb-2">Sélectionne les structures de cadres dont tu fais partie ou que tu souhaites intégrer :</p>
+                <p class="text-xs text-slate-500 mb-2">Cadres dont tu fais partie (inscrit) ou que tu souhaites intégrer la saison prochaine :</p>
                 <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
                     <?php foreach (CategoryHelper::get_cadres() as $cadre_key => $cadre_label): ?>
                         <?php $c_checked = in_array($cadre_key, $selected_cadres, true); ?>
-                        <label class="flex items-center gap-2.5 p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer text-sm font-medium text-slate-700 has-[:checked]:bg-rose-50/80 has-[:checked]:border-rose-400 has-[:checked]:font-bold has-[:checked]:text-rose-950 shadow-sm transition-all">
+                        <label class="flex items-center gap-2.5 p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer text-sm font-medium text-slate-700 has-[:checked]:bg-indigo-50/80 has-[:checked]:border-indigo-400 has-[:checked]:font-bold has-[:checked]:text-indigo-950 shadow-sm transition-all">
                             <input 
                                 type="checkbox" 
                                 name="cadres[]" 
                                 value="<?= $cadre_key ?>" 
                                 <?= $c_checked ? 'checked' : '' ?> 
                                 <?= $is_locked ? 'disabled' : '' ?>
-                                class="w-4 h-4 text-rose-600 rounded focus:ring-rose-500"
+                                class="w-4 h-4 text-indigo-600 rounded focus:ring-indigo-500"
                             >
                             <span><?= htmlspecialchars($cadre_label) ?></span>
                         </label>
@@ -291,13 +289,13 @@ ob_start();
         <!-- 4. Contrat d'attitude pour la saison prochaine -->
         <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-4">
             <h2 class="text-lg font-bold font-heading text-slate-900 flex items-center gap-2">
-                <span class="w-6 h-6 rounded-lg bg-rose-100 text-rose-700 flex items-center justify-center text-xs font-black">4</span>
-                Mon engagement prioritaire
+                <span class="w-6 h-6 rounded-lg bg-zinc-900 text-white flex items-center justify-center text-xs font-bold">4</span>
+                Mon engagement
             </h2>
 
             <div>
                 <label for="attitude_contract" class="block text-sm font-semibold text-slate-800 mb-1">
-                    Pour la saison prochaine, je m'engage sur ce comportement prioritaire à chaque séance :
+                    Pour la saison prochaine, je m'engage sur ce comportement à chaque entraînement :
                 </label>
                 <input 
                     type="text" 
@@ -305,8 +303,7 @@ ob_start();
                     id="attitude_contract" 
                     value="<?= htmlspecialchars($answers['attitude_contract'] ?? '') ?>" 
                     <?= $is_locked ? 'disabled' : '' ?>
-                    placeholder="Ex : Écoute immédiate dès le coup de sifflet, échauffement complet sans bavardage..." 
-                    class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-rose-500 focus:border-rose-500 text-sm bg-slate-50 focus:bg-white transition-all font-medium"
+                    class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm bg-slate-50 focus:bg-white transition-all font-medium"
                 >
             </div>
         </div>
@@ -320,7 +317,7 @@ ob_start();
                 <button 
                     type="button" 
                     id="btn-final-submit"
-                    class="w-full sm:w-auto px-6 py-3.5 bg-gradient-to-r from-brand-600 to-rose-600 hover:from-brand-700 hover:to-rose-700 text-white font-bold rounded-xl shadow-lg shadow-rose-600/20 hover:shadow-xl transition-all text-sm flex items-center justify-center gap-2"
+                    class="w-full sm:w-auto px-7 py-3.5 bg-zinc-900 hover:bg-zinc-800 text-white font-bold rounded-xl shadow-md hover:shadow-lg transition-all text-sm flex items-center justify-center gap-2"
                 >
                     <span>✓</span>
                     <span>Transmettre mon bilan à l'entraîneur</span>
@@ -354,6 +351,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const interviewId = <?= (int)$interview['id'] ?>;
     const athleteId = <?= (int)$athlete['id'] ?>;
     const isLocked = <?= $is_locked ? 'true' : 'false' ?>;
+
+    // Gestion affichage dynamique précision frein
+    const obstacleRadios = document.querySelectorAll('input[name="main_obstacle"]');
+    const obstacleContainer = document.getElementById('obstacle-notes-container');
+    function updateObstacleNotesVisibility() {
+        const selected = document.querySelector('input[name="main_obstacle"]:checked');
+        if (obstacleContainer) {
+            if (selected && selected.value === 'other') {
+                obstacleContainer.classList.remove('hidden');
+            } else {
+                obstacleContainer.classList.add('hidden');
+            }
+        }
+    }
+    obstacleRadios.forEach(r => r.addEventListener('change', updateObstacleNotesVisibility));
+    updateObstacleNotesVisibility();
 
     if (!isLocked) {
         const autosave = new FormAutosave(formId, interviewId, athleteId);

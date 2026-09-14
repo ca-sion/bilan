@@ -135,12 +135,12 @@ $val_date_fr = date('d.m.Y', strtotime((string)$val_date_str));
         <!-- En-tête officiel Club -->
         <div class="flex items-start justify-between border-b-2 border-slate-900 pb-5">
             <div>
-                <span class="text-xs font-extrabold uppercase tracking-widest text-rose-600 block"><?= htmlspecialchars($club_name) ?></span>
+                <span class="text-xs font-extrabold uppercase tracking-widest text-slate-900 block"><?= htmlspecialchars($club_name) ?></span>
                 <h1 class="text-2xl font-bold font-heading text-slate-900 mt-0.5">
-                    Fiche bilan et engagement de saison
+                    Fiche de bilan
                 </h1>
                 <p class="text-xs text-slate-500 font-medium mt-0.5">
-                    Saison <?= $season_name ?> &bull; Entretien individuel d'orientation et de cadrage
+                    Saison <?= $season_name ?> &bull; Entretien individuel
                 </p>
             </div>
             <div class="text-right">
@@ -162,10 +162,6 @@ $val_date_fr = date('d.m.Y', strtotime((string)$val_date_str));
                 <span class="font-semibold text-slate-800 block mt-0.5"><?= $birth_year > 0 ? "{$birth_year} ({$age} ans)" : "Non renseignée" ?></span>
             </div>
             <div>
-                <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Entraîneur référent</span>
-                <span class="font-semibold text-slate-800 block mt-0.5"><?= htmlspecialchars($decisions['coach_in_charge'] ?? ($meta['coach_in_charge'] ?? ($meta['coach'] ?? 'Staff CA Sion'))) ?></span>
-            </div>
-            <div>
                 <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Date d'entretien</span>
                 <span class="font-semibold text-slate-800 block mt-0.5"><?= htmlspecialchars($val_date_fr) ?></span>
             </div>
@@ -174,19 +170,19 @@ $val_date_fr = date('d.m.Y', strtotime((string)$val_date_str));
         <!-- 1. Projet sportif et orientations validées -->
         <div class="space-y-3">
             <h2 class="text-xs font-bold uppercase tracking-wider text-slate-900 pb-1 border-b border-slate-200 flex items-center gap-1.5">
-                <span class="w-4 h-4 rounded bg-rose-600 text-white flex items-center justify-center text-[10px] font-black">1</span>
+                <span class="w-4 h-4 rounded bg-slate-900 text-white flex items-center justify-center text-[10px] font-black">1</span>
                 Projet sportif et orientations retenues
             </h2>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                 <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200 space-y-1.5">
                     <div>
-                        <span class="text-[10px] font-bold text-slate-500 uppercase block">Discipline prioritaire</span>
+                        <span class="text-[10px] font-bold text-slate-500 uppercase block">Discipline 1</span>
                         <strong class="text-slate-900 text-sm"><?= htmlspecialchars($d1) ?></strong>
                     </div>
                     <?php if ($d2 !== 'Aucune' && $d2 !== ''): ?>
                         <div class="pt-1 border-t border-slate-200/60">
-                            <span class="text-[10px] font-bold text-slate-500 uppercase block">Discipline secondaire</span>
+                            <span class="text-[10px] font-bold text-slate-500 uppercase block">Discipline 2</span>
                             <span class="font-semibold text-slate-800"><?= htmlspecialchars($d2) ?></span>
                         </div>
                     <?php endif; ?>
@@ -194,11 +190,11 @@ $val_date_fr = date('d.m.Y', strtotime((string)$val_date_str));
 
                 <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200 space-y-1.5">
                     <div>
-                        <span class="text-[10px] font-bold text-slate-500 uppercase block">Volume d'entraînement validé</span>
+                        <span class="text-[10px] font-bold text-slate-500 uppercase block">Nombre d'entraînements par semaine</span>
                         <strong class="text-slate-900 text-sm"><?= htmlspecialchars((string)$sessions) ?> séances / semaine</strong>
                     </div>
                     <div class="pt-1 border-t border-slate-200/60">
-                        <span class="text-[10px] font-bold text-slate-500 uppercase block">Jours d'entraînement retenus</span>
+                        <span class="text-[10px] font-bold text-slate-500 uppercase block">Disponibilités</span>
                         <span class="font-semibold text-slate-800"><?= htmlspecialchars($days_str) ?></span>
                     </div>
                 </div>
@@ -206,8 +202,8 @@ $val_date_fr = date('d.m.Y', strtotime((string)$val_date_str));
 
             <?php if (!empty($cadres_str)): ?>
                 <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs">
-                    <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Intégration de cadres sportifs :</span>
-                    <strong class="text-rose-950 font-semibold mt-0.5 block"><?= htmlspecialchars($cadres_str) ?></strong>
+                    <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Cadres :</span>
+                    <strong class="text-slate-900 font-semibold mt-0.5 block"><?= htmlspecialchars($cadres_str) ?></strong>
                 </div>
             <?php endif; ?>
 
@@ -227,9 +223,9 @@ $val_date_fr = date('d.m.Y', strtotime((string)$val_date_str));
             <?php endif; ?>
 
             <?php if ($target_perf !== ''): ?>
-                <div class="p-3 bg-rose-50/60 rounded-xl border border-rose-200 text-xs">
-                    <span class="text-[10px] font-bold text-rose-800 uppercase tracking-wider block">Objectifs de performance et compétitions cibles :</span>
-                    <p class="font-semibold text-rose-950 mt-0.5"><?= htmlspecialchars($target_perf) ?></p>
+                <div class="p-3 bg-indigo-50/60 rounded-xl border border-indigo-200 text-xs">
+                    <span class="text-[10px] font-bold text-indigo-900 uppercase tracking-wider block">Objectifs :</span>
+                    <p class="font-semibold text-indigo-950 mt-0.5"><?= htmlspecialchars($target_perf) ?></p>
                 </div>
             <?php endif; ?>
         </div>
@@ -237,8 +233,8 @@ $val_date_fr = date('d.m.Y', strtotime((string)$val_date_str));
         <!-- 2. Contrat moral et comportements d'excellence -->
         <div class="space-y-3">
             <h2 class="text-xs font-bold uppercase tracking-wider text-slate-900 pb-1 border-b border-slate-200 flex items-center gap-1.5">
-                <span class="w-4 h-4 rounded bg-rose-600 text-white flex items-center justify-center text-[10px] font-black">2</span>
-                Contrat moral (2 engagements réciproques non négociables)
+                <span class="w-4 h-4 rounded bg-slate-900 text-white flex items-center justify-center text-[10px] font-black">2</span>
+                Contrat moral
             </h2>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
@@ -261,11 +257,11 @@ $val_date_fr = date('d.m.Y', strtotime((string)$val_date_str));
         <?php if (!empty($interview['trainer_notes']) || !empty($decisions['strength_training'])): ?>
             <div class="space-y-2 text-xs">
                 <h2 class="text-xs font-bold uppercase tracking-wider text-slate-900 pb-1 border-b border-slate-200 flex items-center gap-1.5">
-                    <span class="w-4 h-4 rounded bg-rose-600 text-white flex items-center justify-center text-[10px] font-black">3</span>
-                    Consignes d'entraînement et renforcement
+                    <span class="w-4 h-4 rounded bg-slate-900 text-white flex items-center justify-center text-[10px] font-black">3</span>
+                    Remarques
                 </h2>
                 <?php if (!empty($decisions['strength_training'])): ?>
-                    <p><strong>Renforcement / Préparation physique :</strong> <?= htmlspecialchars($decisions['strength_training']) ?></p>
+                    <p><strong>Recommendations :</strong> <?= htmlspecialchars($decisions['strength_training']) ?></p>
                 <?php endif; ?>
                 <?php if (!empty($interview['trainer_notes'])): ?>
                     <p class="italic text-slate-700 bg-slate-50 p-2.5 rounded-lg border border-slate-200">
@@ -283,7 +279,7 @@ $val_date_fr = date('d.m.Y', strtotime((string)$val_date_str));
                 <span class="text-[10px] text-slate-400 block mt-1"><?= htmlspecialchars($athlete['first_name'] . ' ' . $athlete['last_name']) ?></span>
             </div>
             <div>
-                <span class="text-[10px] font-bold text-slate-500 uppercase block">Pour le staff technique <?= htmlspecialchars($club_name) ?> :</span>
+                <span class="text-[10px] font-bold text-slate-500 uppercase block">Entraîneur :</span>
                 <div class="mt-8 border-b border-slate-400 w-3/4"></div>
                 <span class="text-[10px] text-slate-400 block mt-1">Validé le <?= htmlspecialchars($val_date_fr) ?></span>
             </div>

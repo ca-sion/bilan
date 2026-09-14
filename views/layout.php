@@ -43,16 +43,16 @@ $is_athlete = !empty($_SESSION['athlete_id']);
                             950: '#09090b',
                         },
                         brand: {
-                            50: '#fff1f2',
-                            100: '#ffe4e6',
-                            200: '#fecdd3',
-                            300: '#fda4af',
-                            400: '#fb7185',
-                            500: '#f43f5e',
-                            600: '#e11d48',
-                            700: '#be123c',
-                            800: '#9f1239',
-                            900: '#881337',
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            200: '#c7d2fe',
+                            300: '#a5b4fc',
+                            400: '#818cf8',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            800: '#3730a3',
+                            900: '#312e81',
                         }
                     },
                     fontFamily: {
@@ -70,7 +70,7 @@ $is_athlete = !empty($_SESSION['athlete_id']);
         window.APP_BASE_URL = '<?= $base_url_js ?>';
     </script>
 </head>
-<body class="min-h-full flex flex-col justify-between text-zinc-800 bg-[#f8f9fa] selection:bg-rose-600 selection:text-white">
+<body class="min-h-full flex flex-col justify-between text-zinc-800 bg-[#f8f9fa] selection:bg-indigo-600 selection:text-white">
 
     <!-- En-tête de navigation épuré -->
     <header class="no-print sticky top-0 z-40 bg-white border-b border-zinc-200">
@@ -79,7 +79,7 @@ $is_athlete = !empty($_SESSION['athlete_id']);
                 
                 <!-- Logo et Identité Club -->
                 <a href="<?= url($is_admin ? '/admin' : '/') ?>" class="flex items-center gap-2.5 group">
-                    <span class="font-heading font-bold text-base text-zinc-900 tracking-tight group-hover:text-rose-600 transition-colors">
+                    <span class="font-heading font-bold text-base text-zinc-900 tracking-tight group-hover:text-indigo-600 transition-colors">
                         <?= htmlspecialchars(env('CLUB_NAME', 'CA Sion')) ?>
                     </span>
                     <span class="text-zinc-300">/</span>
@@ -101,7 +101,7 @@ $is_athlete = !empty($_SESSION['athlete_id']);
                         <a href="<?= url('/admin') ?>" class="text-xs font-semibold text-zinc-700 hover:text-zinc-900 px-3 py-1.5 rounded-lg hover:bg-zinc-100 transition-colors">
                             Tableau de bord
                         </a>
-                        <a href="<?= url('/admin/logout') ?>" class="text-xs font-semibold text-zinc-600 hover:text-rose-600 px-3 py-1.5 rounded-lg border border-zinc-200 hover:border-rose-200 hover:bg-rose-50/50 transition-colors">
+                        <a href="<?= url('/admin/logout') ?>" class="text-xs font-semibold text-zinc-600 hover:text-zinc-900 px-3 py-1.5 rounded-lg border border-zinc-200 hover:bg-zinc-100 transition-colors">
                             Déconnexion coach
                         </a>
                     <?php else: ?>

@@ -17,7 +17,7 @@ ob_start();
                         id="header_season_select"
                         name="season_id" 
                         onchange="this.form.submit()" 
-                        class="px-2.5 py-1 rounded-lg text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200/80 cursor-pointer focus:outline-none focus:ring-1 focus:ring-rose-500"
+                        class="px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-100 text-slate-800 border border-slate-200 cursor-pointer focus:outline-none focus:ring-1 focus:ring-zinc-900"
                     >
                         <?php foreach ($all_seasons as $s): ?>
                             <option value="<?= (int)$s['id'] ?>" <?= ((int)$s['id'] === (int)$season['id']) ? 'selected' : '' ?>>
@@ -150,7 +150,7 @@ ob_start();
     <!-- BARRE FLOTTANTE U16 GROUPÉ -->
     <div id="u16-group-bar" class="hidden bg-zinc-900 text-white p-4 rounded-2xl shadow-xl border border-zinc-800 flex flex-col sm:flex-row items-center justify-between gap-4">
         <div class="flex items-center gap-3">
-            <span class="w-7 h-7 rounded-lg bg-rose-600 text-white font-bold flex items-center justify-center text-xs" id="selected-count">0</span>
+            <span class="w-7 h-7 rounded-lg bg-indigo-600 text-white font-bold flex items-center justify-center text-xs" id="selected-count">0</span>
             <div>
                 <strong class="text-xs font-semibold uppercase tracking-wider">Athlètes U16 sélectionnés</strong>
                 <p class="text-[11px] text-zinc-400">Lancez l'entretien groupé express pour comparer leurs fiches côte-à-côte.</p>
@@ -158,7 +158,7 @@ ob_start();
         </div>
         <button 
             id="btn-launch-u16-group" 
-            class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold rounded-xl transition-colors shadow"
+            class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-xl transition-colors shadow"
         >
             Lancer l'entretien groupé →
         </button>
@@ -259,7 +259,7 @@ ob_start();
                                     <?php if ($is_u16): ?>
                                         <input 
                                             type="checkbox" 
-                                            class="u16-checkbox w-4 h-4 text-rose-600 rounded border-zinc-300 focus:ring-rose-500 cursor-pointer" 
+                                            class="u16-checkbox w-4 h-4 text-indigo-600 rounded border-zinc-300 focus:ring-indigo-500 cursor-pointer" 
                                             value="<?= (int)$a['id'] ?>"
                                         >
                                     <?php else: ?>
@@ -684,7 +684,7 @@ ob_start();
                         required 
                         class="flex-1 text-xs border border-zinc-200 rounded-xl px-3 py-2 bg-white text-zinc-800 focus:outline-none focus:ring-1 focus:ring-zinc-900"
                     >
-                    <button type="submit" class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold whitespace-nowrap shadow-sm">
+                    <button type="submit" class="px-4 py-2 bg-zinc-900 hover:bg-zinc-800 text-white rounded-xl text-xs font-bold whitespace-nowrap shadow-sm">
                         Créer la saison
                     </button>
                 </form>
