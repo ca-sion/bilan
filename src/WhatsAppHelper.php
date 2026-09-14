@@ -107,12 +107,23 @@ class WhatsAppHelper {
             ?? ($athlete_answers['commitment_2'] 
             ?? 'Écoute active des consignes et respect du groupe');
 
+        // Cadres sportifs
+        $cadres_raw = $decisions['cadres'] ?? ($athlete_answers['cadres'] ?? []);
+        if (!is_array($cadres_raw)) {
+            $cadres_raw = [$cadres_raw];
+        }
+        $cadres_labels = array_map(fn($k) => CategoryHelper::get_cadre_label((string)$k), array_filter($cadres_raw));
+        $cadres_str = !empty($cadres_labels) ? implode(', ', $cadres_labels) : '';
+
         $text = "🔴 " . strtoupper($club) . " — BILAN ET PROJECTION DE SAISON ⚪\n";
         $text .= "Athlète : {$full_name} ({$category_label})\n";
         $text .= "Date d'entretien : {$date_fr}\n\n";
         $text .= "🎯 Projet sportif validé :\n";
         $text .= "- Discipline prioritaire : {$d1}\n";
         $text .= "- Discipline secondaire : {$d2}\n";
+        if ($cadres_str !== '') {
+            $text .= "- Structure de cadres : {$cadres_str}\n";
+        }
         $text .= "- Volume d'entraînement : {$sessions} séances / semaine\n";
         $text .= "- Jours retenus : {$days_string}\n";
         $text .= "- Objectif cible : {$target}\n\n";

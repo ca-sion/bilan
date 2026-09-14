@@ -377,6 +377,112 @@ $t->test('API : Génération de la synthèse WhatsApp (POST /api/export-whatsapp
     $t->assert(!empty($res['text']), 'Le texte de synthèse WhatsApp ne doit pas être vide');
 });
 
+// =========================================================================
+// 7. Structures de Cadres & Actions Entraîneur (AdminController & Helpers)
+// =========================================================================
+echo "\n\033[1m7. Structures de Cadres & Actions Entraîneur (AdminController & Helpers)\033[0m\n";
+
+$t->test('Cadres : Configuration des 4 structures de cadres (CategoryHelper::get_cadres)', function () use ($t) {
+    $cadres = CategoryHelper::get_cadres();
+    $t->assert(isset($cadres['team_jeunesse']), 'Structure Team jeunesse présente');
+    $t->assert(isset($cadres['cadres_vs']), 'Structure Cadres VS présente');
+    $t->assert(isset($cadres['cadres_romands']), 'Structure Cadres romands présente');
+    $t->assert(isset($cadres['cadres_suisses']), 'Structure Cadres suisses présente');
+    $t->assertEquals('Cadres VS', CategoryHelper::get_cadre_label('cadres_vs'));
+});
+
+$t->test('Admin : Enregistrement et validation des arbitrages avec Cadres (POST /admin/save-trainer)', function () use ($t, $db, $test_athlete, $test_interview_id) {
+    $ctrl = new AdminController($db);
+    $_SESSION['is_coach_admin'] = true;
+    $_POST = [
+        'interview_id' => $test_interview_id,
+        'action' => 'validate',
+        'trainer_answers' => [
+            'attitude_status' => 'ok',
+            'coach_rating_rigor' => '5'
+        ],
+        'decisions' => [
+            'primary_discipline' => 'sprint_court',
+            'approved_weekly_sessions' => '4',
+            'approved_training_days' => ['monday', 'wednesday', 'friday'],
+            'cadres' => ['cadres_vs', 'cadres_romands']
+        ],
+        'trainer_notes' => 'Excellent engagement constaté.',
+        'redirect_to' => '/admin'
+    ];
+
+    $ctrl->save_trainer_form();
+    $_POST = [];
+    unset($_SESSION['is_coach_admin']);
+
+    $stmt = $db->prepare("SELECT status, is_validated, decisions, trainer_notes FROM interviews WHERE id = ?");
+    $stmt->execute([$test_interview_id]);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    $t->assertEquals('completed', $row['status'] ?? null);
+    $t->assertEquals(1, (int)($row['is_validated'] ?? 0));
+    $t->assertEquals('Excellent engagement constaté.', $row['trainer_notes'] ?? null);
+    $dec = json_decode($row['decisions'] ?? '{}', true);
+    $t->assertEquals('sprint_court', $dec['primary_discipline'] ?? null);
+    $t->assert(in_array('cadres_vs', $dec['cadres'] ?? [], true), 'Cadres VS doit être validé');
+});
+
+$t->test('Admin : Déverrouillage d\'un entretien par le coach (POST /admin/reopen)', function () use ($t, $db, $test_interview_id) {
+    $ctrl = new AdminController($db);
+    $_SESSION['is_coach_admin'] = true;
+    $_POST = [
+        'interview_id' => $test_interview_id,
+        'redirect_to' => '/admin'
+    ];
+
+    $ctrl->reopen_interview();
+    $_POST = [];
+    unset($_SESSION['is_coach_admin']);
+
+    $stmt = $db->prepare("SELECT status, is_validated FROM interviews WHERE id = ?");
+    $stmt->execute([$test_interview_id]);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    $t->assertEquals('draft', $row['status'] ?? null);
+    $t->assertEquals(0, (int)($row['is_validated'] ?? 0));
+});
+
+$t->test('Athlète : Déverrouillage autonome du bilan (POST /unlock)', function () use ($t, $db, $test_athlete, $test_interview_id) {
+    // Reverrouiller d'abord
+    $db->prepare("UPDATE interviews SET status = 'submitted', is_validated = 0 WHERE id = ?")->execute([$test_interview_id]);
+
+    $ctrl = new AthleteController($db);
+    $_SESSION['athlete_id'] = $test_athlete['id'];
+    $_POST = [];
+
+    $ctrl->unlockForm();
+    unset($_SESSION['athlete_id']);
+
+    $stmt = $db->prepare("SELECT status FROM interviews WHERE id = ?");
+    $stmt->execute([$test_interview_id]);
+    $t->assertEquals('draft', $stmt->fetchColumn());
+});
+
+$t->test('Admin : Réinitialisation du code PIN (POST /admin/reset-pin)', function () use ($t, $db, $test_athlete) {
+    $ctrl = new AdminController($db);
+    $_SESSION['is_coach_admin'] = true;
+    $_POST = [
+        'athlete_id' => $test_athlete['id']
+    ];
+
+    $ctrl->reset_pin();
+    $_POST = [];
+    unset($_SESSION['is_coach_admin']);
+
+    $stmt = $db->prepare("SELECT access_pin, birth_date FROM athletes WHERE id = ?");
+    $stmt->execute([$test_athlete['id']]);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    $expected_pin = !empty($row['birth_date']) ? Auth::calculate_pin_from_birth_date($row['birth_date']) : '0000';
+    $t->assertEquals($expected_pin, $row['access_pin'] ?? null);
+});
+
 $t->summary();
+
 
 

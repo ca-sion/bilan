@@ -51,6 +51,14 @@ foreach ($days_fr_map as $k => $lbl) {
 }
 $days_str = !empty($formatted_days) ? implode(', ', $formatted_days) : 'À convenir';
 
+// Cadres sportifs
+$cadres_raw = $decisions['cadres'] ?? ($athlete_answers['cadres'] ?? []);
+if (!is_array($cadres_raw)) {
+    $cadres_raw = [$cadres_raw];
+}
+$cadres_labels = array_map(fn($k) => CategoryHelper::get_cadre_label((string)$k), array_filter($cadres_raw));
+$cadres_str = !empty($cadres_labels) ? implode(', ', $cadres_labels) : '';
+
 $val_date_str = $interview['validated_at'] ?? $interview['updated_at'] ?? date('Y-m-d');
 $val_date_fr = date('d.m.Y', strtotime((string)$val_date_str));
 ?>
@@ -195,6 +203,13 @@ $val_date_fr = date('d.m.Y', strtotime((string)$val_date_str));
                     </div>
                 </div>
             </div>
+
+            <?php if (!empty($cadres_str)): ?>
+                <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs">
+                    <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Intégration de cadres sportifs :</span>
+                    <strong class="text-rose-950 font-semibold mt-0.5 block"><?= htmlspecialchars($cadres_str) ?></strong>
+                </div>
+            <?php endif; ?>
 
             <!-- Objectif cible -->
             <?php 

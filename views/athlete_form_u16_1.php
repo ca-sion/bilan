@@ -2,6 +2,8 @@
 $page_title = "Bilan U16 (1ère année) — " . htmlspecialchars($athlete['first_name'] . ' ' . $athlete['last_name']);
 $is_locked = in_array($interview['status'], ['submitted', 'completed'], true);
 $needs_birth_date = empty($athlete['birth_date']) || $athlete['access_pin'] === '0000';
+$selected_cadres = $answers['cadres'] ?? [];
+if (!is_array($selected_cadres)) $selected_cadres = [$selected_cadres];
 ob_start();
 ?>
 
@@ -256,6 +258,30 @@ ob_start();
                                 class="w-4 h-4 text-rose-600 focus:ring-rose-500"
                             >
                             <span><?= htmlspecialchars($label) ?></span>
+                        </label>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+
+            <!-- Cadres sportifs -->
+            <div class="pt-3 border-t border-slate-100">
+                <label class="block text-sm font-semibold text-slate-800 mb-1">
+                    Cadres sportifs
+                </label>
+                <p class="text-xs text-slate-500 mb-2">Sélectionne les structures de cadres dont tu fais partie ou que tu souhaites intégrer :</p>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                    <?php foreach (CategoryHelper::get_cadres() as $cadre_key => $cadre_label): ?>
+                        <?php $c_checked = in_array($cadre_key, $selected_cadres, true); ?>
+                        <label class="flex items-center gap-2.5 p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer text-sm font-medium text-slate-700 has-[:checked]:bg-rose-50/80 has-[:checked]:border-rose-400 has-[:checked]:font-bold has-[:checked]:text-rose-950 shadow-sm transition-all">
+                            <input 
+                                type="checkbox" 
+                                name="cadres[]" 
+                                value="<?= $cadre_key ?>" 
+                                <?= $c_checked ? 'checked' : '' ?> 
+                                <?= $is_locked ? 'disabled' : '' ?>
+                                class="w-4 h-4 text-rose-600 rounded focus:ring-rose-500"
+                            >
+                            <span><?= htmlspecialchars($cadre_label) ?></span>
                         </label>
                     <?php endforeach; ?>
                 </div>

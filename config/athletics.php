@@ -31,6 +31,13 @@ return [
         'middle_distance'  => 'Demi-fond'
     ],
 
+    'cadres' => [
+        'team_jeunesse'  => 'Team jeunesse',
+        'cadres_vs'      => 'Cadres VS',
+        'cadres_romands' => 'Cadres romands',
+        'cadres_suisses' => 'Cadres suisses'
+    ],
+
     'days_fr' => [
         'monday'           => 'Lundi',
         'tuesday'          => 'Mardi',

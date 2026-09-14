@@ -6,6 +6,8 @@ $goals = is_array($answers['goals_results'] ?? null) ? $answers['goals_results']
 $get_goal = fn(string $k): string => (string)($goals[$k] ?? $answers["goals_results[{$k}]"] ?? $answers[$k] ?? '');
 $selected_days = $answers['available_days'] ?? [];
 if (!is_array($selected_days)) $selected_days = [$selected_days];
+$selected_cadres = $answers['cadres'] ?? [];
+if (!is_array($selected_cadres)) $selected_cadres = [$selected_cadres];
 ob_start();
 ?>
 
@@ -462,6 +464,30 @@ ob_start();
             <div id="discipline-compatibility-warning" class="hidden p-3.5 rounded-xl border border-amber-300 bg-amber-50 text-amber-900 text-xs flex items-start gap-2.5 animate-fade-in shadow-sm">
                 <span class="font-bold text-amber-700 text-base leading-none flex-shrink-0">⚠️</span>
                 <div id="discipline-warning-text" class="font-medium leading-relaxed"></div>
+            </div>
+
+            <!-- Cadres sportifs -->
+            <div>
+                <label class="block text-sm font-semibold text-slate-800 mb-1">
+                    Cadres sportifs
+                </label>
+                <p class="text-xs text-slate-500 mb-2">Sélectionne les structures de cadres dont tu fais partie ou que tu souhaites intégrer :</p>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                    <?php foreach (CategoryHelper::get_cadres() as $cadre_key => $cadre_label): ?>
+                        <?php $c_checked = in_array($cadre_key, $selected_cadres, true); ?>
+                        <label class="flex items-center gap-2.5 p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer text-sm font-medium text-slate-700 has-[:checked]:bg-rose-50/80 has-[:checked]:border-rose-400 has-[:checked]:font-bold has-[:checked]:text-rose-950 shadow-sm transition-all">
+                            <input 
+                                type="checkbox" 
+                                name="cadres[]" 
+                                value="<?= $cadre_key ?>" 
+                                <?= $c_checked ? 'checked' : '' ?> 
+                                <?= $is_locked ? 'disabled' : '' ?>
+                                class="w-4 h-4 text-rose-600 rounded focus:ring-rose-500"
+                            >
+                            <span><?= htmlspecialchars($cadre_label) ?></span>
+                        </label>
+                    <?php endforeach; ?>
+                </div>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">

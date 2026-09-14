@@ -29,6 +29,15 @@ class CategoryHelper {
         return (array)(athletics_config('obstacles') ?? []);
     }
 
+    public static function get_cadres(): array {
+        return (array)(athletics_config('cadres') ?? []);
+    }
+
+    public static function get_cadre_label(string $key): string {
+        $cadres = self::get_cadres();
+        return $cadres[$key] ?? $key;
+    }
+
     public static function get_athlete_age(int $birth_year): int {
         return CategoryCalculator::get_athlete_age($birth_year);
     }

@@ -10,6 +10,12 @@ if (!is_array($ath_days)) $ath_days = [$ath_days];
 $selected_days = $decisions['approved_training_days'] ?? ($athlete_answers['available_days'] ?? []);
 if (!is_array($selected_days)) $selected_days = [$selected_days];
 
+$ath_cadres = $athlete_answers['cadres'] ?? [];
+if (!is_array($ath_cadres)) $ath_cadres = [$ath_cadres];
+
+$selected_cadres = $decisions['cadres'] ?? ($athlete_answers['cadres'] ?? []);
+if (!is_array($selected_cadres)) $selected_cadres = [$selected_cadres];
+
 $pillars = [
     'rigor' => [
         'label' => 'Rigueur à l\'entraînement',
@@ -603,6 +609,20 @@ ob_start();
                             <?php endforeach; ?>
                         </div>
                     </div>
+
+                    <!-- Cadres sportifs déclarés -->
+                    <div>
+                        <label class="font-semibold text-zinc-700 block mb-1 text-[11px]">Cadres déclarés :</label>
+                        <div class="grid grid-cols-2 gap-1">
+                            <?php foreach (CategoryHelper::get_cadres() as $ck => $cl): ?>
+                                <?php $c_checked = in_array($ck, $ath_cadres, true); ?>
+                                <label class="flex items-center gap-1.5 p-1.5 rounded-lg border cursor-pointer text-xs <?= $c_checked ? 'bg-rose-50 border-rose-300 font-bold text-rose-950' : 'border-zinc-200 text-zinc-600 bg-white' ?>">
+                                    <input type="checkbox" name="athlete_answers[cadres][]" value="<?= $ck ?>" <?= $c_checked ? 'checked' : '' ?> class="sr-only">
+                                    <span><?= htmlspecialchars($cl) ?></span>
+                                </label>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- DROITE : Arbitrage et contrat validé -->
@@ -704,6 +724,20 @@ ob_start();
                                 <label class="flex items-center justify-center p-1 rounded-lg border text-center cursor-pointer text-xs transition-all has-[:checked]:bg-zinc-900 has-[:checked]:border-zinc-900 has-[:checked]:text-white has-[:checked]:font-bold border-zinc-200 hover:bg-zinc-100 text-zinc-700 bg-white">
                                     <input type="checkbox" name="decisions[approved_training_days][]" value="<?= $dk ?>" <?= $d_checked ? 'checked' : '' ?> class="sr-only">
                                     <span><?= $dl ?></span>
+                                </label>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+
+                    <!-- Cadres validés par l'entraîneur -->
+                    <div>
+                        <label class="block font-semibold text-zinc-700 mb-1 text-[11px]">Cadres validés :</label>
+                        <div class="grid grid-cols-2 gap-1">
+                            <?php foreach (CategoryHelper::get_cadres() as $ck => $cl): ?>
+                                <?php $c_checked = in_array($ck, $selected_cadres, true); ?>
+                                <label class="flex items-center gap-1.5 p-1.5 rounded-lg border cursor-pointer text-xs transition-all has-[:checked]:bg-zinc-900 has-[:checked]:border-zinc-900 has-[:checked]:text-white has-[:checked]:font-bold border-zinc-200 hover:bg-zinc-100 text-zinc-700 bg-white">
+                                    <input type="checkbox" name="decisions[cadres][]" value="<?= $ck ?>" <?= $c_checked ? 'checked' : '' ?> class="sr-only">
+                                    <span><?= htmlspecialchars($cl) ?></span>
                                 </label>
                             <?php endforeach; ?>
                         </div>

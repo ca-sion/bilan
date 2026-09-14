@@ -59,6 +59,8 @@ ob_start();
                 $verdict = $decisions['coach_verdict'] ?? 'approved';
                 $approved_days = $decisions['approved_training_days'] ?? ($ath_answers['available_days'] ?? ['monday', 'wednesday', 'friday']);
                 if (!is_array($approved_days)) $approved_days = [$approved_days];
+                $selected_cadres = $decisions['cadres'] ?? ($ath_answers['cadres'] ?? []);
+                if (!is_array($selected_cadres)) $selected_cadres = [$selected_cadres];
             ?>
             <div class="bg-white rounded-2xl border border-zinc-200/80 shadow-sm overflow-hidden flex flex-col text-xs">
                 
@@ -259,6 +261,20 @@ ob_start();
                                     <label class="flex items-center justify-center p-1.5 rounded-lg border text-center cursor-pointer text-xs transition-all has-[:checked]:bg-zinc-900 has-[:checked]:border-zinc-900 has-[:checked]:text-white has-[:checked]:font-bold border-zinc-200 hover:bg-zinc-100 text-zinc-700 bg-white select-none">
                                         <input type="checkbox" name="decisions[approved_training_days][]" value="<?= $d_k ?>" <?= $d_checked ? 'checked' : '' ?> class="sr-only">
                                         <span><?= $d_l ?></span>
+                                    </label>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+
+                        <!-- Cadres retenus -->
+                        <div>
+                            <label class="block font-semibold text-zinc-700 mb-1 text-[11px]">Cadres validés :</label>
+                            <div class="grid grid-cols-2 gap-1">
+                                <?php foreach (CategoryHelper::get_cadres() as $ck => $cl): ?>
+                                    <?php $c_checked = in_array($ck, $selected_cadres, true); ?>
+                                    <label class="flex items-center gap-1 p-1 rounded-lg border text-center cursor-pointer text-[10px] transition-all has-[:checked]:bg-zinc-900 has-[:checked]:border-zinc-900 has-[:checked]:text-white has-[:checked]:font-bold border-zinc-200 hover:bg-zinc-100 text-zinc-700 bg-white select-none">
+                                        <input type="checkbox" name="decisions[cadres][]" value="<?= $ck ?>" <?= $c_checked ? 'checked' : '' ?> class="sr-only">
+                                        <span><?= htmlspecialchars($cl) ?></span>
                                     </label>
                                 <?php endforeach; ?>
                             </div>
