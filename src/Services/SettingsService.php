@@ -14,29 +14,30 @@ class SettingsService {
      */
     public static function get(string $key, mixed $default = null): mixed {
         try {
-            $db = get_db();
-            $stmt = $db->prepare("SELECT value FROM settings WHERE key = ?");
-            $stmt->execute([$key]);
-            $row = $stmt->fetch();
+            if (function_exists('get_db')) {
+                $db = get_db();
+                $stmt = $db->prepare("SELECT value FROM settings WHERE key = ?");
+                $stmt->execute([$key]);
+                $row = $stmt->fetch();
 
-            if ($row !== false && $row['value'] !== null && $row['value'] !== '') {
-                return $row['value'];
+                if ($row !== false && $row['value'] !== null && $row['value'] !== '') {
+                    return $row['value'];
+                }
             }
         } catch (\Throwable) {
             // Fallback silencieux en cas d'accès pré-initialisation
         }
 
-        // Fallback .env (recherche en majuscules comme CLUB_NAME pour key club_name)
-        $env_key = strtoupper(str_replace('-', '_', $key));
-        $env_val = env($env_key);
-        if ($env_val !== null && $env_val !== '') {
-            return $env_val;
-        }
-
-        // Fallback clé exacte
-        $env_val_exact = env($key);
-        if ($env_val_exact !== null && $env_val_exact !== '') {
-            return $env_val_exact;
+        // Fallback .env
+        if (function_exists('env')) {
+            $env_val = env(strtoupper(str_replace('-', '_', $key)));
+            if ($env_val !== null && $env_val !== '') {
+                return $env_val;
+            }
+            $env_val_exact = env($key);
+            if ($env_val_exact !== null && $env_val_exact !== '') {
+                return $env_val_exact;
+            }
         }
 
         return $default;

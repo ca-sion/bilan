@@ -6,18 +6,9 @@ declare(strict_types=1);
  * Optimisé pour hébergement mutualisé Infomaniak en racine ou sous-répertoire (ex: /debriefing/)
  */
 
-// Initialisation de la configuration et de la base de données SQLite
+// Initialisation de la configuration et de l'autoloader
 require_once __DIR__ . '/config/database.php';
-require_once __DIR__ . '/src/Services/SettingsService.php';
-require_once __DIR__ . '/src/Auth.php';
-require_once __DIR__ . '/src/Helper.php';
-require_once __DIR__ . '/src/Domain/CategoryCalculator.php';
-require_once __DIR__ . '/src/Domain/DisciplineRules.php';
-require_once __DIR__ . '/src/CategoryHelper.php';
-require_once __DIR__ . '/src/WhatsAppHelper.php';
-require_once __DIR__ . '/src/AthleteController.php';
-require_once __DIR__ . '/src/AdminController.php';
-require_once __DIR__ . '/src/ApiController.php';
+require_once __DIR__ . '/src/autoload.php';
 
 Auth::init_session();
 $db = get_db();

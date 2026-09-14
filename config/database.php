@@ -82,8 +82,12 @@ function url(string $path = ''): string {
  */
 function redirect(string $path): void {
     $target = url($path);
-    header("Location: {$target}");
-    exit;
+    if (!headers_sent()) {
+        header("Location: {$target}");
+    }
+    if (PHP_SAPI !== 'cli') {
+        exit;
+    }
 }
 
 /**
@@ -173,8 +177,13 @@ function get_db(): PDO {
     ]);
 
     // Optimisations SQLite pour concurrence et intégrité
-    $pdo->exec('PRAGMA foreign_keys = ON;');
-    $pdo->exec('PRAGMA journal_mode = WAL;');
+    try {
+        $pdo->exec('PRAGMA foreign_keys = ON;');
+        $pdo->exec('PRAGMA journal_mode = WAL;');
+    } catch (\Throwable) {
+        // Fallback transparent si le système de fichiers bloque la création des fichiers temporaires WAL
+        $pdo->exec('PRAGMA journal_mode = DELETE;');
+    }
 
     // Création des tables
     init_db_schema($pdo);
