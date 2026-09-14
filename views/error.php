@@ -12,7 +12,7 @@ ob_start();
         <h1 class="text-2xl font-bold font-heading text-slate-900"><?= htmlspecialchars($page_title) ?></h1>
         <p class="text-xs text-slate-500 leading-relaxed"><?= htmlspecialchars($error_message) ?></p>
         <div class="pt-4">
-            <a href="<?= url('/bilan') ?>" class="px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl text-xs shadow transition-all inline-block">
+            <a href="<?= url('/') ?>" class="px-5 py-2.5 bg-zinc-900 hover:bg-zinc-800 text-white font-bold rounded-xl text-xs shadow transition-all inline-block">
                 ← Retour à l'accueil
             </a>
         </div>

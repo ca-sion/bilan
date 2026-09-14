@@ -21,7 +21,7 @@ class AthleteController {
 
         // Si déjà connecté, rediriger vers le bilan
         if (!empty($_SESSION['athlete_id'])) {
-            redirect('/bilan');
+            redirect('/');
         }
 
         // Récupérer la liste des athlètes classés par Nom, Prénom
@@ -54,7 +54,7 @@ class AthleteController {
 
         if ($athlete_id <= 0) {
             flash('error', 'Veuillez sélectionner votre nom dans la liste.');
-            redirect('/bilan');
+            redirect('/');
         }
 
         $stmt = $this->db->prepare("SELECT * FROM athletes WHERE id = ?");
@@ -63,21 +63,21 @@ class AthleteController {
 
         if (!$athlete) {
             flash('error', 'Athlète introuvable.');
-            redirect('/bilan');
+            redirect('/');
         }
 
         // Vérification du PIN
         $correct_pin = trim((string)$athlete['access_pin']);
         if ($pin !== $correct_pin) {
             flash('error', 'Code PIN incorrect. Si vous l\'avez oublié, contactez votre entraîneur.');
-            redirect('/bilan');
+            redirect('/');
         }
 
         // Connexion réussie
         $_SESSION['athlete_id'] = $athlete['id'];
         $_SESSION['athlete_name'] = $athlete['first_name'] . ' ' . $athlete['last_name'];
 
-        redirect('/bilan');
+        redirect('/');
     }
 
     /**
@@ -90,7 +90,7 @@ class AthleteController {
 
         $token = trim($token);
         if ($token === '') {
-            redirect('/bilan');
+            redirect('/');
         }
 
         $stmt = $this->db->prepare("SELECT * FROM athletes WHERE access_token = ?");
@@ -100,11 +100,11 @@ class AthleteController {
         if ($athlete) {
             $_SESSION['athlete_id'] = $athlete['id'];
             $_SESSION['athlete_name'] = $athlete['first_name'] . ' ' . $athlete['last_name'];
-            redirect('/bilan');
+            redirect('/');
         }
 
         flash('error', 'Lien d\'accès direct invalide ou expiré.');
-        redirect('/bilan');
+        redirect('/');
     }
 
     /**
@@ -117,13 +117,13 @@ class AthleteController {
 
         $athlete_id = (int)($_SESSION['athlete_id'] ?? 0);
         if ($athlete_id <= 0) {
-            redirect('/bilan');
+            redirect('/');
         }
 
         $birth_date = trim((string)($_POST['birth_date'] ?? ''));
         if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $birth_date)) {
             flash('error', 'Format de date de naissance invalide.');
-            redirect('/bilan');
+            redirect('/');
         }
 
         $parts = explode('-', $birth_date);
@@ -134,7 +134,7 @@ class AthleteController {
         $stmt->execute([$birth_date, $birth_year, $pin, $athlete_id]);
 
         flash('success', 'Votre date de naissance et votre nouveau code PIN ont été enregistrés.');
-        redirect('/bilan');
+        redirect('/');
     }
 
     /**
@@ -147,7 +147,7 @@ class AthleteController {
 
         $athlete_id = (int)($_SESSION['athlete_id'] ?? 0);
         if ($athlete_id <= 0) {
-            redirect('/bilan/login');
+            redirect('/login');
         }
 
         // Récupérer l'athlète
@@ -157,7 +157,7 @@ class AthleteController {
 
         if (!$athlete) {
             unset($_SESSION['athlete_id']);
-            redirect('/bilan/login');
+            redirect('/login');
         }
 
         // Récupérer la saison active
@@ -218,7 +218,7 @@ class AthleteController {
 
         $athlete_id = (int)($_SESSION['athlete_id'] ?? 0);
         if ($athlete_id <= 0) {
-            redirect('/bilan/login');
+            redirect('/login');
         }
 
         $season_stmt = $this->db->query("SELECT id FROM seasons WHERE is_active = 1 ORDER BY id DESC LIMIT 1");
@@ -228,7 +228,7 @@ class AthleteController {
         $stmt->execute([$athlete_id, $season_id]);
 
         flash('info', 'Ton bilan est déverrouillé. Tu peux modifier tes réponses et les transmettre à nouveau.');
-        redirect('/bilan');
+        redirect('/');
     }
 
     /**
@@ -241,6 +241,6 @@ class AthleteController {
         unset($_SESSION['athlete_id']);
         unset($_SESSION['athlete_name']);
         flash('info', 'Vous avez été déconnecté avec succès.');
-        redirect('/bilan');
+        redirect('/');
     }
 }

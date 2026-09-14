@@ -31,7 +31,7 @@ ob_start();
         </div>
 
         <!-- Formulaire de connexion -->
-        <form action="<?= url('/bilan/login') ?>" method="POST" id="login-form">
+        <form action="<?= url('/login') ?>" method="POST" id="login-form">
             
             <!-- =========================================================================
                  ÉTAPE 1 : SÉLECTION DE L'ATHLÈTE

@@ -20,7 +20,7 @@ ob_start();
                     <p class="text-xs text-amber-700 mt-1">
                         Pour sécuriser ton accès et calculer automatiquement ton futur code PIN (jour et mois), renseigne ta date de naissance.
                     </p>
-                    <form action="<?= url('/bilan/update-birth-date') ?>" method="POST" class="mt-4 flex flex-wrap items-center gap-3">
+                    <form action="<?= url('/update-birth-date') ?>" method="POST" class="mt-4 flex flex-wrap items-center gap-3">
                         <input 
                             type="date" 
                             name="birth_date" 
@@ -76,7 +76,7 @@ ob_start();
                     <p class="text-xs text-blue-700 mt-0.5">Tu souhaites modifier ou corriger des éléments avant ton entretien ? Tu peux déverrouiller tes réponses en 1 clic.</p>
                 </div>
             </div>
-            <form action="<?= url('/bilan/unlock') ?>" method="POST" class="shrink-0">
+            <form action="<?= url('/unlock') ?>" method="POST" class="shrink-0">
                 <input type="hidden" name="interview_id" value="<?= (int)$interview['id'] ?>">
                 <button type="submit" class="w-full sm:w-auto px-4 py-2 bg-white hover:bg-slate-50 text-slate-800 font-bold rounded-xl border border-slate-300 shadow-sm text-xs transition-colors inline-flex items-center justify-center gap-2">
                     <span>✏️</span>
@@ -616,7 +616,7 @@ ob_start();
                         <p class="text-[11px] text-amber-800">Tes réponses sont enregistrées. Tu peux les modifier à tout moment avant ton entretien.</p>
                     </div>
                 </div>
-                <form action="<?= url('/bilan/unlock') ?>" method="POST">
+                <form action="<?= url('/unlock') ?>" method="POST">
                     <button type="submit" class="px-4 py-2 bg-white hover:bg-amber-100 text-amber-900 border border-amber-300 font-bold rounded-xl text-xs shadow-sm transition-all flex items-center gap-1.5 whitespace-nowrap">
                         <span>✏️</span>
                         <span>Modifier mes réponses</span>

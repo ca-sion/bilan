@@ -48,10 +48,6 @@ $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 try {
     // --- Routes Publiques / Athlète ---
     if ($path === '/' || $path === '') {
-        redirect('/bilan');
-    }
-
-    if ($path === '/bilan') {
         // Accès direct par token dans l'URL ?token=...
         if (!empty($_GET['token'])) {
             $athlete_ctrl->direct_token_login((string)$_GET['token']);
@@ -66,7 +62,7 @@ try {
         return;
     }
 
-    if ($path === '/bilan/login') {
+    if ($path === '/login') {
         if ($method === 'POST') {
             $athlete_ctrl->login_submit();
         } else {
@@ -75,17 +71,17 @@ try {
         return;
     }
 
-    if ($path === '/bilan/update-birth-date' && $method === 'POST') {
+    if ($path === '/update-birth-date' && $method === 'POST') {
         $athlete_ctrl->update_birth_date();
         return;
     }
 
-    if ($path === '/bilan/unlock' && $method === 'POST') {
+    if ($path === '/unlock' && $method === 'POST') {
         $athlete_ctrl->unlock_form();
         return;
     }
 
-    if ($path === '/bilan/logout') {
+    if ($path === '/logout') {
         $athlete_ctrl->logout();
         return;
     }
@@ -110,12 +106,12 @@ try {
         return;
     }
 
-    if ($path === '/admin/u16-group') {
+    if ($path === '/admin/entretien/u16') {
         $admin_ctrl->u16_group_view();
         return;
     }
 
-    if ($path === '/admin/u18-split') {
+    if ($path === '/admin/entretien/u18') {
         $admin_ctrl->u18_split_view();
         return;
     }

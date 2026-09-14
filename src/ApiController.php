@@ -121,7 +121,7 @@ class ApiController {
         json_response([
             'success' => true,
             'message' => 'Votre bilan a été transmis avec succès à votre entraîneur.',
-            'redirect' => url('/bilan')
+            'redirect' => url('/')
         ]);
     }
 

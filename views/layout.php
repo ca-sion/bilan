@@ -78,7 +78,7 @@ $is_athlete = !empty($_SESSION['athlete_id']);
             <div class="flex items-center justify-between h-16">
                 
                 <!-- Logo et Identité Club -->
-                <a href="<?= url($is_admin ? '/admin' : '/bilan') ?>" class="flex items-center gap-2.5 group">
+                <a href="<?= url($is_admin ? '/admin' : '/') ?>" class="flex items-center gap-2.5 group">
                     <span class="font-heading font-bold text-base text-zinc-900 tracking-tight group-hover:text-rose-600 transition-colors">
                         <?= htmlspecialchars(env('CLUB_NAME', 'CA Sion')) ?>
                     </span>
@@ -94,7 +94,7 @@ $is_athlete = !empty($_SESSION['athlete_id']);
                         <span class="hidden sm:inline-flex items-center text-xs font-medium text-zinc-600 px-3 py-1.5 rounded-lg bg-zinc-100 border border-zinc-200">
                             Athlète : <strong class="ml-1.5 text-zinc-900"><?= htmlspecialchars($_SESSION['athlete_name'] ?? '') ?></strong>
                         </span>
-                        <a href="<?= url('/bilan/logout') ?>" class="text-xs font-semibold text-zinc-600 hover:text-zinc-900 px-3 py-1.5 rounded-lg border border-zinc-200 hover:bg-zinc-100 transition-colors">
+                        <a href="<?= url('/logout') ?>" class="text-xs font-semibold text-zinc-600 hover:text-zinc-900 px-3 py-1.5 rounded-lg border border-zinc-200 hover:bg-zinc-100 transition-colors">
                             Changer d'athlète
                         </a>
                     <?php elseif ($is_admin): ?>

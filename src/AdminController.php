@@ -254,7 +254,7 @@ class AdminController {
                 );
                 $ins_stmt->execute([$athlete_id, $season['id'], $type]);
                 $new_id = (int)$this->db->lastInsertId();
-                redirect("/admin/u18-split?interview_id={$new_id}");
+                redirect("/admin/entretien/u18?interview_id={$new_id}");
             }
         } else {
             flash('error', 'Entretien non spécifié.');

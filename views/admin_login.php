@@ -47,7 +47,7 @@ ob_start();
         </form>
 
         <div class="pt-4 border-t border-zinc-100 text-center">
-            <a href="<?= url('/bilan') ?>" class="text-xs font-medium text-zinc-500 hover:text-zinc-900 transition-colors">
+            <a href="<?= url('/') ?>" class="text-xs font-medium text-zinc-500 hover:text-zinc-900 transition-colors">
                 ← Retour à l'espace athlète
             </a>
         </div>

@@ -31,10 +31,11 @@ Elle permet aux athlètes de préparer leur bilan / objectifs et aux entraîneur
   * `AdminController.php` : Logique de gestion du tableau de bord, imports CSV, export PDF, synthèses WhatsApp, déverrouillage et gestion des saisons.
   * `InterviewController.php` : Logique de saisie athlète et enregistrement des entretiens.
 * `views/` :
-  * `admin_dashboard.php` : Tableau de bord principal des entraîneurs avec barre d'outils harmonisée et filtres.
-  * `admin_u18_split.php` : Interface d'entretien individuel approfondi (split-screen athlète / coach) avec modal d'historique N-1.
-  * `admin_u16_group.php` : Interface de cadrage groupé (2 à 4 athlètes côte à côte) avec modal d'historique N-1.
-  * `athlete_interview.php` : Interface mobile/desktop pour la saisie autonome de l'athlète.
+  * `admin_dashboard.php` : Tableau de bord principal des entraîneurs avec barre d'outils harmonisée et filtres (`/admin`).
+  * `admin_u18_split.php` : Interface d'entretien individuel approfondi U18+ (`/admin/entretien/u18`) avec modal d'historique N-1.
+  * `admin_u16_group.php` : Interface de cadrage groupé U16 (`/admin/entretien/u16`) avec modal d'historique N-1.
+  * `athlete_login.php` : Écran d'accueil et connexion PIN de l'athlète (`/` et `/login`).
+  * `athlete_form_u18.php` & `athlete_form_u16_1.php` & `athlete_form_u16_2.php` : Formulaires de bilan adaptés par tranche d'âge.
   * `pdf_summary.php` & `summary_view.php` : Synthèses d'entretien imprimables et partageables.
 
 ---

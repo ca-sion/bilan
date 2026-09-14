@@ -247,7 +247,7 @@ ob_start();
                                     default => '<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-zinc-100 text-zinc-600 border border-zinc-200"><span class="w-1.5 h-1.5 rounded-full bg-zinc-400"></span> En attente</span>'
                                 };
 
-                                $direct_url = url('/bilan?token=' . urlencode($a['access_token']));
+                                $direct_url = url('/?token=' . urlencode($a['access_token']));
                                 $direct_full_url = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') . '://' . ($_SERVER['HTTP_HOST'] ?? 'localhost') . $direct_url;
                                 
                                 $meta_arr = safe_json_decode($a['meta'] ?? null);
@@ -305,21 +305,21 @@ ob_start();
                                         <!-- 1. Bouton Principal d'entretien (uniforme pour toutes les catégories) -->
                                         <?php if ($is_u16): ?>
                                             <a 
-                                                href="<?= url('/admin/u16-group?ids=' . (int)$a['id']) ?>" 
-                                                class="inline-flex items-center justify-center px-2.5 py-1 bg-zinc-900 hover:bg-zinc-800 text-white font-semibold rounded-lg text-xs transition-colors h-7 shadow-xs"
+                                                href="<?= url('/admin/entretien/u16?ids=' . (int)$a['id']) ?>" 
+                                                class="inline-flex items-center justify-center gap-1.5 px-3 h-7 bg-zinc-900 hover:bg-zinc-800 text-white font-semibold rounded-lg text-xs transition-colors shadow-xs"
                                                 title="Ouvrir l'entretien de cadrage U16"
                                             >
                                                 <span>Entretien</span>
-                                                <span class="ml-1 text-[10px] text-zinc-400">→</span>
+                                                <span class="text-[10px] text-zinc-400">→</span>
                                             </a>
                                         <?php else: ?>
                                             <a 
-                                                href="<?= url('/admin/u18-split?' . (!empty($a['interview_id']) ? 'interview_id=' . (int)$a['interview_id'] : 'athlete_id=' . (int)$a['id'])) ?>" 
-                                                class="inline-flex items-center justify-center px-2.5 py-1 bg-zinc-900 hover:bg-zinc-800 text-white font-semibold rounded-lg text-xs transition-colors h-7 shadow-xs"
+                                                href="<?= url('/admin/entretien/u18?' . (!empty($a['interview_id']) ? 'interview_id=' . (int)$a['interview_id'] : 'athlete_id=' . (int)$a['id'])) ?>" 
+                                                class="inline-flex items-center justify-center gap-1.5 px-3 h-7 bg-zinc-900 hover:bg-zinc-800 text-white font-semibold rounded-lg text-xs transition-colors shadow-xs"
                                                 title="Ouvrir l'entretien individuel"
                                             >
                                                 <span>Entretien</span>
-                                                <span class="ml-1 text-[10px] text-zinc-400">→</span>
+                                                <span class="text-[10px] text-zinc-400">→</span>
                                             </a>
                                         <?php endif; ?>
 
@@ -909,7 +909,7 @@ document.addEventListener('DOMContentLoaded', () => {
             groupBar?.classList.remove('hidden');
             if (launchBtn) {
                 launchBtn.onclick = () => {
-                    window.location.href = `${window.APP_BASE_URL || ''}/admin/u16-group?ids=${selected.join(',')}`;
+                    window.location.href = `${window.APP_BASE_URL || ''}/admin/entretien/u16?ids=${selected.join(',')}`;
                 };
             }
         } else if (selected.length > 4) {
