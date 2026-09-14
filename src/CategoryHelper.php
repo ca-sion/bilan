@@ -1,6 +1,9 @@
 <?php
 declare(strict_types=1);
 
+require_once __DIR__ . '/Domain/CategoryCalculator.php';
+require_once __DIR__ . '/Domain/DisciplineRules.php';
+
 use App\Domain\CategoryCalculator;
 use App\Domain\DisciplineRules;
 

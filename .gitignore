@@ -16,7 +16,7 @@ Homestead.json
 /.vagrant
 .phpunit.result.cache
 
-# SQLite Database & Data files (ne jamais versionner en prod)
+# SQLite Database
 /data/*.sqlite
 /data/*.sqlite3
 /data/*.sqlite-wal

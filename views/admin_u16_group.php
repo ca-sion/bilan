@@ -72,15 +72,27 @@ ob_start();
                             <?= htmlspecialchars($a['category_label']) ?> (<?= $a['birth_year'] ?>)
                         </span>
                     </div>
-                    <?php if ($is_validated): ?>
-                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
-                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Validé
-                        </span>
-                    <?php else: ?>
-                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-rose-50 text-rose-800 border border-rose-200">
-                            <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span> <?= ucfirst($status) ?>
-                        </span>
-                    <?php endif; ?>
+                    <div class="flex items-center gap-1.5">
+                        <?php if (!empty($a['history'])): ?>
+                            <button 
+                                type="button" 
+                                onclick="openModal('modal-history-<?= (int)$a['id'] ?>')" 
+                                class="px-2 py-0.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 text-[10px] font-bold rounded-lg border border-zinc-200 transition-colors"
+                                title="Consulter l'historique <?= htmlspecialchars($a['history']['season_name'] ?? 'N-1') ?>"
+                            >
+                                📜 N-1
+                            </button>
+                        <?php endif; ?>
+                        <?php if ($is_validated): ?>
+                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Validé
+                            </span>
+                        <?php else: ?>
+                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-rose-50 text-rose-800 border border-rose-200">
+                                <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span> <?= ucfirst($status) ?>
+                            </span>
+                        <?php endif; ?>
+                    </div>
                 </div>
 
                 <!-- Formulaire englobant la fiche athlète et les arbitrages du coach -->
@@ -293,6 +305,119 @@ ob_start();
     </div>
 
 </div>
+
+<!-- Modales d'historique N-1 pour les athlètes du groupe -->
+<?php foreach ($athletes as $a): ?>
+    <?php if (!empty($a['history'])): ?>
+        <?php
+            $history = $a['history'];
+            $hist_ath = safe_json_decode($history['athlete_answers'] ?? null);
+            $hist_trainer = safe_json_decode($history['trainer_answers'] ?? null);
+            $hist_dec = safe_json_decode($history['decisions'] ?? null);
+
+            $h_d1_raw = $hist_dec['primary_discipline'] 
+                ?? ($hist_dec['friday_discipline_approved'] 
+                ?? ($hist_dec['approved_disciplines'][0] 
+                ?? ($hist_ath['chosen_discipline_1'] 
+                ?? ($hist_ath['friday_discipline'] 
+                ?? ''))));
+            $h_d2_raw = $hist_dec['secondary_discipline'] 
+                ?? ($hist_dec['approved_disciplines'][1] 
+                ?? ($hist_ath['chosen_discipline_2'] 
+                ?? ''));
+            $h_d1 = CategoryHelper::get_discipline_label($h_d1_raw);
+            $h_d2 = CategoryHelper::get_discipline_label($h_d2_raw);
+
+            $h_sessions = $hist_dec['approved_weekly_sessions'] ?? ($hist_ath['target_sessions_count'] ?? '');
+            $h_days = $hist_dec['approved_training_days'] ?? ($hist_ath['available_days'] ?? []);
+            if (!is_array($h_days)) $h_days = [$h_days];
+            $h_days_map = ['monday'=>'Lu', 'tuesday'=>'Ma', 'wednesday'=>'Me', 'thursday'=>'Je', 'friday'=>'Ve', 'saturday'=>'Sa', 'sunday'=>'Di'];
+            $h_days_str = implode('-', array_map(fn($d) => $h_days_map[$d] ?? $d, $h_days));
+
+            $h_pride = $hist_ath['pride_highlight'] ?? ($hist_ath['top_success_description'] ?? '');
+            $h_target = $hist_dec['target_milestones'] ?? ($hist_ath['target_performance'] ?? ($hist_ath['target_competitions'] ?? ''));
+            $h_rule1 = $hist_dec['mandatory_rule_1'] ?? ($hist_ath['attitude_contract'] ?? '');
+            $h_rule2 = $hist_dec['mandatory_rule_2'] ?? '';
+        ?>
+        <div id="modal-history-<?= (int)$a['id'] ?>" class="modal-overlay fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+            <div class="modal-content-card rounded-2xl shadow-2xl border border-zinc-200 max-w-lg w-full overflow-hidden max-h-[85vh] flex flex-col relative z-10 bg-white">
+                <div class="p-4 border-b border-zinc-100 flex items-center justify-between">
+                    <div>
+                        <h3 class="font-bold font-heading text-sm text-zinc-900">Historique saison <?= htmlspecialchars($history['season_name'] ?? 'N-1') ?></h3>
+                        <p class="text-xs text-zinc-400">Fiche archivée de <?= htmlspecialchars($a['first_name'] . ' ' . $a['last_name']) ?></p>
+                    </div>
+                    <button onclick="closeModal('modal-history-<?= (int)$a['id'] ?>')" class="text-zinc-400 hover:text-zinc-700 text-sm">✕</button>
+                </div>
+                <div class="p-4 overflow-y-auto space-y-3 text-xs text-zinc-700">
+                    <!-- 1. Projet sportif N-1 -->
+                    <div class="p-3 bg-zinc-50 rounded-xl border border-zinc-200 space-y-1.5">
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-zinc-500 block">1. Orientation et volume N-1</span>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <span class="text-zinc-500 block text-[11px]">Disciplines :</span>
+                                <strong class="text-zinc-900"><?= htmlspecialchars($h_d1) ?><?= ($h_d2 && $h_d2 !== 'Aucune') ? ' + ' . htmlspecialchars($h_d2) : '' ?></strong>
+                            </div>
+                            <div>
+                                <span class="text-zinc-500 block text-[11px]">Volume & Jours :</span>
+                                <strong class="text-zinc-900"><?= $h_sessions ? htmlspecialchars((string)$h_sessions) . 'x/sem.' : 'Non spécifié' ?><?= $h_days_str ? ' (' . htmlspecialchars($h_days_str) . ')' : '' ?></strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2. Fierté & Objectifs fixés N-1 -->
+                    <div class="p-3 bg-zinc-50 rounded-xl border border-zinc-200 space-y-1.5">
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-zinc-500 block">2. Fierté & Objectifs N-1</span>
+                        <?php if ($h_pride): ?>
+                            <div>
+                                <span class="text-zinc-500 block text-[11px]">Fierté majeure passée :</span>
+                                <p class="italic text-zinc-800 mt-0.5">« <?= htmlspecialchars($h_pride) ?> »</p>
+                            </div>
+                        <?php endif; ?>
+                        <?php if ($h_target): ?>
+                            <div class="pt-1 border-t border-zinc-200/60">
+                                <span class="text-zinc-500 block text-[11px]">Objectifs visés la saison passée :</span>
+                                <p class="font-semibold text-zinc-900 mt-0.5"><?= htmlspecialchars($h_target) ?></p>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+
+                    <!-- 3. Contrat moral N-1 -->
+                    <?php if ($h_rule1 || $h_rule2): ?>
+                        <div class="p-3 bg-zinc-50 rounded-xl border border-zinc-200 space-y-1">
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-zinc-500 block">3. Contrat moral acté l'an passé</span>
+                            <?php if ($h_rule1): ?>
+                                <p><strong>1.</strong> <?= htmlspecialchars($h_rule1) ?></p>
+                            <?php endif; ?>
+                            <?php if ($h_rule2): ?>
+                                <p><strong>2.</strong> <?= htmlspecialchars($h_rule2) ?></p>
+                            <?php endif; ?>
+                        </div>
+                    <?php endif; ?>
+
+                    <!-- 4. Remarque coach N-1 -->
+                    <?php if (!empty($history['trainer_notes']) || !empty($hist_trainer['general_comment'])): ?>
+                        <div class="p-3 bg-zinc-50 rounded-xl border border-zinc-200 space-y-1">
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-zinc-500 block">4. Remarque du coach N-1</span>
+                            <p class="italic text-zinc-700">
+                                <?= nl2br(htmlspecialchars($history['trainer_notes'] ?: ($hist_trainer['general_comment'] ?? ''))) ?>
+                            </p>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+    <?php endif; ?>
+<?php endforeach; ?>
+
+<script>
+function openModal(id) {
+    document.getElementById(id)?.classList.remove('hidden');
+}
+
+function closeModal(id) {
+    document.getElementById(id)?.classList.add('hidden');
+}
+</script>
 
 <?php
 $content = ob_get_clean();

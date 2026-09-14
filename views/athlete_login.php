@@ -197,17 +197,10 @@ ob_start();
 
         </form>
 
-        <!-- Assistance WhatsApp si absent -->
+        <!-- Assistance si difficulté de connexion -->
         <div class="pt-3 border-t border-zinc-100 text-center">
-            <p class="text-[11px] text-zinc-500 mb-1.5">Tu ne trouves pas ton nom ou ton code PIN ne fonctionne pas ?</p>
-            <a 
-                href="<?= htmlspecialchars(WhatsAppHelper::generate_missing_athlete_link()) ?>" 
-                target="_blank" 
-                rel="noopener"
-                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-zinc-200 bg-zinc-50 hover:bg-zinc-100 text-zinc-700 text-xs font-medium transition-colors"
-            >
-                <span>Contacter l'entraîneur sur WhatsApp</span>
-            </a>
+            <p class="text-[11px] text-zinc-500 mb-0.5">Tu ne trouves pas ton nom ou ton code PIN ne fonctionne pas ?</p>
+            <p class="text-xs font-semibold text-zinc-700">Contacte ton entraîneur référent au club</p>
         </div>
 
     </div>

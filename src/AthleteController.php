@@ -209,6 +209,29 @@ class AthleteController {
     }
 
     /**
+     * Déverrouillage par l'athlète pour modifier ses réponses avant la validation
+     */
+    public function unlock_form(): void {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        $athlete_id = (int)($_SESSION['athlete_id'] ?? 0);
+        if ($athlete_id <= 0) {
+            redirect('/bilan/login');
+        }
+
+        $season_stmt = $this->db->query("SELECT id FROM seasons WHERE is_active = 1 ORDER BY id DESC LIMIT 1");
+        $season_id = (int)($season_stmt->fetchColumn() ?: 1);
+
+        $stmt = $this->db->prepare("UPDATE interviews SET status = 'draft' WHERE athlete_id = ? AND season_id = ? AND is_validated = 0");
+        $stmt->execute([$athlete_id, $season_id]);
+
+        flash('info', 'Ton bilan est déverrouillé. Tu peux modifier tes réponses et les transmettre à nouveau.');
+        redirect('/bilan');
+    }
+
+    /**
      * Déconnexion athlète
      */
     public function logout(): void {

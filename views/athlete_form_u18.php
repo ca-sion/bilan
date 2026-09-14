@@ -68,11 +68,21 @@ ob_start();
     </div>
 
     <?php if ($is_locked): ?>
-        <div class="bg-blue-50 border border-blue-200 rounded-2xl p-5 text-sm text-blue-900 flex items-center gap-3">
-            <span class="text-2xl">🔒</span>
-            <div>
-                <strong>Ton bilan individuel a été transmis à tes entraîneurs.</strong> Les réponses sont actuellement verrouillées en attendant ton entretien bilatéral de cadrage.
+        <div class="bg-blue-50 border border-blue-200 rounded-2xl p-5 text-sm text-blue-900 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <span class="text-2xl">🔒</span>
+                <div>
+                    <strong>Ton bilan individuel a été transmis à tes entraîneurs.</strong>
+                    <p class="text-xs text-blue-700 mt-0.5">Tu souhaites modifier ou corriger des éléments avant ton entretien ? Tu peux déverrouiller tes réponses en 1 clic.</p>
+                </div>
             </div>
+            <form action="<?= url('/bilan/unlock') ?>" method="POST" class="shrink-0">
+                <input type="hidden" name="interview_id" value="<?= (int)$interview['id'] ?>">
+                <button type="submit" class="w-full sm:w-auto px-4 py-2 bg-white hover:bg-slate-50 text-slate-800 font-bold rounded-xl border border-slate-300 shadow-sm text-xs transition-colors inline-flex items-center justify-center gap-2">
+                    <span>✏️</span>
+                    <span>Modifier mes réponses</span>
+                </button>
+            </form>
         </div>
     <?php endif; ?>
 
@@ -594,8 +604,24 @@ ob_start();
                     class="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-brand-600 to-rose-600 hover:from-brand-700 hover:to-rose-700 text-white font-bold rounded-xl shadow-lg shadow-rose-600/20 hover:shadow-xl transition-all text-sm flex items-center justify-center gap-2"
                 >
                     <span>✓</span>
-                    <span>Transmettre définitivement mon bilan complet</span>
+                    <span>Transmettre mon bilan à l'entraîneur</span>
                 </button>
+            </div>
+        <?php elseif ($interview['status'] === 'submitted'): ?>
+            <div class="bg-amber-50 border border-amber-200/80 rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-sm mt-4">
+                <div class="flex items-center gap-3">
+                    <span class="w-8 h-8 rounded-xl bg-amber-100 text-amber-800 font-bold flex items-center justify-center text-sm">✓</span>
+                    <div>
+                        <h4 class="font-bold text-xs text-amber-950">Bilan transmis à ton entraîneur</h4>
+                        <p class="text-[11px] text-amber-800">Tes réponses sont enregistrées. Tu peux les modifier à tout moment avant ton entretien.</p>
+                    </div>
+                </div>
+                <form action="<?= url('/bilan/unlock') ?>" method="POST">
+                    <button type="submit" class="px-4 py-2 bg-white hover:bg-amber-100 text-amber-900 border border-amber-300 font-bold rounded-xl text-xs shadow-sm transition-all flex items-center gap-1.5 whitespace-nowrap">
+                        <span>✏️</span>
+                        <span>Modifier mes réponses</span>
+                    </button>
+                </form>
             </div>
         <?php endif; ?>
 
@@ -617,7 +643,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const submitBtn = document.getElementById('btn-final-submit');
         if (submitBtn) {
             submitBtn.addEventListener('click', async () => {
-                if (!confirm('Es-tu certain de vouloir transmettre définitivement ton bilan individuel ? Les modifications seront verrouillées pour l\'entretien.')) {
+                if (!confirm('Confirmer la transmission de ton bilan à ton entraîneur ?')) {
                     return;
                 }
 
@@ -649,13 +675,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     } else {
                         alert(result.error || 'Erreur lors de la transmission.');
                         submitBtn.disabled = false;
-                        submitBtn.textContent = 'Transmettre définitivement mon bilan complet';
+                        submitBtn.textContent = 'Transmettre mon bilan à l\'entraîneur';
                     }
                 } catch (e) {
                     console.error(e);
                     alert('Erreur réseau. Veuillez réessayer.');
                     submitBtn.disabled = false;
-                    submitBtn.textContent = 'Transmettre définitivement mon bilan complet';
+                    submitBtn.textContent = 'Transmettre mon bilan à l\'entraîneur';
                 }
             });
         }

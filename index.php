@@ -80,6 +80,11 @@ try {
         return;
     }
 
+    if ($path === '/bilan/unlock' && $method === 'POST') {
+        $athlete_ctrl->unlock_form();
+        return;
+    }
+
     if ($path === '/bilan/logout') {
         $athlete_ctrl->logout();
         return;
@@ -157,6 +162,11 @@ try {
 
     if ($path === '/admin/export-grid') {
         $admin_ctrl->export_grid_csv();
+        return;
+    }
+
+    if ($path === '/admin/print-summary') {
+        $admin_ctrl->print_summary();
         return;
     }
 

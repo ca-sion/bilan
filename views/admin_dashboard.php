@@ -317,21 +317,29 @@ ob_start();
                                         </a>
                                     <?php endif; ?>
 
-                                    <?php if ($is_val && !empty($a['interview_id'])): ?>
+                                    <?php if (!empty($a['interview_id'])): ?>
                                         <button 
                                             type="button" 
                                             onclick="copyWhatsAppSynthesis(<?= (int)$a['interview_id'] ?>, this)" 
-                                            class="inline-flex items-center px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold rounded-lg border border-rose-200/80 transition-colors text-xs align-middle"
-                                            title="Copier la synthèse officielle WhatsApp"
+                                            class="inline-flex items-center justify-center w-7 h-7 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-lg border border-emerald-200/80 transition-colors text-xs align-middle"
+                                            title="Copier la synthèse WhatsApp"
                                         >
-                                            Synthèse
+                                            💬
                                         </button>
+                                        <a 
+                                            href="<?= url('/admin/print-summary?interview_id=' . (int)$a['interview_id']) ?>" 
+                                            target="_blank"
+                                            class="inline-flex items-center justify-center w-7 h-7 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 rounded-lg border border-zinc-200 transition-colors text-xs align-middle"
+                                            title="Imprimer / Enregistrer la fiche bilan en PDF"
+                                        >
+                                            🖨️
+                                        </a>
                                     <?php endif; ?>
 
-                                    <?php if (in_array($status, ['submitted', 'completed'], true)): ?>
-                                        <form action="<?= url('/admin/reopen') ?>" method="POST" class="inline" onsubmit="return confirm('Déverrouiller la fiche pour l\'athlète ?');">
+                                    <?php if (in_array($status, ['submitted', 'completed'], true) && !empty($a['interview_id'])): ?>
+                                        <form action="<?= url('/admin/reopen') ?>" method="POST" class="inline" onsubmit="return confirm('Déverrouiller la fiche pour permettre les modifications ?');">
                                             <input type="hidden" name="interview_id" value="<?= (int)$a['interview_id'] ?>">
-                                            <button type="submit" class="inline-flex items-center px-2 py-1 bg-zinc-100 hover:bg-zinc-200 text-zinc-600 font-medium rounded-lg text-[10px] align-middle" title="Déverrouiller">
+                                            <button type="submit" class="inline-flex items-center justify-center w-7 h-7 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 rounded-lg border border-zinc-200 text-xs align-middle" title="Déverrouiller l'entretien pour modifications">
                                                 🔓
                                             </button>
                                         </form>
@@ -358,7 +366,7 @@ ob_start();
                                     </button>
 
                                     <!-- Bouton Supprimer l'athlète -->
-                                    <form action="<?= url('/admin/delete-athlete') ?>" method="POST" class="inline" onsubmit="return confirm('Supprimer définitivement <?= htmlspecialchars($a['first_name'] . ' ' . $a['last_name'], ENT_QUOTES) ?> et l\'ensemble de ses bilans ?');">
+                                    <form action="<?= url('/admin/delete-athlete') ?>" method="POST" class="inline" onsubmit="return confirm('Supprimer <?= htmlspecialchars($a['first_name'] . ' ' . $a['last_name'], ENT_QUOTES) ?> et l\'ensemble de ses bilans ?');">
                                         <input type="hidden" name="athlete_id" value="<?= (int)$a['id'] ?>">
                                         <button 
                                             type="submit" 
@@ -600,7 +608,7 @@ ob_start();
                                         action="<?= url('/admin/delete-season') ?>" 
                                         method="POST" 
                                         class="inline"
-                                        onsubmit="return confirm('Attention : Êtes-vous sûr de vouloir supprimer la saison « <?= htmlspecialchars(addslashes($s['name'])) ?> » ? Tous les entretiens et données de cette saison seront définitivement effacés.');"
+                                        onsubmit="return confirm('Attention : Êtes-vous sûr de vouloir supprimer la saison « <?= htmlspecialchars(addslashes($s['name'])) ?> » ? Tous les entretiens et données de cette saison seront supprimés.');"
                                     >
                                         <input type="hidden" name="season_id" value="<?= (int)$s['id'] ?>">
                                         <button 

@@ -173,6 +173,15 @@ class AdminController {
         $stmt->execute(array_merge([$season['id']], $athlete_ids));
         $athletes = $stmt->fetchAll();
 
+        // Récupérer les données de la saison précédente pour chaque athlète (historique N-1)
+        $hist_stmt = $this->db->prepare(
+            "SELECT i.*, s.name as season_name 
+             FROM interviews i 
+             JOIN seasons s ON s.id = i.season_id 
+             WHERE i.athlete_id = ? AND i.season_id != ? 
+             ORDER BY i.id DESC LIMIT 1"
+        );
+
         // Pour chaque athlète sans interview créée, en créer une
         foreach ($athletes as &$ath) {
             if (empty($ath['interview_id'])) {
@@ -193,6 +202,10 @@ class AdminController {
             $ath['decisions_arr'] = safe_json_decode($ath['decisions'] ?? null);
             $ath['age'] = CategoryHelper::get_athlete_age((int)$ath['birth_year']);
             $ath['category_label'] = CategoryHelper::get_category_label((int)$ath['birth_year'], $ath['category']);
+
+            // Historique N-1
+            $hist_stmt->execute([$ath['id'], $season['id']]);
+            $ath['history'] = $hist_stmt->fetch() ?: null;
         }
         unset($ath);
 
@@ -886,6 +899,67 @@ class AdminController {
 
         fclose($output);
         exit;
+    }
+
+    /**
+     * Fiche Bilan imprimable (Clean Print A4 / PDF)
+     */
+    public function print_summary(): void {
+        Auth::require_admin();
+
+        $interview_id = (int)($_GET['interview_id'] ?? 0);
+        $athlete_id = (int)($_GET['athlete_id'] ?? 0);
+
+        if ($interview_id > 0) {
+            $stmt = $this->db->prepare(
+                "SELECT i.*, a.first_name, a.last_name, a.birth_date, a.birth_year, a.category, a.phone, a.email, a.meta,
+                        s.name as season_name
+                 FROM interviews i
+                 JOIN athletes a ON a.id = i.athlete_id
+                 JOIN seasons s ON s.id = i.season_id
+                 WHERE i.id = ?"
+            );
+            $stmt->execute([$interview_id]);
+            $interview = $stmt->fetch();
+        } elseif ($athlete_id > 0) {
+            $stmt = $this->db->prepare(
+                "SELECT i.*, a.first_name, a.last_name, a.birth_date, a.birth_year, a.category, a.phone, a.email, a.meta,
+                        s.name as season_name
+                 FROM athletes a
+                 JOIN seasons s ON s.is_active = 1
+                 LEFT JOIN interviews i ON i.athlete_id = a.id AND i.season_id = s.id
+                 WHERE a.id = ?"
+            );
+            $stmt->execute([$athlete_id]);
+            $interview = $stmt->fetch();
+        } else {
+            flash('error', 'Entretien non spécifié.');
+            redirect('/admin');
+        }
+
+        if (!$interview) {
+            flash('error', 'Fiche d\'entretien introuvable.');
+            redirect('/admin');
+        }
+
+        $athlete = [
+            'id'         => $interview['athlete_id'] ?? $athlete_id,
+            'first_name' => $interview['first_name'],
+            'last_name'  => $interview['last_name'],
+            'birth_date' => $interview['birth_date'] ?? null,
+            'birth_year' => $interview['birth_year'],
+            'category'   => $interview['category'],
+            'phone'      => $interview['phone'] ?? null,
+            'email'      => $interview['email'] ?? null,
+            'meta'       => $interview['meta'] ?? '{}',
+        ];
+
+        $season = [
+            'id'   => $interview['season_id'] ?? 1,
+            'name' => $interview['season_name'] ?? '2026-2027'
+        ];
+
+        require dirname(__DIR__) . '/views/admin_print_summary.php';
     }
 
     /**
