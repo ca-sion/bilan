@@ -9,6 +9,8 @@ if (PHP_SAPI !== 'cli') {
 require_once dirname(__DIR__) . '/config/database.php';
 require_once dirname(__DIR__) . '/src/autoload.php';
 
+Auth::init_session();
+
 use App\Domain\CategoryCalculator;
 use App\Domain\DisciplineRules;
 
@@ -252,15 +254,129 @@ $t->test('Page : Entretien individuel U18+ (GET /admin/entretien/u18)', function
     $t->assert(str_contains($html, 'Entretien') || str_contains($html, 'modal-history') || str_contains($html, 'Arbitrage'), 'L\'interface d\'entretien individuel doit être rendue');
 });
 
-$t->test('Page : Synthèse d\'entretien imprimable (GET /admin/print-summary)', function () use ($t, $db, $test_athlete) {
+$t->test('Page : Cadrage groupé U16 (GET /admin/entretien/u16)', function () use ($t, $db, $test_athlete) {
     $ctrl = new AdminController($db);
     $_SESSION['is_coach_admin'] = true;
-    $_GET['athlete_id'] = (string)$test_athlete['id'];
+    $_GET['ids'] = (string)$test_athlete['id'];
     ob_start();
-    $ctrl->print_summary();
+    $ctrl->u16_group_view();
     $html = ob_get_clean();
-    unset($_SESSION['is_coach_admin'], $_GET['athlete_id']);
-    $t->assert(str_contains($html, 'Synthèse') || str_contains($html, 'CA Sion'), 'La synthèse imprimable doit être rendue');
+    unset($_SESSION['is_coach_admin'], $_GET['ids']);
+    $t->assert(str_contains($html, 'Cadrage') || str_contains($html, 'U16') || str_contains($html, 'modal-history'), 'L\'interface de cadrage groupé U16 doit être rendue');
+});
+
+$t->test('Routeur : Enregistrement et résolution déclarative (Router)', function () use ($t) {
+    $router = new Router();
+    $matched = false;
+    $router->get('/test-route', function () use (&$matched) {
+        $matched = true;
+    });
+    $router->dispatch('GET', '/test-route');
+    $t->assert($matched === true, 'Le routeur doit résoudre correctement les routes GET déclarées');
+});
+
+// =========================================================================
+// 6. Tests des Endpoints API & Autosave (ApiController)
+// =========================================================================
+echo "\n\033[1m6. Endpoints API, Autosave & Soumission (ApiController)\033[0m\n";
+
+$active_season = (new SeasonRepository($db))->getActive();
+$active_interview = (new InterviewRepository($db))->getOrCreateForSeason((int)$test_athlete['id'], (int)$active_season['id']);
+$test_interview_id = (int)$active_interview['id'];
+
+$t->test('API : Enregistrement automatique des réponses (POST /api/save)', function () use ($t, $db, $test_athlete, $test_interview_id) {
+    // S'assurer que l'entretien est en statut modifiable (draft)
+    $db->prepare("UPDATE interviews SET status = 'draft' WHERE id = ?")->execute([$test_interview_id]);
+    
+    $api = new ApiController($db);
+    $_SESSION['athlete_id'] = $test_athlete['id'];
+    $_GET = [];
+    $_POST = [
+        'interview_id' => $test_interview_id,
+        'athlete_id' => $test_athlete['id'],
+        'answers' => [
+            'discipline_1' => 'sprint_court',
+            'proud_moment' => 'Record personnel sur 100m',
+            'weekly_sessions' => '3'
+        ]
+    ];
+    
+    ob_start();
+    $api->saveAnswers();
+    $json = ob_get_clean();
+    $_POST = [];
+    unset($_SESSION['athlete_id']);
+    
+    $res = json_decode($json, true);
+    $t->assert(is_array($res) && ($res['success'] ?? false) === true, 'L\'autosave doit retourner success: true');
+    
+    // Vérifier en base sur la fiche active
+    $stmt = $db->prepare("SELECT athlete_answers FROM interviews WHERE id = ?");
+    $stmt->execute([$test_interview_id]);
+    $saved = json_decode($stmt->fetchColumn() ?: '{}', true);
+    $t->assertEquals('Record personnel sur 100m', $saved['proud_moment'] ?? null);
+});
+
+$t->test('API : Soumission définitive du bilan (POST /api/submit)', function () use ($t, $db, $test_athlete, $test_interview_id) {
+    $api = new ApiController($db);
+    $_SESSION['athlete_id'] = $test_athlete['id'];
+    $_GET = [];
+    $_POST = [
+        'interview_id' => $test_interview_id,
+        'athlete_id' => $test_athlete['id'],
+        'answers' => [
+            'goals_perf' => 'Participer aux championnats suisses'
+        ]
+    ];
+    
+    ob_start();
+    $api->submitInterview();
+    $json = ob_get_clean();
+    $_POST = [];
+    unset($_SESSION['athlete_id']);
+    
+    $res = json_decode($json, true);
+    $t->assert(is_array($res) && ($res['success'] ?? false) === true, 'La soumission doit retourner success: true');
+    
+    // Vérifier que le statut passe à submitted
+    $stmt = $db->prepare("SELECT status FROM interviews WHERE id = ?");
+    $stmt->execute([$test_interview_id]);
+    $t->assertEquals('submitted', $stmt->fetchColumn());
+});
+
+$t->test('API : Validation dynamique de compatibilité d\'épreuves (GET /api/validate-disciplines)', function () use ($t, $db) {
+    $api = new ApiController($db);
+    $_POST = [];
+    $_GET = [
+        'discipline_1' => 'sprint_court',
+        'discipline_2' => 'demi_fond'
+    ];
+    
+    ob_start();
+    $api->validateDisciplines();
+    $json = ob_get_clean();
+    $_GET = [];
+    
+    $res = json_decode($json, true);
+    $t->assert(is_array($res) && isset($res['is_compatible']), 'La réponse doit être un JSON contenant is_compatible');
+    $t->assertEquals(false, $res['is_compatible']);
+});
+
+$t->test('API : Génération de la synthèse WhatsApp (POST /api/export-whatsapp)', function () use ($t, $db, $test_interview_id) {
+    $api = new ApiController($db);
+    $_GET = [];
+    $_POST = ['interview_id' => $test_interview_id];
+    
+    ob_start();
+    $api->exportWhatsapp();
+    $json = ob_get_clean();
+    $_POST = [];
+    
+    $res = json_decode($json, true);
+    $t->assert(is_array($res) && ($res['success'] ?? false) === true, 'L\'export WhatsApp doit retourner success: true');
+    $t->assert(!empty($res['text']), 'Le texte de synthèse WhatsApp ne doit pas être vide');
 });
 
 $t->summary();
+
+

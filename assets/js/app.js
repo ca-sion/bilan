@@ -222,23 +222,33 @@ class FormAutosave {
     }
 
     init() {
-        this.form.addEventListener('input', () => this.triggerDirty());
-        this.form.addEventListener('change', () => this.triggerDirty());
+        // Déclenche l'autosave avec debounce rapide sur la frappe (600ms)
+        this.form.addEventListener('input', () => this.triggerDirty(600));
+        
+        // Sauvegarde immédiate lors du changement de sélection (radio, checkbox, select) ou perte de focus
+        this.form.addEventListener('change', () => this.triggerImmediateSave());
+        this.form.addEventListener('focusout', (e) => {
+            if (this.isDirty && ['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)) {
+                this.triggerImmediateSave();
+            }
+        });
 
+        // Filet de sécurité toutes les 15 secondes si modifications en attente
         setInterval(() => {
             if (this.isDirty && !this.isSaving) {
                 this.save();
             }
-        }, 30000);
+        }, 15000);
 
-        window.addEventListener('beforeunload', (e) => {
+        // Sauvegarde synchrone à la fermeture / changement de page
+        window.addEventListener('beforeunload', () => {
             if (this.isDirty) {
                 this.save(true);
             }
         });
     }
 
-    triggerDirty() {
+    triggerDirty(delay = 600) {
         this.isDirty = true;
         this.setIndicator('dirty', 'Modifications non enregistrées');
 
@@ -247,30 +257,69 @@ class FormAutosave {
             if (this.isDirty && !this.isSaving) {
                 this.save();
             }
-        }, 3000);
+        }, delay);
+    }
+
+    triggerImmediateSave() {
+        clearTimeout(this.debounceTimeout);
+        if (this.isDirty && !this.isSaving) {
+            this.save();
+        } else {
+            this.triggerDirty(100);
+        }
     }
 
     getFormData() {
         const formData = new FormData(this.form);
         const data = {};
 
-        for (const [key, value] of formData.entries()) {
-            if (key.endsWith('[]')) {
-                const cleanKey = key.slice(0, -2);
-                if (!data[cleanKey]) {
-                    data[cleanKey] = [];
-                }
-                data[cleanKey].push(value);
-            } else {
-                data[key] = value;
+        // Parseur universel de clés HTML imbriquées (ex: "goals_results[goal_1_perf]", "days[]", "name")
+        const setNestedValue = (targetObj, path, val) => {
+            if (!path.includes('[')) {
+                targetObj[path] = val;
+                return;
             }
+
+            const keys = path.replace(/\]/g, '').split('[');
+            let current = targetObj;
+
+            for (let i = 0; i < keys.length; i++) {
+                const k = keys[i];
+                const isLast = (i === keys.length - 1);
+                const nextK = keys[i + 1];
+
+                if (k === '') {
+                    if (Array.isArray(current)) {
+                        current.push(val);
+                    }
+                    return;
+                }
+
+                if (isLast) {
+                    current[k] = val;
+                } else {
+                    if (nextK === '') {
+                        if (!Array.isArray(current[k])) {
+                            current[k] = [];
+                        }
+                    } else if (current[k] === undefined || typeof current[k] !== 'object' || current[k] === null) {
+                        current[k] = {};
+                    }
+                    current = current[k];
+                }
+            }
+        };
+
+        for (const [key, value] of formData.entries()) {
+            setNestedValue(data, key, value);
         }
 
+        // Prise en compte des cases à cocher non cochées (0)
         const checkboxes = this.form.querySelectorAll('input[type="checkbox"]');
         checkboxes.forEach(cb => {
             const name = cb.name;
-            if (!name.endsWith('[]') && !formData.has(name)) {
-                data[name] = 0;
+            if (name && !name.endsWith('[]') && !formData.has(name)) {
+                setNestedValue(data, name, 0);
             }
         });
 
@@ -300,11 +349,12 @@ class FormAutosave {
             });
 
             const result = await response.json();
-            if (result.success) {
+            if (result && result.success) {
                 this.isDirty = false;
-                this.setIndicator('saved', `Modifications enregistrées à ${result.saved_at || new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`);
+                const timeStr = result.saved_at || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                this.setIndicator('saved', `Modifications enregistrées à ${timeStr}`);
             } else {
-                this.setIndicator('error', 'Erreur d\'enregistrement');
+                this.setIndicator('error', (result && result.error) ? result.error : 'Erreur d\'enregistrement');
             }
         } catch (err) {
             console.error('Erreur autosave :', err);

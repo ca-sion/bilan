@@ -6,51 +6,78 @@ declare(strict_types=1);
  */
 class ApiController {
     private PDO $db;
+    private InterviewRepository $interviewRepo;
+    private SeasonRepository $seasonRepo;
 
-    public function __construct(PDO $db) {
-        $this->db = $db;
+    public function __construct(?PDO $db = null) {
+        $this->db = $db ?? get_db();
+        $this->interviewRepo = new InterviewRepository($this->db);
+        $this->seasonRepo = new SeasonRepository($this->db);
     }
 
     /**
-     * Sauvegarde automatique asynchrone (AJAX/Fetch)
+     * Récupère le payload JSON ou les paramètres POST/GET de façon sécurisée
      */
-    public function save_answers(): void {
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
+    private function getPayload(bool $allowGet = false): array {
+        $raw = (PHP_SAPI === 'cli' && empty($_SERVER['HTTP_HOST'])) ? '' : (file_get_contents('php://input') ?: '');
+        $json = !empty($raw) ? json_decode($raw, true) : null;
+        if (is_array($json) && !empty($json)) {
+            return $json;
         }
+        if ($allowGet) {
+            return array_merge($_GET, $_POST);
+        }
+        return $_POST;
+    }
 
-        $input_raw = file_get_contents('php://input');
-        $payload = json_decode($input_raw, true) ?: $_POST;
+    /**
+     * Sauvegarde automatique asynchrone (AJAX / Fetch)
+     */
+    public function saveAnswers(): void {
+        Auth::init_session();
+
+        $payload = $this->getPayload();
 
         $athlete_id = (int)($_SESSION['athlete_id'] ?? ($payload['athlete_id'] ?? 0));
         $interview_id = (int)($payload['interview_id'] ?? 0);
 
-        if ($athlete_id <= 0) {
+        if ($athlete_id <= 0 && $interview_id <= 0 && !Auth::is_logged_in()) {
             json_response(['success' => false, 'error' => 'Session expirée ou non authentifiée'], 401);
+            return;
         }
 
-        // Récupérer l'interview
+        // Récupérer ou initialiser l'entretien
         if ($interview_id > 0) {
             $stmt = $this->db->prepare("SELECT * FROM interviews WHERE id = ?");
             $stmt->execute([$interview_id]);
+            $interview = $stmt->fetch();
+        } elseif ($athlete_id > 0) {
+            $season = $this->seasonRepo->getActive();
+            $interview = $this->interviewRepo->getOrCreateForSeason($athlete_id, (int)$season['id']);
         } else {
-            $stmt = $this->db->prepare("SELECT * FROM interviews WHERE athlete_id = ? ORDER BY id DESC LIMIT 1");
-            $stmt->execute([$athlete_id]);
+            $interview = null;
         }
-        $interview = $stmt->fetch();
 
         if (!$interview) {
             json_response(['success' => false, 'error' => 'Fiche d\'entretien introuvable'], 404);
+            return;
         }
 
-        // Vérification de sécurité (seul l'athlète concerné ou le coach peut modifier)
-        if (!Auth::is_logged_in() && (int)$interview['athlete_id'] !== $athlete_id) {
+        // Vérification de sécurité
+        $session_athlete_id = (int)($_SESSION['athlete_id'] ?? 0);
+        $is_coach = Auth::is_logged_in();
+        $is_valid_athlete = ($session_athlete_id > 0 && $session_athlete_id === (int)$interview['athlete_id']) 
+                         || ($athlete_id > 0 && $athlete_id === (int)$interview['athlete_id']);
+
+        if (!$is_coach && !$is_valid_athlete) {
             json_response(['success' => false, 'error' => 'Accès non autorisé'], 403);
+            return;
         }
 
         // Si la fiche est verrouillée et qu'on n'est pas coach, interdire
-        if (in_array($interview['status'], ['submitted', 'completed'], true) && !Auth::is_logged_in()) {
+        if (in_array($interview['status'], ['submitted', 'completed', 'locked'], true) && !$is_coach) {
             json_response(['success' => false, 'error' => 'Ce bilan a déjà été validé et ne peut plus être modifié'], 422);
+            return;
         }
 
         $answers = $payload['answers'] ?? [];
@@ -59,18 +86,12 @@ class ApiController {
         }
 
         // Fusionner avec les réponses existantes
-        $current_answers = json_decode($interview['athlete_answers'] ?? '{}', true) ?: [];
+        $current_answers = safe_json_decode($interview['athlete_answers'] ?? null);
         $merged_answers = array_merge($current_answers, $answers);
-        $json_answers = json_encode($merged_answers, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 
-        $new_status = ($interview['status'] === 'waiting') ? 'draft' : $interview['status'];
+        $new_status = in_array($interview['status'], ['waiting', 'draft'], true) ? 'draft' : $interview['status'];
 
-        $update_stmt = $this->db->prepare(
-            "UPDATE interviews 
-             SET athlete_answers = ?, status = ?, updated_at = CURRENT_TIMESTAMP 
-             WHERE id = ?"
-        );
-        $update_stmt->execute([$json_answers, $new_status, $interview['id']]);
+        $this->interviewRepo->saveAthleteAnswers((int)$interview['id'], $merged_answers, $new_status);
 
         json_response([
             'success' => true,
@@ -81,42 +102,56 @@ class ApiController {
     }
 
     /**
-     * Soumission finale par l'athlète (verrouille le formulaire)
+     * Soumission finale par l'athlète (verrouille le formulaire côté athlète)
      */
-    public function submit_interview(): void {
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
+    public function submitInterview(): void {
+        Auth::init_session();
 
-        $input_raw = file_get_contents('php://input');
-        $payload = json_decode($input_raw, true) ?: $_POST;
+        $payload = $this->getPayload();
 
-        $athlete_id = (int)($_SESSION['athlete_id'] ?? 0);
+        $athlete_id = (int)($_SESSION['athlete_id'] ?? ($payload['athlete_id'] ?? 0));
         $interview_id = (int)($payload['interview_id'] ?? 0);
 
-        if ($athlete_id <= 0) {
+        if ($athlete_id <= 0 && $interview_id <= 0 && !Auth::is_logged_in()) {
             json_response(['success' => false, 'error' => 'Session expirée'], 401);
+            return;
         }
 
-        $stmt = $this->db->prepare("SELECT * FROM interviews WHERE id = ? AND athlete_id = ?");
-        $stmt->execute([$interview_id, $athlete_id]);
-        $interview = $stmt->fetch();
+        if ($interview_id > 0) {
+            $stmt = $this->db->prepare("SELECT * FROM interviews WHERE id = ?");
+            $stmt->execute([$interview_id]);
+            $interview = $stmt->fetch();
+        } elseif ($athlete_id > 0) {
+            $season = $this->seasonRepo->getActive();
+            $interview = $this->interviewRepo->getOrCreateForSeason($athlete_id, (int)$season['id']);
+        } else {
+            $interview = null;
+        }
 
         if (!$interview) {
             json_response(['success' => false, 'error' => 'Entretien introuvable'], 404);
+            return;
+        }
+
+        $session_athlete_id = (int)($_SESSION['athlete_id'] ?? 0);
+        $is_coach = Auth::is_logged_in();
+        $is_valid_athlete = ($session_athlete_id > 0 && $session_athlete_id === (int)$interview['athlete_id']) 
+                         || ($athlete_id > 0 && $athlete_id === (int)$interview['athlete_id']);
+
+        if (!$is_coach && !$is_valid_athlete) {
+            json_response(['success' => false, 'error' => 'Accès non autorisé'], 403);
+            return;
         }
 
         $answers = $payload['answers'] ?? [];
-        $current_answers = json_decode($interview['athlete_answers'] ?? '{}', true) ?: [];
-        $merged_answers = array_merge($current_answers, $answers);
-        $json_answers = json_encode($merged_answers, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        if (!is_array($answers)) {
+            $answers = [];
+        }
 
-        $update_stmt = $this->db->prepare(
-            "UPDATE interviews 
-             SET athlete_answers = ?, status = 'submitted', updated_at = CURRENT_TIMESTAMP 
-             WHERE id = ?"
-        );
-        $update_stmt->execute([$json_answers, $interview['id']]);
+        $current_answers = safe_json_decode($interview['athlete_answers'] ?? null);
+        $merged_answers = array_merge($current_answers, $answers);
+
+        $this->interviewRepo->saveAthleteAnswers((int)$interview['id'], $merged_answers, 'submitted');
 
         json_response([
             'success' => true,
@@ -128,9 +163,8 @@ class ApiController {
     /**
      * Validation dynamique de compatibilité d'épreuves (AJAX)
      */
-    public function validate_disciplines(): void {
-        $input_raw = file_get_contents('php://input');
-        $payload = json_decode($input_raw, true) ?: $_GET;
+    public function validateDisciplines(): void {
+        $payload = $this->getPayload(true);
 
         $d1 = $payload['discipline_1'] ?? '';
         $d2 = $payload['discipline_2'] ?? '';
@@ -142,10 +176,13 @@ class ApiController {
     /**
      * Génération de la synthèse WhatsApp pour le presse-papier
      */
-    public function export_whatsapp(): void {
-        $interview_id = (int)($_GET['interview_id'] ?? ($_POST['interview_id'] ?? 0));
+    public function exportWhatsapp(): void {
+        $payload = $this->getPayload(true);
+        $interview_id = (int)($payload['interview_id'] ?? 0);
+
         if ($interview_id <= 0) {
             json_response(['success' => false, 'error' => 'Identifiant manquant'], 400);
+            return;
         }
 
         $stmt = $this->db->prepare(
@@ -159,6 +196,7 @@ class ApiController {
 
         if (!$data) {
             json_response(['success' => false, 'error' => 'Fiche introuvable'], 404);
+            return;
         }
 
         $athlete = [
@@ -176,4 +214,10 @@ class ApiController {
             'text' => $text
         ]);
     }
+
+    // --- Alias de rétrocompatibilité (snake_case) ---
+    public function save_answers(): void { $this->saveAnswers(); }
+    public function submit_interview(): void { $this->submitInterview(); }
+    public function validate_disciplines(): void { $this->validateDisciplines(); }
+    public function export_whatsapp(): void { $this->exportWhatsapp(); }
 }

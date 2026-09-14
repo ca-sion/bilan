@@ -2,7 +2,8 @@
 $page_title = "Entretien individuel — " . htmlspecialchars($interview['first_name'] . ' ' . $interview['last_name']);
 $is_val = (int)($interview['is_validated'] ?? 0) === 1;
 $status = $interview['status'] ?? 'waiting';
-$goals = $athlete_answers['goals_results'] ?? [];
+$goals = is_array($athlete_answers['goals_results'] ?? null) ? $athlete_answers['goals_results'] : [];
+$get_goal = fn(string $k): string => (string)($goals[$k] ?? $athlete_answers["goals_results[{$k}]"] ?? $athlete_answers[$k] ?? '');
 $ath_days = $athlete_answers['available_days'] ?? [];
 if (!is_array($ath_days)) $ath_days = [$ath_days];
 
@@ -23,20 +24,20 @@ $pillars = [
         'coach_key' => 'coach_rating_care_injuries'
     ],
     'lifestyle' => [
-        'label' => 'Hygiène de vie d\'athlète',
-        'desc' => 'Qualité et volume de sommeil, alimentation, hydratation et récupération.',
+        'label' => 'Hygiène de vie',
+        'desc' => 'Sommeil, alimentation, sorties et récupération.',
         'ath_key' => 'rating_lifestyle',
         'coach_key' => 'coach_rating_lifestyle'
     ],
-    'mental_stability' => [
-        'label' => 'Stabilité mentale en compétition',
-        'desc' => 'Gestion des émotions, combativité sous pression, confiance et régularité.',
+    'mental' => [
+        'label' => 'Stabilité mentale',
+        'desc' => 'Gestion du stress, combativité sous pression et routine de compétition.',
         'ath_key' => 'rating_mental_stability',
         'coach_key' => 'coach_rating_mental_stability'
     ],
     'dual_career' => [
-        'label' => 'Double projet (études ou travail et sport)',
-        'desc' => 'Organisation du planning, anticipation des examens et équilibre personnel.',
+        'label' => 'Double projet (études / sport)',
+        'desc' => 'Organisation du planning, anticipation des examens et équilibre global.',
         'ath_key' => 'rating_dual_career',
         'coach_key' => 'coach_rating_dual_career'
     ]
@@ -45,145 +46,229 @@ $pillars = [
 ob_start();
 ?>
 
-<!-- Suggestions d'épreuves d'athlétisme -->
-<datalist id="disciplines-suggestions">
-    <?php foreach (CategoryHelper::get_disciplines() as $k => $lbl): ?>
-        <option value="<?= htmlspecialchars($lbl) ?>">
-    <?php endforeach; ?>
-</datalist>
-
-<div class="space-y-3.5 max-w-7xl mx-auto">
-
-    <!-- En-tête compact de l'entretien -->
-    <div class="bg-white px-4 py-3 rounded-2xl border border-zinc-200/80 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div class="flex items-center gap-3">
-            <a href="<?= url('/admin') ?>" class="w-8 h-8 rounded-xl bg-zinc-100 hover:bg-zinc-200 text-zinc-600 flex items-center justify-center text-xs font-bold transition-colors" title="Retour au tableau de bord">
-                ←
-            </a>
-            <div>
-                <div class="flex items-center gap-2 text-[11px] font-medium text-zinc-500">
-                    <span>Entretien individuel</span>
-                    <span class="text-zinc-300">/</span>
-                    <span class="font-semibold text-zinc-700"><?= htmlspecialchars($category_label) ?> (<?= $birth_year > 0 ? $birth_year : 'Année non renseignée' ?>)</span>
+<!-- Modal Historique N-1 (Comparatif de progression) -->
+<div id="modal-history" class="hidden fixed inset-0 z-50 bg-zinc-900/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto animate-fade-in">
+    <div class="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl border border-zinc-200 space-y-5 my-8 max-h-[90vh] overflow-y-auto">
+        <div class="flex items-center justify-between border-b border-zinc-100 pb-3">
+            <div class="flex items-center gap-2">
+                <span class="w-8 h-8 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center text-sm font-bold">📜</span>
+                <div>
+                    <h3 class="font-heading font-bold text-base text-zinc-900">
+                        Historique de saison précédente (N-1)
+                    </h3>
+                    <p class="text-xs text-zinc-500">
+                        Données de référence de la saison <?= htmlspecialchars($history['season_name'] ?? 'précédente') ?>
+                    </p>
                 </div>
-                <h1 class="text-lg font-bold font-heading text-zinc-900 leading-tight">
-                    <?= htmlspecialchars($interview['first_name'] . ' ' . $interview['last_name']) ?>
-                </h1>
             </div>
+            <button type="button" onclick="document.getElementById('modal-history').classList.add('hidden')" class="w-8 h-8 rounded-full bg-zinc-100 hover:bg-zinc-200 text-zinc-500 hover:text-zinc-800 flex items-center justify-center text-sm font-bold transition-colors">
+                ✕
+            </button>
         </div>
 
-        <div class="flex flex-wrap items-center gap-1.5">
+        <?php if ($history): ?>
+            <?php
+                $h_ath = safe_json_decode($history['athlete_answers'] ?? null);
+                $h_dec = safe_json_decode($history['decisions'] ?? null);
+                $h_d1 = $h_dec['primary_discipline'] ?? ($h_ath['chosen_discipline_1'] ?? 'Non renseigné');
+                $h_d2 = $h_dec['secondary_discipline'] ?? ($h_ath['chosen_discipline_2'] ?? 'Aucune');
+                $h_sessions = $h_dec['approved_weekly_sessions'] ?? ($h_ath['target_sessions_count'] ?? '-');
+                $h_days = $h_dec['approved_training_days'] ?? ($h_ath['available_days'] ?? []);
+                if (!is_array($h_days)) $h_days = [$h_days];
+                $h_rule1 = $h_dec['mandatory_rule_1'] ?? ($h_ath['attitude_contract'] ?? ($h_ath['commitment_1'] ?? ''));
+                $h_rule2 = $h_dec['mandatory_rule_2'] ?? ($h_ath['commitment_2'] ?? '');
+            ?>
+            <div class="space-y-4 text-xs">
+                <!-- Orientation sportive N-1 -->
+                <div class="p-3.5 bg-zinc-50 rounded-xl border border-zinc-200/80 space-y-2">
+                    <div class="font-bold text-zinc-800 text-[11px] uppercase tracking-wider text-rose-700">1. Orientation & Volume validés en N-1</div>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                        <div>
+                            <span class="text-zinc-500 block">Discipline prioritaire :</span>
+                            <span class="font-semibold text-zinc-900"><?= htmlspecialchars(CategoryHelper::get_discipline_label($h_d1)) ?></span>
+                        </div>
+                        <div>
+                            <span class="text-zinc-500 block">Discipline secondaire :</span>
+                            <span class="font-semibold text-zinc-900"><?= htmlspecialchars(CategoryHelper::get_discipline_label($h_d2)) ?></span>
+                        </div>
+                        <div>
+                            <span class="text-zinc-500 block">Volume & Jours :</span>
+                            <span class="font-semibold text-zinc-900"><?= htmlspecialchars((string)$h_sessions) ?>x / sem (<?= Helper::format_availability_summary($h_days) ?>)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Réussite & Objectifs N-1 -->
+                <div class="p-3.5 bg-zinc-50 rounded-xl border border-zinc-200/80 space-y-2">
+                    <div class="font-bold text-zinc-800 text-[11px] uppercase tracking-wider text-rose-700">2. Fierté & Objectifs passés</div>
+                    <div>
+                        <span class="text-zinc-500 block">Plus grande fierté / Réussite exprimée :</span>
+                        <p class="italic text-zinc-800 mt-0.5 bg-white p-2 rounded border border-zinc-200">
+                            "<?= htmlspecialchars($h_ath['top_success_description'] ?? ($h_ath['pride_highlight'] ?? 'Non renseignée')) ?>"
+                        </p>
+                    </div>
+                    <?php if (!empty($h_dec['target_milestones']) || !empty($h_ath['target_performance'])): ?>
+                        <div>
+                            <span class="text-zinc-500 block">Objectifs fixés en N-1 :</span>
+                            <span class="font-medium text-zinc-800"><?= htmlspecialchars($h_dec['target_milestones'] ?? $h_ath['target_performance']) ?></span>
+                        </div>
+                    <?php endif; ?>
+                </div>
+
+                <!-- Contrat moral N-1 -->
+                <div class="p-3.5 bg-zinc-50 rounded-xl border border-zinc-200/80 space-y-2">
+                    <div class="font-bold text-zinc-800 text-[11px] uppercase tracking-wider text-rose-700">3. Contrat moral N-1 (Engagements)</div>
+                    <ul class="space-y-1.5 list-disc list-inside text-zinc-700">
+                        <li><strong>Règle 1 :</strong> <?= htmlspecialchars($h_rule1 ?: 'Non renseignée') ?></li>
+                        <?php if ($h_rule2): ?>
+                            <li><strong>Règle 2 :</strong> <?= htmlspecialchars($h_rule2) ?></li>
+                        <?php endif; ?>
+                    </ul>
+                </div>
+
+                <!-- Notes coach N-1 -->
+                <?php if (!empty($history['trainer_notes'])): ?>
+                    <div class="p-3.5 bg-amber-50/60 rounded-xl border border-amber-200/80 space-y-1">
+                        <div class="font-bold text-amber-900 text-[11px] uppercase tracking-wider">4. Remarques du coach en N-1</div>
+                        <p class="text-zinc-800 whitespace-pre-line"><?= htmlspecialchars($history['trainer_notes']) ?></p>
+                    </div>
+                <?php endif; ?>
+            </div>
+        <?php else: ?>
+            <div class="text-center py-8 text-zinc-500 text-xs">
+                <span class="text-2xl block mb-1">📭</span>
+                Aucun historique d'entretien trouvé pour cet athlète sur les saisons précédentes.
+            </div>
+        <?php endif; ?>
+
+        <div class="flex justify-end pt-2">
+            <button type="button" onclick="document.getElementById('modal-history').classList.add('hidden')" class="px-4 py-2 bg-zinc-900 hover:bg-zinc-800 text-white rounded-xl text-xs font-bold transition-colors">
+                Fermer
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="space-y-6">
+
+    <!-- En-tête de la vue split-screen -->
+    <div class="bg-white rounded-2xl shadow-sm border border-zinc-200 p-5 sm:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+            <div class="flex items-center gap-2 mb-1">
+                <a href="<?= url('/admin') ?>" class="text-xs text-zinc-600 hover:text-zinc-900 transition-colors">
+                    &larr; Retour au tableau de bord
+                </a>
+                <span class="text-zinc-300">/</span>
+                <span class="text-xs font-semibold text-rose-700 bg-rose-50 px-2.5 py-0.5 rounded-full border border-rose-200">
+                    <?= htmlspecialchars($category_label) ?> (<?= $birth_year > 0 ? $birth_year : 'Année non renseignée' ?>)
+                </span>
+            </div>
+            <h1 class="text-xl sm:text-2xl font-bold font-heading text-zinc-900 flex items-center gap-3">
+                <span><?= htmlspecialchars($interview['first_name'] . ' ' . $interview['last_name']) ?></span>
+                <?php if ($is_val): ?>
+                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
+                        <span>✓</span> Validé
+                    </span>
+                <?php else: ?>
+                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-50 text-amber-800 border border-amber-200">
+                        <span>●</span> En cours
+                    </span>
+                <?php endif; ?>
+            </h1>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2.5">
             <?php if ($history): ?>
                 <button 
                     type="button" 
-                    onclick="openModal('modal-history')" 
-                    class="px-2.5 py-1.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 text-xs font-semibold rounded-xl border border-zinc-200 transition-colors flex items-center gap-1.5"
-                    title="Consulter l'historique de la saison précédente (<?= htmlspecialchars($history['season_name'] ?? 'N-1') ?>)"
+                    onclick="document.getElementById('modal-history').classList.remove('hidden')" 
+                    class="px-3.5 py-2 bg-white hover:bg-zinc-50 border border-zinc-200 text-zinc-700 font-bold rounded-xl text-xs shadow-sm transition-all flex items-center gap-1.5"
+                    title="Consulter les choix et objectifs de la saison précédente"
                 >
-                    <svg class="w-3.5 h-3.5 text-zinc-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <polyline points="12 6 12 12 14 14"></polyline>
-                    </svg>
-                    <span class="text-[11px] font-bold">N-1</span>
+                    <span>📜</span>
+                    <span>Historique N-1</span>
                 </button>
             <?php endif; ?>
 
             <a 
                 href="<?= url('/admin/print-summary?interview_id=' . (int)$interview['id']) ?>" 
-                target="_blank"
-                class="w-8 h-8 flex items-center justify-center bg-zinc-100 hover:bg-zinc-200 text-zinc-600 hover:text-zinc-900 rounded-xl border border-zinc-200 transition-colors"
-                title="Imprimer ou enregistrer la fiche bilan en PDF"
+                target="_blank" 
+                class="px-3.5 py-2 bg-white hover:bg-zinc-50 border border-zinc-200 text-zinc-700 font-bold rounded-xl text-xs shadow-sm transition-all flex items-center gap-1.5"
             >
-                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="6 9 6 2 18 2 18 9"></polyline>
-                    <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
-                    <rect x="6" y="14" width="12" height="8"></rect>
-                </svg>
+                <span>🖨️</span>
+                <span>Fiche Bilan PDF</span>
             </a>
 
             <button 
                 type="button" 
                 onclick="copyWhatsAppSynthesis(<?= (int)$interview['id'] ?>, this)" 
-                class="w-8 h-8 flex items-center justify-center bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-xl border border-emerald-200 shadow-2xs transition-all"
-                title="Copier la synthèse WhatsApp"
+                class="px-3.5 py-2 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-800 font-bold rounded-xl text-xs shadow-sm transition-all flex items-center gap-1.5"
             >
-                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-                </svg>
+                <span>💬</span>
+                <span>Copier WhatsApp</span>
             </button>
 
             <?php if ($is_val): ?>
-                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
-                    <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Validé
-                </span>
-                <form action="<?= url('/admin/reopen') ?>" method="POST" class="inline" onsubmit="return confirm('Déverrouiller cet entretien pour permettre des modifications ?');">
+                <form action="<?= url('/admin/reopen') ?>" method="POST" class="inline" onsubmit="return confirm('Déverrouiller cet entretien pour permettre de nouvelles modifications ?');">
                     <input type="hidden" name="interview_id" value="<?= (int)$interview['id'] ?>">
-                    <button type="submit" class="w-8 h-8 flex items-center justify-center bg-zinc-100 hover:bg-amber-50 text-zinc-600 hover:text-amber-700 rounded-xl border border-zinc-200 hover:border-amber-200 transition-colors" title="Déverrouiller l'entretien pour modifications">
-                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                            <path d="M7 11V7a5 5 0 0 1 9.9-1"></path>
-                        </svg>
+                    <button type="submit" class="px-3.5 py-2 bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-800 font-bold rounded-xl text-xs shadow-sm transition-all flex items-center gap-1.5">
+                        <span>🔓</span>
+                        <span>Déverrouiller</span>
                     </button>
                 </form>
-            <?php else: ?>
-                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-semibold bg-zinc-100 text-zinc-700 border border-zinc-200">
-                    <span class="w-2 h-2 rounded-full bg-rose-500"></span> <?= ucfirst($status) ?>
-                </span>
             <?php endif; ?>
         </div>
     </div>
 
-    <!-- Formulaire d'entretien individuel haute densité -->
-    <form action="<?= url('/admin/save-trainer') ?>" method="POST" id="split-screen-form" class="space-y-3.5">
+    <!-- Formulaire d'arbitrage Coach (Split-Screen) -->
+    <form action="<?= url('/admin/save-trainer') ?>" method="POST" class="space-y-6">
         <input type="hidden" name="interview_id" value="<?= (int)$interview['id'] ?>">
         <input type="hidden" name="redirect_to" value="<?= htmlspecialchars($_SERVER['REQUEST_URI'] ?? '/admin') ?>">
 
-        <!-- =========================================================================
-             SECTION 1 : BILAN SPORTIF ET ANALYSE CAUSALE
-             ========================================================================= -->
-        <section class="bg-white rounded-2xl border border-zinc-200/80 shadow-sm overflow-hidden">
-            <div class="px-4 py-2 bg-zinc-50/80 border-b border-zinc-200/80 flex items-center justify-between">
-                <h2 class="text-xs font-bold uppercase tracking-wider text-zinc-800 flex items-center gap-2">
-                    <span class="w-4 h-4 rounded bg-rose-600 text-white flex items-center justify-center text-[10px] font-black">1</span>
-                    Bilan sportif et analyse causale
+        <!-- Bloc 1 : Bilan de saison et Analyse causale -->
+        <div class="bg-white rounded-2xl shadow-sm border border-zinc-200 overflow-hidden">
+            <div class="bg-zinc-50 px-5 py-3.5 border-b border-zinc-200 flex items-center justify-between">
+                <h2 class="font-heading font-bold text-sm text-zinc-900 flex items-center gap-2">
+                    <span class="w-6 h-6 rounded-lg bg-rose-600 text-white flex items-center justify-center text-xs font-bold">1</span>
+                    Volet 1 : Bilan sportif & Analyse causale
                 </h2>
-                <span class="text-[11px] text-zinc-400">Objectifs, résultats et lucidité d'analyse</span>
+                <span class="text-xs text-zinc-500 font-medium">Comparatif Saisie Athlète / Avis Coach</span>
             </div>
 
-            <div class="p-3.5 sm:p-4 grid grid-cols-1 lg:grid-cols-2 gap-4 items-start text-xs">
-                
-                <!-- GAUCHE : Déclarations de l'athlète (éditables en direct) -->
-                <div class="space-y-2.5 border-b lg:border-b-0 lg:border-r border-zinc-100 lg:pr-4 pb-3 lg:pb-0">
-                    <div class="flex items-center justify-between font-semibold text-zinc-500 text-[10px] uppercase tracking-wider pb-1 border-b border-zinc-100">
-                        <span>Réponses de l'athlète (éditables)</span>
+            <div class="p-5 sm:p-6 grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
+                <!-- Colonne Gauche : Réponses de l'Athlète -->
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between border-b border-zinc-100 pb-2">
+                        <span class="text-xs font-bold uppercase tracking-wider text-rose-700">Ce que dit l'athlète</span>
+                        <span class="text-[11px] text-zinc-500">Auto-évaluation</span>
                     </div>
 
-                    <!-- Objectifs vs Résultats -->
-                    <div class="space-y-2 bg-zinc-50/60 p-2.5 rounded-xl border border-zinc-200/60">
-                        <span class="font-semibold text-zinc-700 block text-[11px]">Objectifs fixés et résultats obtenus :</span>
+                    <!-- Tableau Objectifs vs Réalisations -->
+                    <div class="space-y-2">
+                        <span class="text-xs font-semibold text-zinc-700 block">Objectifs vs Réalisations :</span>
                         
                         <!-- Goal 1 -->
                         <div class="p-2 bg-white rounded-lg border border-zinc-200 space-y-1">
                             <label class="block text-[10px] font-semibold text-zinc-500">Objectif 1 (performance, chrono ou mesure) :</label>
-                            <input type="text" name="athlete_answers[goals_results][goal_1_perf]" value="<?= htmlspecialchars($goals['goal_1_perf'] ?? '') ?>" placeholder="Non renseigné" class="w-full px-2 py-1 border border-zinc-200 rounded text-xs bg-zinc-50 focus:bg-white">
+                            <input type="text" name="athlete_answers[goals_results][goal_1_perf]" value="<?= htmlspecialchars($get_goal('goal_1_perf')) ?>" placeholder="Non renseigné" class="w-full px-2 py-1 border border-zinc-200 rounded text-xs bg-zinc-50 focus:bg-white">
                             <label class="block text-[10px] font-semibold text-emerald-800 pt-0.5">Résultat obtenu :</label>
-                            <input type="text" name="athlete_answers[goals_results][achieved_1]" value="<?= htmlspecialchars($goals['achieved_1'] ?? '') ?>" placeholder="Non renseigné" class="w-full px-2 py-1 border border-zinc-200 rounded text-xs bg-zinc-50 focus:bg-white font-medium text-zinc-900">
+                            <input type="text" name="athlete_answers[goals_results][achieved_1]" value="<?= htmlspecialchars($get_goal('achieved_1')) ?>" placeholder="Non renseigné" class="w-full px-2 py-1 border border-zinc-200 rounded text-xs bg-zinc-50 focus:bg-white font-medium text-zinc-900">
                         </div>
 
                         <!-- Goal 2 -->
                         <div class="p-2 bg-white rounded-lg border border-zinc-200 space-y-1">
                             <label class="block text-[10px] font-semibold text-zinc-500">Objectif 2 (sélections ou championnats) :</label>
-                            <input type="text" name="athlete_answers[goals_results][goal_2_selection]" value="<?= htmlspecialchars($goals['goal_2_selection'] ?? '') ?>" placeholder="Non renseigné" class="w-full px-2 py-1 border border-zinc-200 rounded text-xs bg-zinc-50 focus:bg-white">
+                            <input type="text" name="athlete_answers[goals_results][goal_2_selection]" value="<?= htmlspecialchars($get_goal('goal_2_selection')) ?>" placeholder="Non renseigné" class="w-full px-2 py-1 border border-zinc-200 rounded text-xs bg-zinc-50 focus:bg-white">
                             <label class="block text-[10px] font-semibold text-emerald-800 pt-0.5">Résultat obtenu :</label>
-                            <input type="text" name="athlete_answers[goals_results][achieved_2]" value="<?= htmlspecialchars($goals['achieved_2'] ?? '') ?>" placeholder="Non renseigné" class="w-full px-2 py-1 border border-zinc-200 rounded text-xs bg-zinc-50 focus:bg-white font-medium text-zinc-900">
+                            <input type="text" name="athlete_answers[goals_results][achieved_2]" value="<?= htmlspecialchars($get_goal('achieved_2')) ?>" placeholder="Non renseigné" class="w-full px-2 py-1 border border-zinc-200 rounded text-xs bg-zinc-50 focus:bg-white font-medium text-zinc-900">
                         </div>
 
                         <!-- Goal 3 -->
                         <div class="p-2 bg-white rounded-lg border border-zinc-200 space-y-1">
                             <label class="block text-[10px] font-semibold text-zinc-500">Objectif 3 (attitude et rigueur) :</label>
-                            <input type="text" name="athlete_answers[goals_results][goal_3_attitude]" value="<?= htmlspecialchars($goals['goal_3_attitude'] ?? '') ?>" placeholder="Non renseigné" class="w-full px-2 py-1 border border-zinc-200 rounded text-xs bg-zinc-50 focus:bg-white">
+                            <input type="text" name="athlete_answers[goals_results][goal_3_attitude]" value="<?= htmlspecialchars($get_goal('goal_3_attitude')) ?>" placeholder="Non renseigné" class="w-full px-2 py-1 border border-zinc-200 rounded text-xs bg-zinc-50 focus:bg-white">
                             <label class="block text-[10px] font-semibold text-emerald-800 pt-0.5">Résultat obtenu :</label>
-                            <input type="text" name="athlete_answers[goals_results][achieved_3]" value="<?= htmlspecialchars($goals['achieved_3'] ?? '') ?>" placeholder="Non renseigné" class="w-full px-2 py-1 border border-zinc-200 rounded text-xs bg-zinc-50 focus:bg-white font-medium text-zinc-900">
+                            <input type="text" name="athlete_answers[goals_results][achieved_3]" value="<?= htmlspecialchars($get_goal('achieved_3')) ?>" placeholder="Non renseigné" class="w-full px-2 py-1 border border-zinc-200 rounded text-xs bg-zinc-50 focus:bg-white font-medium text-zinc-900">
                         </div>
                     </div>
 

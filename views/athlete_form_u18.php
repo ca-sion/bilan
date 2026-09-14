@@ -2,7 +2,8 @@
 $page_title = "Bilan individuel de saison — " . htmlspecialchars($athlete['first_name'] . ' ' . $athlete['last_name']);
 $is_locked = in_array($interview['status'], ['submitted', 'completed'], true);
 $needs_birth_date = empty($athlete['birth_date']) || $athlete['access_pin'] === '0000';
-$goals = $answers['goals_results'] ?? [];
+$goals = is_array($answers['goals_results'] ?? null) ? $answers['goals_results'] : [];
+$get_goal = fn(string $k): string => (string)($goals[$k] ?? $answers["goals_results[{$k}]"] ?? $answers[$k] ?? '');
 $selected_days = $answers['available_days'] ?? [];
 if (!is_array($selected_days)) $selected_days = [$selected_days];
 ob_start();
@@ -130,7 +131,7 @@ ob_start();
                         <input 
                             type="text" 
                             name="goals_results[goal_1_perf]" 
-                            value="<?= htmlspecialchars($goals['goal_1_perf'] ?? '') ?>" 
+                            value="<?= htmlspecialchars($get_goal('goal_1_perf')) ?>" 
                             <?= $is_locked ? 'disabled' : '' ?>
                             placeholder="Ex : Descendre sous les 11.20s au 100m" 
                             class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm bg-white"
@@ -141,7 +142,7 @@ ob_start();
                         <input 
                             type="text" 
                             name="goals_results[achieved_1]" 
-                            value="<?= htmlspecialchars($goals['achieved_1'] ?? '') ?>" 
+                            value="<?= htmlspecialchars($get_goal('achieved_1')) ?>" 
                             <?= $is_locked ? 'disabled' : '' ?>
                             placeholder="Ex : 11.14s aux Championnats romands" 
                             class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm bg-white font-medium text-slate-800"
@@ -154,7 +155,7 @@ ob_start();
                         <input 
                             type="text" 
                             name="goals_results[goal_2_selection]" 
-                            value="<?= htmlspecialchars($goals['goal_2_selection'] ?? '') ?>" 
+                            value="<?= htmlspecialchars($get_goal('goal_2_selection')) ?>" 
                             <?= $is_locked ? 'disabled' : '' ?>
                             placeholder="Ex : Finale aux Championnats suisses U20" 
                             class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm bg-white"
@@ -165,7 +166,7 @@ ob_start();
                         <input 
                             type="text" 
                             name="goals_results[achieved_2]" 
-                            value="<?= htmlspecialchars($goals['achieved_2'] ?? '') ?>" 
+                            value="<?= htmlspecialchars($get_goal('achieved_2')) ?>" 
                             <?= $is_locked ? 'disabled' : '' ?>
                             placeholder="Ex : 5ème place en finale" 
                             class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm bg-white font-medium text-slate-800"
@@ -178,7 +179,7 @@ ob_start();
                         <input 
                             type="text" 
                             name="goals_results[goal_3_attitude]" 
-                            value="<?= htmlspecialchars($goals['goal_3_attitude'] ?? '') ?>" 
+                            value="<?= htmlspecialchars($get_goal('goal_3_attitude')) ?>" 
                             <?= $is_locked ? 'disabled' : '' ?>
                             placeholder="Ex : Assiduité 90% et routine d'échauffement" 
                             class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm bg-white"
@@ -189,7 +190,7 @@ ob_start();
                         <input 
                             type="text" 
                             name="goals_results[achieved_3]" 
-                            value="<?= htmlspecialchars($goals['achieved_3'] ?? '') ?>" 
+                            value="<?= htmlspecialchars($get_goal('achieved_3')) ?>" 
                             <?= $is_locked ? 'disabled' : '' ?>
                             placeholder="Ex : Rigueur tenue toute la saison" 
                             class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm bg-white font-medium text-slate-800"

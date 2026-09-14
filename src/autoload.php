@@ -2,8 +2,8 @@
 declare(strict_types=1);
 
 /**
- * Autoloader PSR-4 natif sans dépendance externe pour CA Sion Débriefing
- * Supporte le namespace App\... et la résolution automatique des classes dans src/
+ * Autoloader PSR-4 natif pour CA Sion Débriefing
+ * Résout automatiquement les classes dans les dossiers modulaires de src/
  */
 spl_autoload_register(function (string $class): void {
     $src_dir = __DIR__ . '/';
@@ -19,11 +19,14 @@ spl_autoload_register(function (string $class): void {
         }
     }
 
-    // 2. Résolution des classes sans namespace (src/, src/Domain/, src/Services/)
+    // 2. Résolution modulaire sans namespace (Controllers, Repositories, Domain, Services, Support)
     $lookup_dirs = [
         $src_dir,
+        $src_dir . 'Controllers/',
+        $src_dir . 'Repositories/',
         $src_dir . 'Domain/',
         $src_dir . 'Services/',
+        $src_dir . 'Support/',
     ];
 
     $clean_class = str_replace('\\', '/', $class);

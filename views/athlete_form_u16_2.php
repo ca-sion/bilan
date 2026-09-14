@@ -363,18 +363,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const athleteId = <?= (int)$athlete['id'] ?>;
     const isLocked = <?= $is_locked ? 'true' : 'false' ?>;
 
-    // Détection temps réel des conflits de disciplines
-    const d1 = document.getElementById('chosen_discipline_1');
-    const d2 = document.getElementById('chosen_discipline_2');
-    if (d1) {
-        d1.addEventListener('input', checkDisciplineCompatibility);
-        d1.addEventListener('change', checkDisciplineCompatibility);
-    }
-    if (d2) {
-        d2.addEventListener('input', checkDisciplineCompatibility);
-        d2.addEventListener('change', checkDisciplineCompatibility);
-    }
-    checkDisciplineCompatibility();
+
 
     if (!isLocked) {
         const autosave = new FormAutosave(formId, interviewId, athleteId);
