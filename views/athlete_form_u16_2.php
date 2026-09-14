@@ -107,7 +107,7 @@ ob_start();
                     Mon principal frein cette année
                 </label>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                    <?php foreach (CategoryHelper::OBSTACLES as $key => $label): ?>
+                    <?php foreach (CategoryHelper::get_obstacles() as $key => $label): ?>
                         <label class="flex items-center gap-3 p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer text-sm font-medium text-slate-700 transition-colors has-[:checked]:bg-rose-50/80 has-[:checked]:border-rose-400 has-[:checked]:text-rose-950 has-[:checked]:font-semibold shadow-sm">
                             <input 
                                 type="radio" 
@@ -205,7 +205,7 @@ ob_start();
 
             <!-- Suggestions de disciplines d'athlétisme -->
             <datalist id="disciplines-suggestions">
-                <?php foreach (CategoryHelper::DISCIPLINES as $key => $label): ?>
+                <?php foreach (CategoryHelper::get_disciplines() as $key => $label): ?>
                     <option value="<?= htmlspecialchars($label) ?>">
                 <?php endforeach; ?>
             </datalist>

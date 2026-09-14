@@ -105,7 +105,7 @@ ob_start();
                     Mon principal frein cette année
                 </label>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                    <?php foreach (CategoryHelper::OBSTACLES as $key => $label): ?>
+                    <?php foreach (CategoryHelper::get_obstacles() as $key => $label): ?>
                         <label class="flex items-center gap-3 p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer text-sm font-medium text-slate-700 transition-colors has-[:checked]:bg-rose-50/80 has-[:checked]:border-rose-400 has-[:checked]:text-rose-950 has-[:checked]:font-semibold shadow-sm">
                             <input 
                                 type="radio" 
@@ -235,7 +235,7 @@ ob_start();
                     Discipline demandée pour le vendredi :
                 </label>
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <?php foreach (CategoryHelper::FRIDAY_DISCIPLINES_U16 as $key => $label): ?>
+                    <?php foreach (CategoryHelper::get_friday_options() as $key => $label): ?>
                         <label class="flex items-center gap-2.5 p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer text-sm font-medium text-slate-700 has-[:checked]:bg-rose-50/80 has-[:checked]:border-rose-400 has-[:checked]:font-bold has-[:checked]:text-rose-950 shadow-sm">
                             <input 
                                 type="radio" 

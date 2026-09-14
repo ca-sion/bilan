@@ -18,14 +18,18 @@ class Auth {
 
     public static function login(string $password): bool {
         self::init_session();
-        $hash = function_exists('env') ? env('ADMIN_PASSWORD_HASH') : null;
         
-        // Sécurité par défaut si non configuré
-        if (!$hash) {
-            $hash = password_hash('coach2026', PASSWORD_BCRYPT);
+        $is_valid = SettingsService::verify_admin_password($password);
+
+        // Fallback rétrocompatible si ADMIN_PASSWORD_HASH est défini dans .env
+        if (!$is_valid) {
+            $legacy_hash = env('ADMIN_PASSWORD_HASH');
+            if ($legacy_hash && password_verify($password, $legacy_hash)) {
+                $is_valid = true;
+            }
         }
 
-        if (password_verify($password, $hash)) {
+        if ($is_valid) {
             $_SESSION['is_coach_admin'] = true;
             $_SESSION['admin_logged_at'] = time();
             return true;

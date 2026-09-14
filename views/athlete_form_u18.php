@@ -408,7 +408,7 @@ ob_start();
 
             <!-- Datalist suggestions de disciplines libres -->
             <datalist id="disciplines-suggestions">
-                <?php foreach (CategoryHelper::DISCIPLINES as $key => $label): ?>
+                <?php foreach (CategoryHelper::get_disciplines() as $key => $label): ?>
                     <option value="<?= htmlspecialchars($label) ?>">
                 <?php endforeach; ?>
             </datalist>

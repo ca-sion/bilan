@@ -47,7 +47,7 @@ ob_start();
 
 <!-- Suggestions d'épreuves d'athlétisme -->
 <datalist id="disciplines-suggestions">
-    <?php foreach (CategoryHelper::DISCIPLINES as $k => $lbl): ?>
+    <?php foreach (CategoryHelper::get_disciplines() as $k => $lbl): ?>
         <option value="<?= htmlspecialchars($lbl) ?>">
     <?php endforeach; ?>
 </datalist>

@@ -111,6 +111,21 @@ function safe_json_decode(mixed $value, array $default = []): array {
 }
 
 /**
+ * Chargeur de configuration d'athlétisme (config/athletics.php)
+ */
+function athletics_config(?string $key = null): mixed {
+    static $config = null;
+    if ($config === null) {
+        $path = __DIR__ . '/athletics.php';
+        $config = file_exists($path) ? require $path : [];
+    }
+    if ($key === null) {
+        return $config;
+    }
+    return $config[$key] ?? null;
+}
+
+/**
  * Gestion des messages flash en session
  */
 function flash(string $type, string $message): void {
@@ -238,6 +253,12 @@ function init_db_schema(PDO $pdo): void {
         meeting_date DATE,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (season_id) REFERENCES seasons(id)
+    );
+
+    CREATE TABLE IF NOT EXISTS settings (
+        key TEXT PRIMARY KEY,
+        value TEXT NOT NULL,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
 SQL;
 

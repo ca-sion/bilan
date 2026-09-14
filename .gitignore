@@ -9,10 +9,20 @@ yarn-error.log
 
 storage/*.key
 .env
+.env.backup
+.env.production
 Homestead.yaml
 Homestead.json
 /.vagrant
 .phpunit.result.cache
+
+# SQLite Database & Data files (ne jamais versionner en prod)
+/data/*.sqlite
+/data/*.sqlite3
+/data/*.sqlite-wal
+/data/*.sqlite-shm
+/data/*.db
+/data/*.json
 
 ### macOS ###
 # General

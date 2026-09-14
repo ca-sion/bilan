@@ -10,8 +10,30 @@ ob_start();
     <!-- BENTO 1 : En-tête avec métriques globales claires -->
     <div class="bg-white p-6 rounded-2xl border border-zinc-200/80 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
-            <div class="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200/60 mb-2">
-                <span>Saison <?= htmlspecialchars($season['name'] ?? '2026-2027') ?></span>
+            <div class="flex items-center gap-2 mb-2">
+                <form method="GET" action="<?= url('/admin') ?>" class="inline-flex items-center gap-1.5">
+                    <label for="header_season_select" class="text-xs text-zinc-500 font-medium">Saison :</label>
+                    <select 
+                        id="header_season_select"
+                        name="season_id" 
+                        onchange="this.form.submit()" 
+                        class="px-2.5 py-1 rounded-lg text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200/80 cursor-pointer focus:outline-none focus:ring-1 focus:ring-rose-500"
+                    >
+                        <?php foreach ($all_seasons as $s): ?>
+                            <option value="<?= (int)$s['id'] ?>" <?= ((int)$s['id'] === (int)$season['id']) ? 'selected' : '' ?>>
+                                <?= htmlspecialchars($s['name']) ?> <?= ((int)$s['is_active'] === 1) ? '(active)' : '' ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </form>
+                <button 
+                    type="button" 
+                    onclick="openModal('modal-manage-seasons')"
+                    class="text-xs text-zinc-500 hover:text-zinc-800 underline decoration-zinc-300 transition-colors"
+                    title="Gérer les saisons"
+                >
+                    Gérer
+                </button>
             </div>
             <h1 class="text-2xl font-bold font-heading text-zinc-900 tracking-tight">
                 Tableau de bord des bilans
@@ -22,7 +44,7 @@ ob_start();
         </div>
 
         <!-- Actions rapides de gestion -->
-        <div class="flex flex-wrap items-center gap-2.5">
+        <div class="flex flex-wrap items-center gap-2">
             <button 
                 type="button" 
                 onclick="openModal('modal-add-athlete')" 
@@ -40,13 +62,31 @@ ob_start();
                 <span>Importer CSV</span>
             </button>
             <a 
-                href="<?= url('/admin/export-grid') ?>" 
+                href="<?= url('/admin/export-grid?season_id=' . (int)$season['id']) ?>" 
                 class="px-3.5 py-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 text-xs font-semibold rounded-xl border border-zinc-200 transition-colors flex items-center gap-1.5"
-                title="Exporter la grille de saison au format CSV"
+                title="Exporter la grille de saison au format CSV conforme"
             >
                 <span>📊</span>
                 <span>Export grille</span>
             </a>
+            <button 
+                type="button" 
+                onclick="openModal('modal-backup-restore')" 
+                class="px-3.5 py-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 text-xs font-semibold rounded-xl border border-zinc-200 transition-colors flex items-center gap-1.5"
+                title="Sauvegarder ou restaurer la base de données"
+            >
+                <span>💾</span>
+                <span>Sauvegarde</span>
+            </button>
+            <button 
+                type="button" 
+                onclick="openModal('modal-settings')" 
+                class="px-3.5 py-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 text-xs font-semibold rounded-xl border border-zinc-200 transition-colors flex items-center gap-1.5"
+                title="Modifier les paramètres du club et le mot de passe"
+            >
+                <span>⚙️</span>
+                <span>Paramètres</span>
+            </button>
         </div>
     </div>
 
@@ -497,6 +537,262 @@ ob_start();
                         Lancer l'import
                     </button>
                 </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal Gestion des Saisons -->
+<div id="modal-manage-seasons" class="modal-overlay fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+    <div class="modal-content-card rounded-2xl shadow-2xl border border-zinc-200 max-w-xl w-full overflow-hidden relative z-10">
+        <div class="p-5 border-b border-zinc-100 flex items-center justify-between">
+            <h3 class="font-bold font-heading text-sm text-zinc-900">Gestion des saisons et périodes</h3>
+            <button onclick="closeModal('modal-manage-seasons')" class="text-zinc-400 hover:text-zinc-700 text-sm">✕</button>
+        </div>
+        <div class="p-6 space-y-6">
+            <!-- 1. Liste des saisons avec actions directes (Renommer, Activer, Supprimer) -->
+            <div>
+                <h4 class="text-xs font-bold text-zinc-900 uppercase tracking-wider mb-2">Saisons enregistrées</h4>
+                <div class="space-y-2.5 max-h-60 overflow-y-auto pr-1">
+                    <?php foreach ($all_seasons as $s): ?>
+                        <div class="p-3 bg-zinc-50 border border-zinc-200/80 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                            <div class="flex items-center gap-2 flex-1 min-w-0">
+                                <form action="<?= url('/admin/rename-season') ?>" method="POST" class="flex items-center gap-1.5 flex-1 min-w-0">
+                                    <input type="hidden" name="season_id" value="<?= (int)$s['id'] ?>">
+                                    <input 
+                                        type="text" 
+                                        name="season_name" 
+                                        value="<?= htmlspecialchars($s['name']) ?>" 
+                                        required 
+                                        class="text-xs font-semibold text-zinc-900 bg-white border border-zinc-200 rounded-lg px-2.5 py-1 focus:ring-1 focus:ring-zinc-900 flex-1 min-w-[120px]"
+                                        title="Modifier le nom et appuyer sur Renommer"
+                                    >
+                                    <button 
+                                        type="submit" 
+                                        class="px-2.5 py-1 bg-zinc-200 hover:bg-zinc-300 text-zinc-800 text-[11px] font-bold rounded-lg transition-colors whitespace-nowrap"
+                                        title="Enregistrer le nouveau nom"
+                                    >
+                                        Renommer
+                                    </button>
+                                </form>
+                                <?php if ((int)$s['is_active'] === 1): ?>
+                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300/60 whitespace-nowrap">
+                                        Active
+                                    </span>
+                                <?php endif; ?>
+                            </div>
+
+                            <div class="flex items-center gap-1.5 self-end sm:self-center">
+                                <?php if ((int)$s['is_active'] === 0): ?>
+                                    <form action="<?= url('/admin/set-active-season') ?>" method="POST" class="inline">
+                                        <input type="hidden" name="season_id" value="<?= (int)$s['id'] ?>">
+                                        <button 
+                                            type="submit" 
+                                            class="px-2.5 py-1 bg-zinc-900 hover:bg-zinc-800 text-white text-[11px] font-semibold rounded-lg transition-colors whitespace-nowrap shadow-sm"
+                                        >
+                                            Activer
+                                        </button>
+                                    </form>
+                                <?php endif; ?>
+
+                                <?php if (count($all_seasons) > 1): ?>
+                                    <form 
+                                        action="<?= url('/admin/delete-season') ?>" 
+                                        method="POST" 
+                                        class="inline"
+                                        onsubmit="return confirm('Attention : Êtes-vous sûr de vouloir supprimer la saison « <?= htmlspecialchars(addslashes($s['name'])) ?> » ? Tous les entretiens et données de cette saison seront définitivement effacés.');"
+                                    >
+                                        <input type="hidden" name="season_id" value="<?= (int)$s['id'] ?>">
+                                        <button 
+                                            type="submit" 
+                                            class="px-2 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 text-[11px] font-semibold rounded-lg border border-rose-200/80 transition-colors"
+                                            title="Supprimer cette saison et ses entretiens"
+                                        >
+                                            Supprimer
+                                        </button>
+                                    </form>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+
+            <hr class="border-zinc-100">
+
+            <!-- 2. Créer une nouvelle saison -->
+            <div>
+                <h4 class="text-xs font-bold text-zinc-900 uppercase tracking-wider mb-2">Créer une nouvelle saison</h4>
+                <p class="text-xs text-zinc-500 mb-3">
+                    Crée une nouvelle saison et initialise automatiquement une fiche d'entretien pour chaque athlète existant.
+                </p>
+                <form action="<?= url('/admin/create-season') ?>" method="POST" class="flex items-center gap-2">
+                    <input 
+                        type="text" 
+                        name="season_name" 
+                        placeholder="ex: 2027-2028" 
+                        required 
+                        class="flex-1 text-xs border border-zinc-200 rounded-xl px-3 py-2 bg-white text-zinc-800 focus:outline-none focus:ring-1 focus:ring-zinc-900"
+                    >
+                    <button type="submit" class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold whitespace-nowrap shadow-sm">
+                        Créer la saison
+                    </button>
+                </form>
+            </div>
+
+            <div class="pt-2 flex justify-end border-t border-zinc-100">
+                <button type="button" onclick="closeModal('modal-manage-seasons')" class="px-4 py-2 rounded-xl text-xs font-semibold text-zinc-600 hover:bg-zinc-100">
+                    Fermer
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Sauvegarde et Restauration -->
+<div id="modal-backup-restore" class="modal-overlay fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+    <div class="modal-content-card rounded-2xl shadow-2xl border border-zinc-200 max-w-lg w-full overflow-hidden relative z-10">
+        <div class="p-5 border-b border-zinc-100 flex items-center justify-between">
+            <h3 class="font-bold font-heading text-sm text-zinc-900">Sauvegarde et restauration de la base</h3>
+            <button onclick="closeModal('modal-backup-restore')" class="text-zinc-400 hover:text-zinc-700 text-sm">✕</button>
+        </div>
+        <div class="p-6 space-y-6">
+            <!-- Sauvegarde -->
+            <div>
+                <h4 class="text-xs font-bold text-zinc-900 uppercase tracking-wider mb-2">1. Télécharger une sauvegarde</h4>
+                <p class="text-xs text-zinc-500 mb-3">Exportez l'intégralité des saisons, athlètes et bilans pour archivage ou transfert.</p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <a 
+                        href="<?= url('/admin/backup-json') ?>" 
+                        class="p-3 bg-zinc-50 hover:bg-zinc-100 border border-zinc-200 rounded-xl text-left block transition-colors"
+                    >
+                        <strong class="text-xs text-zinc-900 block font-semibold mb-0.5">Format universel (JSON)</strong>
+                        <span class="text-[11px] text-zinc-500 block">Recommandé pour migration ou consultation lisible.</span>
+                    </a>
+                    <a 
+                        href="<?= url('/admin/backup-sqlite') ?>" 
+                        class="p-3 bg-zinc-50 hover:bg-zinc-100 border border-zinc-200 rounded-xl text-left block transition-colors"
+                    >
+                        <strong class="text-xs text-zinc-900 block font-semibold mb-0.5">Base brute (.sqlite)</strong>
+                        <span class="text-[11px] text-zinc-500 block">Copie binaire intégrale du fichier SQLite.</span>
+                    </a>
+                </div>
+            </div>
+
+            <hr class="border-zinc-100">
+
+            <!-- Restauration -->
+            <div>
+                <h4 class="text-xs font-bold text-rose-700 uppercase tracking-wider mb-2">2. Restaurer une sauvegarde</h4>
+                <p class="text-xs text-zinc-500 mb-3">Sélectionnez un fichier JSON ou SQLite précédemment sauvegardé.</p>
+                <form 
+                    action="<?= url('/admin/restore-database') ?>" 
+                    method="POST" 
+                    enctype="multipart/form-data" 
+                    onsubmit="return confirm('Attention : Cette action va remplacer les données actuelles par le contenu du fichier de sauvegarde. Voulez-vous continuer ?');"
+                    class="space-y-3"
+                >
+                    <input 
+                        type="file" 
+                        name="backup_file" 
+                        accept=".json,.sqlite,.db" 
+                        required 
+                        class="w-full text-xs text-zinc-600 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-zinc-100 file:text-zinc-800 hover:file:bg-zinc-200"
+                    >
+                    <div class="flex items-center justify-between pt-2">
+                        <span class="text-[11px] text-zinc-400">Restauration transactionnelle sécurisée</span>
+                        <button type="submit" class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold shadow-sm">
+                            Restaurer la base
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="pt-2 flex justify-end border-t border-zinc-100">
+                <button type="button" onclick="closeModal('modal-backup-restore')" class="px-4 py-2 rounded-xl text-xs font-semibold text-zinc-600 hover:bg-zinc-100">
+                    Fermer
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Paramètres du Club et Configuration -->
+<div id="modal-settings" class="modal-overlay fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+    <div class="modal-content-card rounded-2xl shadow-2xl border border-zinc-200 max-w-lg w-full overflow-hidden relative z-10">
+        <div class="p-5 border-b border-zinc-100 flex items-center justify-between">
+            <h3 class="font-bold font-heading text-sm text-zinc-900">Paramètres du club et configuration</h3>
+            <button onclick="closeModal('modal-settings')" class="text-zinc-400 hover:text-zinc-700 text-sm">✕</button>
+        </div>
+        <form action="<?= url('/admin/settings') ?>" method="POST" class="p-6 space-y-5">
+            <!-- 1. Informations du Club -->
+            <div class="space-y-3">
+                <h4 class="text-xs font-bold text-zinc-900 uppercase tracking-wider">Identité et contacts</h4>
+                
+                <div>
+                    <label class="block text-xs font-semibold text-zinc-700 mb-1">Nom du club</label>
+                    <input 
+                        type="text" 
+                        name="club_name" 
+                        value="<?= htmlspecialchars($settings['club_name'] ?? 'CA Sion') ?>" 
+                        required 
+                        class="w-full text-xs border border-zinc-200 rounded-xl px-3 py-2 bg-white text-zinc-800 focus:outline-none focus:ring-1 focus:ring-zinc-900"
+                    >
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-zinc-700 mb-1">Téléphone de contact WhatsApp</label>
+                        <input 
+                            type="text" 
+                            name="coach_phone" 
+                            value="<?= htmlspecialchars($settings['coach_phone'] ?? '+41791234567') ?>" 
+                            placeholder="+41791234567" 
+                            class="w-full text-xs border border-zinc-200 rounded-xl px-3 py-2 bg-white text-zinc-800 focus:outline-none focus:ring-1 focus:ring-zinc-900"
+                        >
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-zinc-700 mb-1">Année de compétition de référence</label>
+                        <input 
+                            type="number" 
+                            name="reference_competition_year" 
+                            value="<?= (int)($settings['reference_competition_year'] ?? 2027) ?>" 
+                            min="2020" 
+                            max="2040" 
+                            required 
+                            class="w-full text-xs border border-zinc-200 rounded-xl px-3 py-2 bg-white text-zinc-800 focus:outline-none focus:ring-1 focus:ring-zinc-900"
+                        >
+                    </div>
+                </div>
+            </div>
+
+            <hr class="border-zinc-100">
+
+            <!-- 2. Mot de passe Administrateur -->
+            <div class="space-y-2">
+                <h4 class="text-xs font-bold text-zinc-900 uppercase tracking-wider">Mot de passe de l'espace entraîneur</h4>
+                <p class="text-[11px] text-zinc-500">
+                    Laissez vide pour conserver le mot de passe actuel.
+                </p>
+                <input 
+                    type="password" 
+                    name="new_admin_password" 
+                    placeholder="Nouveau mot de passe (min. 4 caractères)" 
+                    autocomplete="new-password"
+                    class="w-full text-xs border border-zinc-200 rounded-xl px-3 py-2 bg-white text-zinc-800 focus:outline-none focus:ring-1 focus:ring-zinc-900"
+                >
+                <div class="bg-amber-50 border border-amber-200/80 rounded-xl p-2.5 text-[11px] text-amber-800 mt-2">
+                    <strong>Sécurité anti-blocage :</strong> La variable <code>ADMIN_PASSWORD</code> de votre fichier <code>.env</code> conserve toujours un rôle de clé maîtresse de secours.
+                </div>
+            </div>
+
+            <div class="pt-3 flex items-center justify-end gap-2 border-t border-zinc-100">
+                <button type="button" onclick="closeModal('modal-settings')" class="px-4 py-2 rounded-xl text-xs font-semibold text-zinc-600 hover:bg-zinc-100">
+                    Annuler
+                </button>
+                <button type="submit" class="px-4 py-2 bg-zinc-900 hover:bg-zinc-800 text-white rounded-xl text-xs font-bold shadow-sm">
+                    Enregistrer les paramètres
+                </button>
             </div>
         </form>
     </div>

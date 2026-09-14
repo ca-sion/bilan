@@ -8,7 +8,11 @@ declare(strict_types=1);
 
 // Initialisation de la configuration et de la base de données SQLite
 require_once __DIR__ . '/config/database.php';
+require_once __DIR__ . '/src/Services/SettingsService.php';
 require_once __DIR__ . '/src/Auth.php';
+require_once __DIR__ . '/src/Helper.php';
+require_once __DIR__ . '/src/Domain/CategoryCalculator.php';
+require_once __DIR__ . '/src/Domain/DisciplineRules.php';
 require_once __DIR__ . '/src/CategoryHelper.php';
 require_once __DIR__ . '/src/WhatsAppHelper.php';
 require_once __DIR__ . '/src/AthleteController.php';
@@ -153,6 +157,46 @@ try {
 
     if ($path === '/admin/export-grid') {
         $admin_ctrl->export_grid_csv();
+        return;
+    }
+
+    if ($path === '/admin/backup-json') {
+        $admin_ctrl->backup_database_json();
+        return;
+    }
+
+    if ($path === '/admin/backup-sqlite') {
+        $admin_ctrl->backup_database_sqlite();
+        return;
+    }
+
+    if ($path === '/admin/restore-database' && $method === 'POST') {
+        $admin_ctrl->restore_database();
+        return;
+    }
+
+    if ($path === '/admin/create-season' && $method === 'POST') {
+        $admin_ctrl->create_season();
+        return;
+    }
+
+    if ($path === '/admin/set-active-season' && $method === 'POST') {
+        $admin_ctrl->set_active_season();
+        return;
+    }
+
+    if ($path === '/admin/rename-season' && $method === 'POST') {
+        $admin_ctrl->rename_season();
+        return;
+    }
+
+    if ($path === '/admin/delete-season' && $method === 'POST') {
+        $admin_ctrl->delete_season();
+        return;
+    }
+
+    if ($path === '/admin/settings' && $method === 'POST') {
+        $admin_ctrl->update_settings();
         return;
     }
 

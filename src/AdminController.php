@@ -50,9 +50,32 @@ class AdminController {
     public function dashboard(): void {
         Auth::require_admin();
 
-        // Récupérer la saison active
-        $season_stmt = $this->db->query("SELECT * FROM seasons WHERE is_active = 1 ORDER BY id DESC LIMIT 1");
-        $season = $season_stmt->fetch() ?: ['id' => 1, 'name' => env('CURRENT_SEASON_NAME', '2026-2027')];
+        // Récupérer toutes les saisons
+        $all_seasons_stmt = $this->db->query("SELECT * FROM seasons ORDER BY id DESC");
+        $all_seasons = $all_seasons_stmt->fetchAll();
+
+        // Récupérer la saison sélectionnée ou active
+        $selected_season_id = (int)($_GET['season_id'] ?? 0);
+        $season = null;
+        if ($selected_season_id > 0) {
+            foreach ($all_seasons as $s) {
+                if ((int)$s['id'] === $selected_season_id) {
+                    $season = $s;
+                    break;
+                }
+            }
+        }
+        if (!$season) {
+            foreach ($all_seasons as $s) {
+                if ((int)$s['is_active'] === 1) {
+                    $season = $s;
+                    break;
+                }
+            }
+        }
+        if (!$season) {
+            $season = $all_seasons[0] ?? ['id' => 1, 'name' => env('CURRENT_SEASON_NAME', '2026-2027'), 'is_active' => 1];
+        }
 
         // Filtres
         $category_filter = trim((string)($_GET['category'] ?? ''));
@@ -108,6 +131,8 @@ class AdminController {
         $stats = $stats_stmt->fetch() ?: [
             'total_athletes' => 0, 'count_completed' => 0, 'count_submitted' => 0, 'count_draft' => 0, 'count_waiting' => 0
         ];
+
+        $settings = SettingsService::all();
 
         require dirname(__DIR__) . '/views/admin_dashboard.php';
     }
@@ -673,57 +698,117 @@ class AdminController {
     }
 
     /**
-     * Export récapitulatif global (CSV / Excel) de la grille de rentrée
+     * Export récapitulatif global (CSV / Excel) de la grille de rentrée (17 colonnes exactes)
      */
     public function export_grid_csv(): void {
         Auth::require_admin();
 
-        $season_stmt = $this->db->query("SELECT * FROM seasons WHERE is_active = 1 ORDER BY id DESC LIMIT 1");
-        $season = $season_stmt->fetch() ?: ['id' => 1, 'name' => '2026-2027'];
+        $selected_season_id = (int)($_GET['season_id'] ?? 0);
+        if ($selected_season_id > 0) {
+            $season_stmt = $this->db->prepare("SELECT * FROM seasons WHERE id = ?");
+            $season_stmt->execute([$selected_season_id]);
+            $season = $season_stmt->fetch();
+        }
+        if (empty($season)) {
+            $season_stmt = $this->db->query("SELECT * FROM seasons WHERE is_active = 1 ORDER BY id DESC LIMIT 1");
+            $season = $season_stmt->fetch() ?: ['id' => 1, 'name' => '2026-2027'];
+        }
 
         $stmt = $this->db->prepare(
             "SELECT a.*, i.status as interview_status, i.is_validated, i.validated_at, 
                     i.athlete_answers, i.trainer_answers, i.decisions 
              FROM athletes a 
              LEFT JOIN interviews i ON i.athlete_id = a.id AND i.season_id = ? 
-             ORDER BY a.last_name ASC, a.first_name ASC"
+             ORDER BY a.last_name COLLATE NOCASE ASC, a.first_name COLLATE NOCASE ASC"
         );
         $stmt->execute([$season['id']]);
         $rows = $stmt->fetchAll();
 
-        $filename = "grille_rentree_" . preg_replace('/[^a-zA-Z0-9_-]/', '_', $season['name']) . "_" . date('Ymd_Hi') . ".csv";
+        $filename = "grille_cadrage_" . preg_replace('/[^a-zA-Z0-9_-]/', '_', $season['name']) . "_" . date('Ymd_Hi') . ".csv";
+
+        while (ob_get_level()) {
+            ob_end_clean();
+        }
 
         header('Content-Type: text/csv; charset=utf-8');
         header("Content-Disposition: attachment; filename=\"{$filename}\"");
 
-        // BOM UTF-8 pour ouverture directe parfaite sous Microsoft Excel
+        // BOM UTF-8 pour ouverture parfaite sous Microsoft Excel et Apple Numbers
         echo "\xEF\xBB\xBF";
 
         $output = fopen('php://output', 'w');
 
-        // En-têtes CSV obligatoires
+        // 18 colonnes officielles conformes à la grille du club
         fputcsv($output, [
-            'Nom',
-            'Prénom',
+            'Classe d’âge',
+            'Entraîneur référent',
+            'Groupe',
+            'Groupe s.',
+            'Vu',
             'Année',
-            'Catégorie',
-            'Statut entretien',
-            'Attitude terrain',
-            'Discipline prioritaire',
-            'Discipline secondaire',
-            'Option vendredi accordée',
-            'Jours validés',
-            'Volume hebdomadaire',
-            'Contrat moral règle 1',
-            'Contrat moral règle 2',
-            'Date de validation'
-        ], ';');
+            'Nom de famille',
+            'Prénom',
+            'Disciplines',
+            'Dispo',
+            'Lu',
+            'Ma',
+            'Me',
+            'Je',
+            'Ve',
+            'Sa',
+            'Force',
+            'Cadre'
+        ], ';', '"', "\\");
 
         foreach ($rows as $r) {
             $trainer_answers = safe_json_decode($r['trainer_answers'] ?? null);
             $decisions = safe_json_decode($r['decisions'] ?? null);
             $athlete_answers = safe_json_decode($r['athlete_answers'] ?? null);
+            $meta = safe_json_decode($r['meta'] ?? null);
 
+            $birth_year = (int)$r['birth_year'];
+            $age = CategoryHelper::get_athlete_age($birth_year);
+            $cat_label = CategoryHelper::get_category_label($birth_year, $r['category']);
+
+            // 1. Classe d'âge (ex: Cadre U18+, U16 1ère année...)
+            $classe_age = ($age >= 16) ? 'Cadre U18+' : $cat_label;
+
+            // 2. Entraîneur référent
+            $coach_ref = $decisions['coach_in_charge'] ?? ($meta['coach_in_charge'] ?? ($meta['coach'] ?? ''));
+
+            // Disciplines
+            $d1_raw = $decisions['primary_discipline'] 
+                ?? ($decisions['friday_discipline_approved'] 
+                ?? ($decisions['approved_disciplines'][0] 
+                ?? ($athlete_answers['chosen_discipline_1'] 
+                ?? ($athlete_answers['friday_discipline'] 
+                ?? ''))));
+            $d2_raw = $decisions['secondary_discipline'] 
+                ?? ($decisions['approved_disciplines'][1] 
+                ?? ($athlete_answers['chosen_discipline_2'] 
+                ?? ''));
+
+            $d1 = CategoryHelper::get_discipline_label($d1_raw);
+            $d2 = CategoryHelper::get_discipline_label($d2_raw);
+            $disciplines_str = trim($d1 . ($d2 !== 'Aucune' && $d2 !== '' ? ', ' . $d2 : ''));
+
+            // 3. Groupe principal
+            $groupe = $decisions['training_group'] ?? ($meta['training_group'] ?? '');
+            if ($groupe === '' && $d1 !== '' && $d1 !== 'Aucune') {
+                $fam = CategoryHelper::get_discipline_family($d1);
+                $groupe = match ($fam) {
+                    'endurance' => 'Demi-Fond',
+                    'explosive_sprint_jump' => 'Sprint / Concours',
+                    'throws' => 'Lancers',
+                    'combined' => 'Combiné',
+                    default => 'Général'
+                };
+            }
+
+            // 4. Groupe secondaire
+            $groupe_s = $decisions['secondary_group'] ?? ($meta['secondary_group'] ?? ($d2 !== 'Aucune' ? $d2 : ''));
+
+            // 5. Vu / Statut
             $status_fr = match ($r['interview_status'] ?? 'waiting') {
                 'completed' => 'Validé',
                 'submitted' => 'Soumis',
@@ -731,66 +816,417 @@ class AdminController {
                 default => 'En attente'
             };
 
-            $attitude = $trainer_answers['attitude_status'] ?? ($athlete_answers['self_eval_attitude'] ?? '');
-            $attitude_fr = match ($attitude) {
-                'ok', 'exemplary' => 'Exemplaire / OK',
-                'fair' => 'Correct',
-                'fragile', 'improve' => 'À améliorer / Fragile',
-                default => 'Non évalué'
-            };
+            // 6. Année, 7. Nom, 8. Prénom
+            $annee_str = $birth_year > 0 ? (string)$birth_year : '';
 
-            $d1_raw = $decisions['primary_discipline'] 
-                ?? $decisions['friday_discipline_approved'] 
-                ?? $decisions['approved_disciplines'][0] 
-                ?? $athlete_answers['chosen_discipline_1'] 
-                ?? $athlete_answers['friday_discipline'] 
-                ?? '';
-            $d2_raw = $decisions['secondary_discipline'] 
-                ?? $decisions['approved_disciplines'][1] 
-                ?? $athlete_answers['chosen_discipline_2'] 
-                ?? '';
-
-            $d1 = CategoryHelper::DISCIPLINES[$d1_raw] ?? CategoryHelper::FRIDAY_DISCIPLINES_U16[$d1_raw] ?? $d1_raw;
-            $d2 = CategoryHelper::DISCIPLINES[$d2_raw] ?? $d2_raw;
-
-            $friday_option = !empty($decisions['friday_option_granted']) ? 'Oui' : 'Non';
-
+            // 10. Dispo (Synthèse claire du volume et jours d'entraînement)
+            $vol_count = $decisions['approved_weekly_sessions'] ?? ($athlete_answers['target_sessions_count'] ?? '');
             $approved_days = $decisions['approved_training_days'] ?? ($athlete_answers['available_days'] ?? []);
             if (!is_array($approved_days)) {
                 $approved_days = [$approved_days];
             }
-            $days_fr = [];
-            foreach ($approved_days as $day) {
-                $days_fr[] = CategoryHelper::DAYS_FR[$day] ?? $day;
-            }
-            $days_str = implode(', ', $days_fr);
 
-            $volume = $decisions['approved_weekly_sessions'] ?? ($athlete_answers['target_sessions_count'] ?? '');
+            $dispo_str = Helper::format_availability_summary($approved_days, $vol_count !== '' ? (string)$vol_count : null);
 
-            $rule1 = $decisions['mandatory_rule_1'] ?? ($athlete_answers['attitude_contract'] ?? ($athlete_answers['commitment_1'] ?? ''));
-            $rule2 = $decisions['mandatory_rule_2'] ?? ($athlete_answers['commitment_2'] ?? '');
+            // 11-16. Jours Lu, Ma, Me, Je, Ve, Sa
+            $has_day = fn($key) => in_array($key, $approved_days, true) || in_array("{$key}_morning", $approved_days, true);
 
-            $val_date = $r['validated_at'] ? date('d.m.Y H:i', strtotime($r['validated_at'])) : '';
+            // Détermination du code par jour : code spécifique de séance si fixé, sinon 'X' si disponible
+            $day_code = function(string $day_key, ?string $explicit_val = null) use ($has_day, $groupe) {
+                if (!$has_day($day_key)) {
+                    return '';
+                }
+                if ($explicit_val !== null && trim($explicit_val) !== '') {
+                    return \App\Domain\DisciplineRules::get_short_code($explicit_val);
+                }
+                if ($groupe !== '' && $groupe !== 'Général') {
+                    return \App\Domain\DisciplineRules::get_short_code($groupe);
+                }
+                return 'X';
+            };
+
+            $friday_spec = !empty($decisions['friday_discipline_approved']) 
+                ? CategoryHelper::get_discipline_label($decisions['friday_discipline_approved']) 
+                : ($d2 !== 'Aucune' && $d2 !== '' ? $d2 : null);
+
+            $jour_lu = $day_code('monday', $decisions['monday_session'] ?? null);
+            $jour_ma = $day_code('tuesday', $decisions['tuesday_session'] ?? null);
+            $jour_me = $day_code('wednesday', $decisions['wednesday_session'] ?? null);
+            $jour_je = $day_code('thursday', $decisions['thursday_session'] ?? null);
+            $jour_ve = $day_code('friday', $decisions['friday_session'] ?? $friday_spec);
+            $jour_sa = $has_day('saturday') ? 'End.' : '';
+
+            // 17. Force / Renforcement
+            $force_str = $decisions['strength_training'] ?? ($meta['strength_notes'] ?? ($decisions['mandatory_rule_1'] ?? ''));
+
+            // 18. Cadre / Structure partenaire
+            $cadre_str = $decisions['cadre_structure'] ?? ($meta['cadre'] ?? ($decisions['partner_structure'] ?? ''));
 
             fputcsv($output, [
+                $classe_age,
+                $coach_ref,
+                $groupe,
+                $groupe_s,
+                $status_fr,
+                $annee_str,
                 $r['last_name'],
                 $r['first_name'],
-                $r['birth_year'] ?: '',
-                CategoryHelper::get_category_label((int)$r['birth_year'], $r['category']),
-                $status_fr,
-                $attitude_fr,
-                $d1,
-                $d2,
-                $friday_option,
-                $days_str,
-                $volume,
-                $rule1,
-                $rule2,
-                $val_date
-            ], ';');
+                $disciplines_str,
+                $dispo_str,
+                $jour_lu,
+                $jour_ma,
+                $jour_me,
+                $jour_je,
+                $jour_ve,
+                $jour_sa,
+                $force_str,
+                $cadre_str
+            ], ';', '"', "\\");
         }
 
         fclose($output);
         exit;
     }
+
+    /**
+     * Sauvegarde complète de la base de données au format JSON
+     */
+    public function backup_database_json(): void {
+        Auth::require_admin();
+
+        $seasons = $this->db->query("SELECT * FROM seasons ORDER BY id ASC")->fetchAll();
+        $athletes = $this->db->query("SELECT * FROM athletes ORDER BY id ASC")->fetchAll();
+        $interviews = $this->db->query("SELECT * FROM interviews ORDER BY id ASC")->fetchAll();
+
+        $backup_data = [
+            'format_version' => '1.0',
+            'exported_at' => date('Y-m-d H:i:s'),
+            'club_name' => env('CLUB_NAME', 'CA Sion'),
+            'data' => [
+                'seasons' => $seasons,
+                'athletes' => $athletes,
+                'interviews' => $interviews
+            ]
+        ];
+
+        while (ob_get_level()) {
+            ob_end_clean();
+        }
+
+        $filename = "backup_ca_sion_" . date('Ymd_His') . ".json";
+        header('Content-Type: application/json; charset=utf-8');
+        header("Content-Disposition: attachment; filename=\"{$filename}\"");
+
+        echo json_encode($backup_data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        exit;
+    }
+
+    /**
+     * Téléchargement direct du fichier SQLite brut
+     */
+    public function backup_database_sqlite(): void {
+        Auth::require_admin();
+
+        $db_relative_path = env('DB_PATH', 'data/debriefing.sqlite');
+        $db_path = dirname(__DIR__) . '/' . ltrim($db_relative_path, '/');
+
+        if (!file_exists($db_path)) {
+            flash('error', 'Fichier de base de données introuvable.');
+            redirect('/admin');
+        }
+
+        while (ob_get_level()) {
+            ob_end_clean();
+        }
+
+        $filename = "debriefing_ca_sion_" . date('Ymd_His') . ".sqlite";
+        header('Content-Type: application/x-sqlite3');
+        header("Content-Disposition: attachment; filename=\"{$filename}\"");
+        header('Content-Length: ' . filesize($db_path));
+
+        readfile($db_path);
+        exit;
+    }
+
+    /**
+     * Restauration de la base de données depuis un fichier JSON ou SQLite
+     */
+    public function restore_database(): void {
+        Auth::require_admin();
+
+        if (empty($_FILES['backup_file']['tmp_name'])) {
+            flash('error', 'Veuillez sélectionner un fichier de sauvegarde (.json ou .sqlite).');
+            redirect('/admin');
+        }
+
+        $tmp_path = $_FILES['backup_file']['tmp_name'];
+        $orig_name = strtolower((string)$_FILES['backup_file']['name']);
+
+        try {
+            if (str_ends_with($orig_name, '.json')) {
+                $content = file_get_contents($tmp_path);
+                $json = json_decode($content, true);
+
+                if (!is_array($json) || empty($json['data'])) {
+                    throw new \Exception('Format de sauvegarde JSON invalide.');
+                }
+
+                $this->db->beginTransaction();
+
+                // 1. Saisons
+                if (isset($json['data']['seasons']) && is_array($json['data']['seasons'])) {
+                    $this->db->exec("DELETE FROM seasons");
+                    $stmt = $this->db->prepare("INSERT INTO seasons (id, name, is_active, created_at) VALUES (?, ?, ?, ?)");
+                    foreach ($json['data']['seasons'] as $s) {
+                        $stmt->execute([$s['id'], $s['name'], $s['is_active'], $s['created_at'] ?? date('Y-m-d H:i:s')]);
+                    }
+                }
+
+                // 2. Athlètes
+                if (isset($json['data']['athletes']) && is_array($json['data']['athletes'])) {
+                    $this->db->exec("DELETE FROM athletes");
+                    $stmt = $this->db->prepare("INSERT INTO athletes (id, first_name, last_name, birth_date, birth_year, category, access_token, access_pin, phone, email, meta, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                    foreach ($json['data']['athletes'] as $a) {
+                        $stmt->execute([
+                            $a['id'], $a['first_name'], $a['last_name'], $a['birth_date'] ?? null,
+                            $a['birth_year'], $a['category'], $a['access_token'], $a['access_pin'] ?? '0000',
+                            $a['phone'] ?? null, $a['email'] ?? null, $a['meta'] ?? '{}', $a['created_at'] ?? date('Y-m-d H:i:s')
+                        ]);
+                    }
+                }
+
+                // 3. Interviews
+                if (isset($json['data']['interviews']) && is_array($json['data']['interviews'])) {
+                    $this->db->exec("DELETE FROM interviews");
+                    $stmt = $this->db->prepare("INSERT INTO interviews (id, athlete_id, season_id, interview_type, status, athlete_answers, trainer_answers, decisions, trainer_notes, is_validated, validated_at, updated_at, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                    foreach ($json['data']['interviews'] as $i) {
+                        $stmt->execute([
+                            $i['id'], $i['athlete_id'], $i['season_id'], $i['interview_type'],
+                            $i['status'] ?? 'waiting', $i['athlete_answers'] ?? '{}', $i['trainer_answers'] ?? '{}',
+                            $i['decisions'] ?? '{}', $i['trainer_notes'] ?? null, $i['is_validated'] ?? 0,
+                            $i['validated_at'] ?? null, $i['updated_at'] ?? date('Y-m-d H:i:s'), $i['created_at'] ?? date('Y-m-d H:i:s')
+                        ]);
+                    }
+                }
+
+                $this->db->commit();
+                flash('success', 'La base de données a été restaurée avec succès depuis le fichier JSON.');
+            } elseif (str_ends_with($orig_name, '.sqlite') || str_ends_with($orig_name, '.db')) {
+                $db_relative_path = env('DB_PATH', 'data/debriefing.sqlite');
+                $db_dest = dirname(__DIR__) . '/' . ltrim($db_relative_path, '/');
+                copy($tmp_path, $db_dest);
+                flash('success', 'Le fichier SQLite a été remplacé avec succès.');
+            } else {
+                flash('error', 'Extension de fichier non supportée (utilisez .json ou .sqlite).');
+            }
+        } catch (\Throwable $e) {
+            if ($this->db->inTransaction()) {
+                $this->db->rollBack();
+            }
+            flash('error', 'Erreur lors de la restauration : ' . $e->getMessage());
+        }
+
+        redirect('/admin');
+    }
+
+    /**
+     * Création d'une nouvelle saison avec reconduction automatique des athlètes
+     */
+    public function create_season(): void {
+        Auth::require_admin();
+
+        $name = trim((string)($_POST['season_name'] ?? ''));
+        if ($name === '') {
+            flash('error', 'Le nom de la saison est obligatoire (ex: 2027-2028).');
+            redirect('/admin');
+        }
+
+        // Désactiver les autres saisons et activer la nouvelle
+        $this->db->beginTransaction();
+        try {
+            $this->db->exec("UPDATE seasons SET is_active = 0");
+            $ins = $this->db->prepare("INSERT INTO seasons (name, is_active) VALUES (?, 1)");
+            $ins->execute([$name]);
+            $new_season_id = (int)$this->db->lastInsertId();
+
+            // Créer les fiches d'entretien pour chaque athlète existant
+            $athletes = $this->db->query("SELECT * FROM athletes ORDER BY id ASC")->fetchAll();
+            $int_ins = $this->db->prepare(
+                "INSERT INTO interviews (athlete_id, season_id, interview_type, status, athlete_answers, trainer_answers, decisions) 
+                 VALUES (?, ?, ?, 'waiting', '{}', '{}', '{}')"
+            );
+
+            foreach ($athletes as $a) {
+                $form_type = CategoryHelper::get_form_type((int)$a['birth_year'], $a['category']);
+                $type = ($form_type === 'u18_elite') ? 'individual_elite' : 'u16_group';
+                $int_ins->execute([$a['id'], $new_season_id, $type]);
+            }
+
+            $this->db->commit();
+            flash('success', "La nouvelle saison {$name} a été créée et activée avec succès. L'ensemble des athlètes a été reconduit.");
+        } catch (\Throwable $e) {
+            if ($this->db->inTransaction()) {
+                $this->db->rollBack();
+            }
+            flash('error', 'Erreur lors de la création de la saison : ' . $e->getMessage());
+        }
+
+        redirect('/admin');
+    }
+
+    /**
+     * Changer la saison active
+     */
+    public function set_active_season(): void {
+        Auth::require_admin();
+
+        $season_id = (int)($_POST['season_id'] ?? 0);
+        if ($season_id <= 0) {
+            flash('error', 'Saison invalide.');
+            redirect('/admin');
+        }
+
+        $this->db->beginTransaction();
+        try {
+            $this->db->exec("UPDATE seasons SET is_active = 0");
+            $stmt = $this->db->prepare("UPDATE seasons SET is_active = 1 WHERE id = ?");
+            $stmt->execute([$season_id]);
+            $this->db->commit();
+
+            flash('success', 'La saison active a été modifiée.');
+        } catch (\Throwable $e) {
+            if ($this->db->inTransaction()) {
+                $this->db->rollBack();
+            }
+            flash('error', 'Erreur : ' . $e->getMessage());
+        }
+
+        redirect('/admin');
+    }
+
+    /**
+     * Renommer une saison
+     */
+    public function rename_season(): void {
+        Auth::require_admin();
+
+        $season_id = (int)($_POST['season_id'] ?? 0);
+        $new_name = trim((string)($_POST['season_name'] ?? ''));
+
+        if ($season_id <= 0 || $new_name === '') {
+            flash('error', 'Nom de saison invalide.');
+            redirect('/admin');
+        }
+
+        try {
+            $stmt = $this->db->prepare("UPDATE seasons SET name = ? WHERE id = ?");
+            $stmt->execute([$new_name, $season_id]);
+            flash('success', "La saison a été renommée en « {$new_name} » avec succès.");
+        } catch (\Throwable $e) {
+            flash('error', 'Erreur lors du renommage de la saison : ' . $e->getMessage());
+        }
+
+        redirect('/admin');
+    }
+
+    /**
+     * Supprimer une saison et ses fiches associées
+     */
+    public function delete_season(): void {
+        Auth::require_admin();
+
+        $season_id = (int)($_POST['season_id'] ?? 0);
+        if ($season_id <= 0) {
+            flash('error', 'Saison invalide.');
+            redirect('/admin');
+        }
+
+        // Vérifier le nombre total de saisons
+        $total_seasons = (int)$this->db->query("SELECT COUNT(*) FROM seasons")->fetchColumn();
+        if ($total_seasons <= 1) {
+            flash('error', 'Impossible de supprimer la seule saison existante de l\'application.');
+            redirect('/admin');
+        }
+
+        $this->db->beginTransaction();
+        try {
+            // Récupérer la saison
+            $stmt = $this->db->prepare("SELECT * FROM seasons WHERE id = ?");
+            $stmt->execute([$season_id]);
+            $season = $stmt->fetch();
+
+            if (!$season) {
+                throw new \Exception("Saison introuvable.");
+            }
+
+            // Si elle était active, activer une autre saison
+            if ((int)$season['is_active'] === 1) {
+                $other_stmt = $this->db->prepare("SELECT id FROM seasons WHERE id != ? ORDER BY id DESC LIMIT 1");
+                $other_stmt->execute([$season_id]);
+                $other_id = (int)$other_stmt->fetchColumn();
+                if ($other_id > 0) {
+                    $upd = $this->db->prepare("UPDATE seasons SET is_active = 1 WHERE id = ?");
+                    $upd->execute([$other_id]);
+                }
+            }
+
+            // Supprimer les entretiens liés
+            $del_int = $this->db->prepare("DELETE FROM interviews WHERE season_id = ?");
+            $del_int->execute([$season_id]);
+
+            // Supprimer les séances collectives
+            $del_cm = $this->db->prepare("DELETE FROM collective_meetings WHERE season_id = ?");
+            $del_cm->execute([$season_id]);
+
+            // Supprimer la saison
+            $del_s = $this->db->prepare("DELETE FROM seasons WHERE id = ?");
+            $del_s->execute([$season_id]);
+
+            $this->db->commit();
+            flash('success', "La saison « {$season['name']} » et ses données associées ont été supprimées avec succès.");
+        } catch (\Throwable $e) {
+            if ($this->db->inTransaction()) {
+                $this->db->rollBack();
+            }
+            flash('error', 'Erreur lors de la suppression : ' . $e->getMessage());
+        }
+
+        redirect('/admin');
+    }
+
+    /**
+     * Mise à jour des paramètres généraux du club et du mot de passe
+     */
+    public function update_settings(): void {
+        Auth::require_admin();
+
+        $club_name = trim((string)($_POST['club_name'] ?? ''));
+        $coach_phone = trim((string)($_POST['coach_phone'] ?? ''));
+        $ref_year = (int)($_POST['reference_competition_year'] ?? 2027);
+        $new_password = (string)($_POST['new_admin_password'] ?? '');
+
+        if ($club_name !== '') {
+            SettingsService::set('club_name', $club_name);
+        }
+        if ($coach_phone !== '') {
+            SettingsService::set('coach_phone', $coach_phone);
+        }
+        if ($ref_year > 1900 && $ref_year < 2100) {
+            SettingsService::set('reference_competition_year', (string)$ref_year);
+        }
+
+        if ($new_password !== '') {
+            if (strlen($new_password) < 4) {
+                flash('error', 'Le mot de passe administrateur doit contenir au moins 4 caractères.');
+                redirect('/admin');
+            }
+            SettingsService::set_admin_password($new_password);
+            flash('success', 'Paramètres et nouveau mot de passe enregistrés avec succès. (Le mot de passe .env reste utilisable en secours).');
+        } else {
+            flash('success', 'Les paramètres du club ont été mis à jour avec succès.');
+        }
+
+        redirect('/admin');
+    }
 }
+
