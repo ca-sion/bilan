@@ -62,7 +62,7 @@ class SeasonController {
         Auth::require_admin();
 
         $season_id = (int)($_POST['season_id'] ?? 0);
-        $new_name = trim((string)($_POST['new_name'] ?? ''));
+        $new_name = trim((string)($_POST['new_name'] ?? ($_POST['season_name'] ?? '')));
 
         if ($season_id <= 0 || $new_name === '') {
             flash('error', 'Le nouveau nom de la saison est obligatoire.');

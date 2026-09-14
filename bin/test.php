@@ -510,6 +510,35 @@ $t->test('Admin : Réinitialisation du code PIN (POST /admin/reset-pin)', functi
     $t->assertEquals($expected_pin, $row['access_pin'] ?? null);
 });
 
+$t->test('Admin : Renommer une saison (POST /admin/rename-season)', function () use ($t, $db, $active_season) {
+    $ctrl = new AdminController($db);
+    $_SESSION['is_coach_admin'] = true;
+    $orig_name = $active_season['name'];
+    $temp_name = $orig_name . ' - Modifiée';
+    
+    $_POST = [
+        'season_id' => $active_season['id'],
+        'new_name' => $temp_name
+    ];
+    $ctrl->rename_season();
+
+    $stmt = $db->prepare("SELECT name FROM seasons WHERE id = ?");
+    $stmt->execute([$active_season['id']]);
+    $t->assertEquals($temp_name, $stmt->fetchColumn());
+
+    // Rétablir le nom original
+    $_POST = [
+        'season_id' => $active_season['id'],
+        'season_name' => $orig_name
+    ];
+    $ctrl->rename_season();
+    $_POST = [];
+    unset($_SESSION['is_coach_admin']);
+
+    $stmt->execute([$active_season['id']]);
+    $t->assertEquals($orig_name, $stmt->fetchColumn());
+});
+
 $t->summary();
 
 

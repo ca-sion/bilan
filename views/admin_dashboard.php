@@ -611,7 +611,7 @@ ob_start();
                                     <input type="hidden" name="season_id" value="<?= (int)$s['id'] ?>">
                                     <input 
                                         type="text" 
-                                        name="season_name" 
+                                        name="new_name" 
                                         value="<?= htmlspecialchars($s['name']) ?>" 
                                         required 
                                         class="text-xs font-semibold text-zinc-900 bg-white border border-zinc-200 rounded-lg px-2.5 py-1 focus:ring-1 focus:ring-zinc-900 flex-1 min-w-[120px]"
