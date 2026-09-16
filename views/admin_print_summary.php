@@ -28,7 +28,7 @@ $d1 = CategoryHelper::get_discipline_label($d1_raw);
 $d2 = CategoryHelper::get_discipline_label($d2_raw);
 
 // Volume & Jours
-$sessions = $decisions['approved_weekly_sessions'] ?? ($athlete_answers['target_sessions_count'] ?? '3');
+$sessions = $decisions['approved_weekly_sessions'] ?? ($athlete_answers['target_sessions_count'] ?? '');
 $approved_days = $decisions['approved_training_days'] ?? ($athlete_answers['available_days'] ?? []);
 if (!is_array($approved_days)) {
     $approved_days = [$approved_days];
@@ -191,7 +191,7 @@ $val_date_fr = date('d.m.Y', strtotime((string)$val_date_str));
                 <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200 space-y-1.5">
                     <div>
                         <span class="text-[10px] font-bold text-slate-500 uppercase block">Nombre d'entraînements par semaine</span>
-                        <strong class="text-slate-900 text-sm"><?= htmlspecialchars((string)$sessions) ?> séances / semaine</strong>
+                        <strong class="text-slate-900 text-sm"><?= !empty($sessions) ? htmlspecialchars((string)$sessions) . ' séances / semaine' : '<span class="text-slate-400 font-normal italic">Non défini</span>' ?></strong>
                     </div>
                     <div class="pt-1 border-t border-slate-200/60">
                         <span class="text-[10px] font-bold text-slate-500 uppercase block">Disponibilités</span>
@@ -237,17 +237,21 @@ $val_date_fr = date('d.m.Y', strtotime((string)$val_date_str));
                 Contrat moral
             </h2>
 
+            <?php 
+            $rule1 = $decisions['mandatory_rule_1'] ?? ($athlete_answers['commitment_1'] ?? ($athlete_answers['attitude_contract'] ?? ''));
+            $rule2 = $decisions['mandatory_rule_2'] ?? ($athlete_answers['commitment_2'] ?? '');
+            ?>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                 <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
                     <span class="text-[10px] font-bold text-slate-500 uppercase block">Engagement n°1</span>
                     <p class="font-semibold text-slate-900 mt-1">
-                        <?= htmlspecialchars($decisions['mandatory_rule_1'] ?? ($athlete_answers['commitment_1'] ?? ($athlete_answers['attitude_contract'] ?? 'Présence assidue et ponctualité exemplaire.'))) ?>
+                        <?= !empty($rule1) ? htmlspecialchars($rule1) : '<span class="text-slate-400 font-normal italic">Non renseigné</span>' ?>
                     </p>
                 </div>
                 <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
                     <span class="text-[10px] font-bold text-slate-500 uppercase block">Engagement n°2</span>
                     <p class="font-semibold text-slate-900 mt-1">
-                        <?= htmlspecialchars($decisions['mandatory_rule_2'] ?? ($athlete_answers['commitment_2'] ?? 'Communication immédiate de toute douleur ou fatigue.')) ?>
+                        <?= !empty($rule2) ? htmlspecialchars($rule2) : '<span class="text-slate-400 font-normal italic">Non renseigné</span>' ?>
                     </p>
                 </div>
             </div>

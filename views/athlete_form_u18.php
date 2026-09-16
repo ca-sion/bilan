@@ -676,8 +676,9 @@ ob_start();
                         name="target_sessions_count" 
                         id="target_sessions_count" 
                         min="2" 
-                        max="8" 
-                        value="<?= htmlspecialchars((string)($answers['target_sessions_count'] ?? '4')) ?>" 
+                        max="12" 
+                        placeholder=""
+                        value="<?= htmlspecialchars((string)($answers['target_sessions_count'] ?? '')) ?>" 
                         <?= $is_locked ? 'disabled' : '' ?>
                         class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm bg-slate-50 focus:bg-white font-medium"
                     >

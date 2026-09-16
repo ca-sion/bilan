@@ -489,16 +489,27 @@ ob_start();
                         Besoins & Ajustements de l'entraîneur
                     </div>
                     <div>
-                        <label class="block font-semibold text-zinc-700 mb-0.5 text-[11px]">Besoins athlète validés par le staff :</label>
+                        <div class="flex items-center justify-between mb-0.5">
+                            <label class="block font-semibold text-zinc-700 text-[11px]">Besoins athlète validés :</label>
+                            <?php if (!empty($athlete_answers['coach_needs_next_season']) && empty($trainer_answers['approved_athlete_needs'])): ?>
+                                <button 
+                                    type="button" 
+                                    onclick="document.querySelector('textarea[name=\'trainer_answers[approved_athlete_needs]\']').value = <?= htmlspecialchars(json_encode($athlete_answers['coach_needs_next_season']), ENT_QUOTES, 'UTF-8') ?>;"
+                                    class="text-[10px] text-indigo-600 hover:text-indigo-800 hover:underline font-bold"
+                                >
+                                    Copier le besoin exprimé →
+                                </button>
+                            <?php endif; ?>
+                        </div>
                         <textarea 
                             name="trainer_answers[approved_athlete_needs]" 
                             rows="3" 
                             placeholder="Ce que le coach et le club s'engagent à adapter..." 
                             class="w-full px-2.5 py-1.5 border border-zinc-300 rounded-lg bg-zinc-50 focus:bg-white text-xs"
-                        ><?= htmlspecialchars($trainer_answers['approved_athlete_needs'] ?? ($athlete_answers['coach_needs_next_season'] ?? '')) ?></textarea>
+                        ><?= htmlspecialchars($trainer_answers['approved_athlete_needs'] ?? '') ?></textarea>
                     </div>
                     <div>
-                        <label class="block font-semibold text-zinc-700 mb-0.5 text-[11px]">Ajustements de l'entraîneur demandés par l'athlète :</label>
+                        <label class="block font-semibold text-zinc-700 mb-0.5 text-[11px]">Ajustements pour l'entraîneur :</label>
                         <textarea 
                             name="trainer_answers[coach_adjustments]" 
                             rows="3" 
@@ -592,7 +603,7 @@ ob_start();
                     <div class="grid grid-cols-2 gap-2">
                         <div>
                             <label class="font-semibold text-zinc-700 block mb-0.5 text-[11px]">Nombre d'entraînements par semaine :</label>
-                            <input type="number" name="athlete_answers[target_sessions_count]" min="2" max="8" value="<?= htmlspecialchars((string)($athlete_answers['target_sessions_count'] ?? '4')) ?>" class="w-full px-2.5 py-1.5 border border-zinc-200 rounded-lg text-xs bg-zinc-50 focus:bg-white font-medium">
+                            <input type="number" name="athlete_answers[target_sessions_count]" min="2" max="12" placeholder="ex : 4" value="<?= htmlspecialchars((string)($athlete_answers['target_sessions_count'] ?? '')) ?>" class="w-full px-2.5 py-1.5 border border-zinc-200 rounded-lg text-xs bg-zinc-50 focus:bg-white font-medium">
                         </div>
                         <div>
                             <label class="font-semibold text-zinc-700 block mb-0.5 text-[11px]">Situation scolaire ou professionnelle à la rentrée :</label>
@@ -641,7 +652,7 @@ ob_start();
                     <!-- Réalisme du projet -->
                     <div>
                         <label class="block font-semibold text-zinc-700 mb-0.5 text-[11px]">Les objectifs déclarées sont-elles réalistes ?</label>
-                        <?php $is_real = (string)($decisions['is_project_realistic'] ?? '1'); ?>
+                        <?php $is_real = isset($decisions['is_project_realistic']) && $decisions['is_project_realistic'] !== '' ? (string)$decisions['is_project_realistic'] : ''; ?>
                         <div class="flex gap-4">
                             <label class="flex items-center gap-1.5 cursor-pointer font-semibold text-emerald-800">
                                 <input type="radio" name="decisions[is_project_realistic]" value="1" <?= $is_real === '1' ? 'checked' : '' ?> class="text-zinc-900 focus:ring-zinc-900" onchange="toggleReframing(this.value)">
@@ -672,7 +683,7 @@ ob_start();
                                 type="text" 
                                 list="disciplines-suggestions"
                                 name="decisions[primary_discipline]" 
-                                value="<?= htmlspecialchars($decisions['primary_discipline'] ?? ($athlete_answers['chosen_discipline_1'] ?? 'Sprint')) ?>" 
+                                value="<?= htmlspecialchars($decisions['primary_discipline'] ?? ($athlete_answers['chosen_discipline_1'] ?? '')) ?>" 
                                 placeholder="" 
                                 class="w-full px-2.5 py-1.5 border border-zinc-300 rounded-lg bg-zinc-50 focus:bg-white text-xs font-bold text-zinc-900"
                             >
@@ -704,7 +715,8 @@ ob_start();
                                 name="decisions[approved_weekly_sessions]" 
                                 min="2" 
                                 max="8" 
-                                value="<?= htmlspecialchars((string)($decisions['approved_weekly_sessions'] ?? ($athlete_answers['target_sessions_count'] ?? '4'))) ?>" 
+                                value="<?= htmlspecialchars((string)($decisions['approved_weekly_sessions'] ?? ($athlete_answers['target_sessions_count'] ?? ''))) ?>" 
+                                placeholder=""
                                 class="w-full px-2.5 py-1.5 border border-zinc-300 rounded-lg bg-zinc-50 focus:bg-white text-xs font-bold"
                             >
                         </div>
@@ -713,7 +725,7 @@ ob_start();
                             <input 
                                 type="text" 
                                 name="decisions[target_milestones]" 
-                                value="<?= htmlspecialchars($decisions['target_milestones'] ?? ($athlete_answers['target_competitions'] ?? ($athlete_answers['target_performance'] ?? 'Championnats suisses'))) ?>" 
+                                value="<?= htmlspecialchars($decisions['target_milestones'] ?? '') ?>" 
                                 placeholder=""
                                 class="w-full px-2.5 py-1.5 border border-zinc-300 rounded-lg bg-zinc-50 focus:bg-white text-xs font-medium"
                             >
@@ -760,7 +772,7 @@ ob_start();
                                 type="text" 
                                 id="rule-input-1"
                                 name="decisions[mandatory_rule_1]" 
-                                value="<?= htmlspecialchars($decisions['mandatory_rule_1'] ?? ($athlete_answers['commitment_1'] ?? 'Présence régulière et échauffement sans retard')) ?>" 
+                                value="<?= htmlspecialchars($decisions['mandatory_rule_1'] ?? '') ?>" 
                                 placeholder=""
                                 class="w-full px-2.5 py-1.5 border border-zinc-300 rounded-lg bg-zinc-50 focus:bg-white text-xs font-semibold text-zinc-900"
                             >
@@ -771,7 +783,7 @@ ob_start();
                                 type="text" 
                                 id="rule-input-2"
                                 name="decisions[mandatory_rule_2]" 
-                                value="<?= htmlspecialchars($decisions['mandatory_rule_2'] ?? ($athlete_answers['commitment_2'] ?? 'Communication immédiate de toute douleur sous 24 heures')) ?>" 
+                                value="<?= htmlspecialchars($decisions['mandatory_rule_2'] ?? '') ?>" 
                                 placeholder=""
                                 class="w-full px-2.5 py-1.5 border border-zinc-300 rounded-lg bg-zinc-50 focus:bg-white text-xs font-semibold text-zinc-900"
                             >

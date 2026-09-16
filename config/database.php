@@ -74,6 +74,9 @@ function get_base_url(): string {
 function url(string $path = ''): string {
     $base = get_base_url();
     $path = '/' . ltrim($path, '/');
+    if ($base !== '' && (str_starts_with($path, $base . '/') || $path === $base)) {
+        return $path;
+    }
     return $base . $path;
 }
 
@@ -81,7 +84,11 @@ function url(string $path = ''): string {
  * Redirige vers une route interne
  */
 function redirect(string $path): void {
-    $target = url($path);
+    if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://')) {
+        $target = $path;
+    } else {
+        $target = url($path);
+    }
     if (!headers_sent()) {
         header("Location: {$target}");
     }

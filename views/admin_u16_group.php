@@ -233,7 +233,7 @@ ob_start();
                                         type="text" 
                                         list="disciplines-suggestions"
                                         name="decisions[primary_discipline]" 
-                                        value="<?= htmlspecialchars($decisions['primary_discipline'] ?? ($ath_answers['chosen_discipline_1'] ?? 'Sprint')) ?>" 
+                                        value="<?= htmlspecialchars($decisions['primary_discipline'] ?? ($ath_answers['chosen_discipline_1'] ?? '')) ?>" 
                                         placeholder="" 
                                         class="w-full px-2 py-1 border border-zinc-300 rounded-lg text-xs bg-white font-bold text-zinc-900"
                                     >
